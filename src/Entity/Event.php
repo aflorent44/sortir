@@ -3,8 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\EventStatus;
+
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
@@ -32,11 +36,22 @@ class Event
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $status = null;
-
     #[ORM\Column]
     private ?int $maxParticipantNumber = null;
+
+    /**
+     * @var Collection<int, Campus>
+     */
+    #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
+    private Collection $campuses;
+
+    #[ORM\Column(enumType: EventStatus::class)]
+    private EventStatus $status;
+
+    public function __construct()
+    {
+        $this->campuses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -115,18 +130,6 @@ class Event
         return $this;
     }
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(?string $status): static
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
     public function getMaxParticipantNumber(): ?int
     {
         return $this->maxParticipantNumber;
@@ -135,6 +138,41 @@ class Event
     public function setMaxParticipantNumber(int $maxParticipantNumber): static
     {
         $this->maxParticipantNumber = $maxParticipantNumber;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Campus>
+     */
+    public function getCampuses(): Collection
+    {
+        return $this->campuses;
+    }
+
+    public function getStatus(): EventStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(EventStatus $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function addCampus(Campus $campus): static
+    {
+        if (!$this->campuses->contains($campus)) {
+            $this->campuses->add($campus);
+        }
+
+        return $this;
+    }
+
+    public function removeCampus(Campus $campus): static
+    {
+        $this->campuses->removeElement($campus);
 
         return $this;
     }
