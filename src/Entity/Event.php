@@ -48,6 +48,10 @@ class Event
     #[ORM\Column(enumType: EventStatus::class)]
     private EventStatus $status;
 
+    #[ORM\ManyToOne(inversedBy: 'events')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Address $address = null;
+
     public function __construct()
     {
         $this->campuses = new ArrayCollection();
@@ -173,6 +177,18 @@ class Event
     public function removeCampus(Campus $campus): static
     {
         $this->campuses->removeElement($campus);
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?Address $address): static
+    {
+        $this->address = $address;
 
         return $this;
     }
