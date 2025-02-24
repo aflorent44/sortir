@@ -16,6 +16,16 @@ class AddressRepository extends ServiceEntityRepository
         parent::__construct($registry, Address::class);
     }
 
+    public function findByKeyword(string $keyword): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.name LIKE :keyword')
+            ->setParameter('keyword', '%' . $keyword . '%')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Address[] Returns an array of Address objects
     //     */
