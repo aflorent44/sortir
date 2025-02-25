@@ -10,8 +10,4 @@ enum EventStatus: string
     case CLOSED = 'terminée';
     case PENDING = 'en cours';
 
-    public function toString(): string
-    {
-        return $this->value;
-    }
 }

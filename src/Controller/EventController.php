@@ -29,6 +29,13 @@ final class EventController extends AbstractController
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+
+        $user = $this->getUser();
+
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.e pour créer une sortie.');
+        }
+
         $event = new Event();
         $eventForm = $this->createForm(EventType::class, $event);
         $eventForm->handleRequest($request);
@@ -40,7 +47,7 @@ final class EventController extends AbstractController
 
             $entityManager->persist($address);
             $event->setAddress($address);
-            //$event->setHost($this->getUser());
+            $event->setHost($this->getUser());
             $entityManager->persist($event);
             $entityManager->flush();
 
@@ -66,10 +73,14 @@ final class EventController extends AbstractController
     #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(EventType::class, $event);
-        $form->handleRequest($request);
+        $address = $event->getAddress() ?? new Address();
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        $eventForm = $this->createForm(EventType::class, $event);
+        $eventForm->handleRequest($request);
+        $addressForm = $this->createForm(AddressType::class, $address);
+        $addressForm->handleRequest($request);
+
+        if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
             $entityManager->flush();
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
@@ -77,7 +88,8 @@ final class EventController extends AbstractController
 
         return $this->render('event/edit.html.twig', [
             'event' => $event,
-            'form' => $form,
+            'eventForm' => $eventForm,
+            'addressForm' => $addressForm,
         ]);
     }
 

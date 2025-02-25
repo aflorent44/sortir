@@ -34,7 +34,6 @@ class Event
     private ?\DateTimeImmutable $endsAt = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank]
     private ?\DateInterval $duration = null;
 
     #[ORM\Column]
