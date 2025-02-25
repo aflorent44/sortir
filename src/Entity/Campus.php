@@ -12,10 +12,10 @@ class Campus
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string',  length: 180)]
     private ?string $name = null;
 
     /**
@@ -24,9 +24,16 @@ class Campus
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'campuses')]
     private Collection $events;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'campus')]
+    private Collection $users;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -68,6 +75,36 @@ class Campus
     {
         if ($this->events->removeElement($event)) {
             $event->removeCampus($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->setCampus($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getCampus() === $this) {
+                $user->setCampus(null);
+            }
         }
 
         return $this;

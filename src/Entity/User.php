@@ -6,19 +6,28 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'], message: 'Il y a déjà un compte utilisateur avec cet email.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 200,  unique: true)]
+    #[Assert\Email(message: 'Votre email est incorrect.')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$/',
+        message: 'Vous devez utiliser votre adresse @campus-eni.fr'
+    )]
+    #[Assert\NotBlank]
     private ?string $email = null;
 
     /**
@@ -33,17 +42,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre nom doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre nom doit contenir maximum {{ limit }} caractères.')]
     private ?string $name = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre prénom doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre prénom doit contenir maximum {{ limit }} caractères.')]
     private ?string $firstName = null;
 
-    #[ORM\Column]
-    private ?int $phoneNumber = null;
-
-    #[ORM\Column(length: 150)]
-    private ?string $mail = null;
+    #[ORM\Column(type: 'string', length: 20)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^0[67]([-. ]?[0-9]{2}){4}$/',
+        message: 'Le numéro de téléphone doit commencer par 06 ou 07 et être au format valide.'
+    )]
+    private ?string $phoneNumber = null;
 
     #[ORM\Column]
     private ?bool $active = null;
@@ -54,9 +73,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'host')]
     private Collection $events;
 
+    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Campus $campus = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->user = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -158,26 +182,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPhoneNumber(): ?int
+    public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
-    public function setPhoneNumber(int $phoneNumber): static
+    public function setPhoneNumber(string $phoneNumber): static
     {
         $this->phoneNumber = $phoneNumber;
-
-        return $this;
-    }
-
-    public function getMail(): ?string
-    {
-        return $this->mail;
-    }
-
-    public function setMail(string $mail): static
-    {
-        $this->mail = $mail;
 
         return $this;
     }
@@ -223,4 +235,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getCampus(): ?Campus
+    {
+        return $this->campus;
+    }
+
+    public function setCampus(?Campus $campus): static
+    {
+        $this->campus = $campus;
+
+        return $this;
+    }
+
 }
