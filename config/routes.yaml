@@ -6,5 +6,5 @@ controllers:
 
 address:
     path: api/address
-    controller: App\Controller\AddressController::findAddress
+    controller: App\Services\AddressService::findAddress
     methods: ['GET']

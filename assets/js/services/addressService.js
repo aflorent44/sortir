@@ -8,20 +8,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     input.addEventListener("input", function () {
         console.log("input détécté")
-        const query = input.value.trim();
-        if (query.length < 2) {
+        const request = input.value.trim();
+        if (request.length < 2) {
             suggestions.innerHTML = "";
             return;
         }
 
-        fetch(`/api/address?q=${query}`)
+        fetch(`/api/address?req=${request}`)
             .then(response => response.json())
             .then(data => {
                 suggestions.innerHTML = "";
 
                 data.forEach(city => {
                     const li = document.createElement("li");
-                    li.textContent = `${city.nom} (${city.code})`;
+                    li.textContent = `${city.nom} (${city.codesPostaux[0]})`;
                     li.addEventListener("click", function () {
                         console.log("click")
                         input.value = city.nom;
