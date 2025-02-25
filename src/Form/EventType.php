@@ -36,10 +36,6 @@ class EventType extends AbstractType
                 'multiple' => true,
                 'label' => 'Campus',
             ])
-            ->add('address', EntityType::class, [
-                'class' => Address::class,
-                'choice_label' => 'id',
-            ])
         ;
     }
 
