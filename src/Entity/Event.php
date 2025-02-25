@@ -20,35 +20,41 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Le nom de la sortie doit être renseignée.")]
     private ?string $name = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank]
-
+    #[Assert\NotBlank(message: "La date de début de la sortie doit être renseignée.")]
+    #[Assert\GreaterThan("today", message: "La date de début de la sortie doit être future.")]
     private ?\DateTimeImmutable $beginsAt = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "La date de fin de la sortie doit être renseignée.")]
+    #[Assert\GreaterThan(propertyPath: "beginsAt", message: "La date de fin de la sortie doit être après la date de début.")]
     private ?\DateTimeImmutable $endsAt = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?\DateInterval $duration = null;
 
     #[ORM\Column]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "La date de fin des inscriptions doit être renseignée.")]
+    #[Assert\GreaterThan("today", message: "La date de fin des inscriptions doit être future.")]
+    #[Assert\LessThan(propertyPath: "beginsAt", message: "La date de fin des inscription doit être antérieure à la date de début de la sortie.")]
     private ?\DateTimeImmutable $registrationEndsAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?int $maxParticipantNumber = null;
 
     /**
      * @var Collection<int, Campus>
      */
     #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
+    #[ORM\JoinColumn(nullable: false)]
     private Collection $campuses;
 
     #[ORM\Column(enumType: EventStatus::class)]
