@@ -9,4 +9,9 @@ enum EventStatus: string
     case CANCELLED = 'annulée';
     case CLOSED = 'terminée';
     case PENDING = 'en cours';
+
+    public function toString(): string
+    {
+        return $this->value;
+    }
 }
