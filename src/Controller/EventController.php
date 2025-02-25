@@ -3,10 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Address;
+use App\Entity\Campus;
 use App\Entity\Event;
 use App\Enum\EventStatus;
 use App\Form\AddressType;
+use App\Form\CampusType;
 use App\Form\EventType;
+use App\Form\FilterType;
+use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
 use Composer\XdebugHandler\Status;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,14 +22,40 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/event')]
 final class EventController extends AbstractController
 {
-    #[Route(name: 'app_event_index', methods: ['GET'])]
-    public function index(EventRepository $eventRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
+    public function index(Request $request, EventRepository $eventRepository, EntityManagerInterface $entityManager, CampusRepository $campusRepository): Response
     {
-        $entityManager->flush();
+        $form = $this->createForm(FilterType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $filters = $form->getData();
+            if (!empty($filters['campuses'])) {
+                //dd($filters['campuses']);
+                $events = $eventRepository->findByCampus($filters['campuses']->getId());
+            } else {
+                $events = $eventRepository->findAll();
+            }
+        } else {
+            $events = $eventRepository->findAll();
+        }
+
         return $this->render('event/index.html.twig', [
-            'events' => $eventRepository->findAll(),
+            'events' => $events,
+            'filterForm' => $form,
         ]);
     }
+
+
+//    #[Route('/campus/{id}', name: 'app_event_by_campus', methods: ['GET'])]
+//    public function eventsByCampus(Campus $campus, EventRepository $eventRepository): Response
+//    {
+//        $events = $eventRepository->findByCampus($campus);
+//
+//        return $this->render('event/index.html.twig', [
+//            'events' => $events,
+//        ]);
+//    }
 
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response

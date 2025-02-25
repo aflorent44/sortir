@@ -54,10 +54,11 @@ class Event
      */
     #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinTable(name: 'event_campus')]
     private Collection $campuses;
 
     #[ORM\Column(enumType: EventStatus::class)]
-    private EventStatus $status = EventStatus::CREATED;
+    private EventStatus $status = EventStatus::OPENED;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
