@@ -19,8 +19,9 @@ use Symfony\Component\Routing\Attribute\Route;
 final class EventController extends AbstractController
 {
     #[Route(name: 'app_event_index', methods: ['GET'])]
-    public function index(EventRepository $eventRepository): Response
+    public function index(EventRepository $eventRepository, EntityManagerInterface $entityManager): Response
     {
+        $entityManager->flush();
         return $this->render('event/index.html.twig', [
             'events' => $eventRepository->findAll(),
         ]);
@@ -93,14 +94,4 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_event_delete', methods: ['POST'])]
-    public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$event->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($event);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
-    }
 }

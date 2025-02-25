@@ -32,7 +32,7 @@ class EventType extends AbstractType
             ])
             ->add('registrationEndsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date et heure de fin de l\'inscription à la sortie'
+                'label' => 'Date limite d\'inscription'
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description et infos',

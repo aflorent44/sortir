@@ -57,7 +57,7 @@ class Event
     private Collection $campuses;
 
     #[ORM\Column(enumType: EventStatus::class)]
-    private EventStatus $status;
+    private EventStatus $status = EventStatus::CREATED;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
@@ -77,7 +77,7 @@ class Event
     {
         $this->campuses = new ArrayCollection();
         $this->participants = new ArrayCollection();
-        $this->status = EventStatus::CREATED;
+        //$this->status = EventStatus::CREATED;
     }
 
     public function getId(): ?int
