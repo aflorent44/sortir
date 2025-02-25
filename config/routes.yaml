@@ -3,8 +3,3 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
-
-address:
-    path: api/address
-    controller: App\Services\AddressService::findAddress
-    methods: ['GET']

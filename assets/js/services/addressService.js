@@ -1,35 +1,63 @@
-
 document.addEventListener("DOMContentLoaded", function () {
-    console.log ("coucou")
-    const input = document.getElementById("address");
-    const suggestions = document.getElementById("suggestions");
+    const cityInput = document.getElementById("address_city");
+    const zipCodeInput = document.getElementById("address_zipCode")
 
-    if (!input || !suggestions) return;
+    if (!cityInput || !zipCodeInput) return;
 
-    input.addEventListener("input", function () {
-        console.log("input détécté")
-        const request = input.value.trim();
-        if (request.length < 2) {
-            suggestions.innerHTML = "";
+    const suggestionsContainer = document.createElement("ul");
+    suggestionsContainer.classList.add("suggestions-list");
+
+    if (!cityInput.parentNode.querySelector(".suggestions-list")) {
+        cityInput.parentNode.appendChild(suggestionsContainer);
+    }
+
+    cityInput.removeEventListener("input", handleCityInput);
+    cityInput.addEventListener("input", handleCityInput);
+
+    document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+
+    async function handleCityInput() {
+        const query = cityInput.value.trim();
+
+        if (query.length < 3) {
+            suggestionsContainer.innerHTML = ""; // Efface les suggestions si trop court
             return;
         }
 
-        fetch(`/api/address?req=${request}`)
-            .then(response => response.json())
-            .then(data => {
-                suggestions.innerHTML = "";
+        try {
+            const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&&type=municipality&limit=5`);
+            const data = await response.json();
 
-                data.forEach(city => {
-                    const li = document.createElement("li");
-                    li.textContent = `${city.nom} (${city.codesPostaux[0]})`;
-                    li.addEventListener("click", function () {
-                        console.log("click")
-                        input.value = city.nom;
-                        suggestions.innerHTML = "";
-                    });
-                    suggestions.appendChild(li);
+            suggestionsContainer.innerHTML = "";
+
+            data.features.forEach(feature => {
+                const suggestionItem = document.createElement("li");
+                if (feature.properties.type === "municipality"){
+                const cityName = feature.properties.city;
+                const cityPostcode = feature.properties.postcode || "";
+
+
+                suggestionItem.textContent = `${cityName} (${cityPostcode})`;
+                suggestionItem.dataset.city = cityName;
+                suggestionItem.dataset.postcode = cityPostcode;
+                }
+                suggestionItem.addEventListener("click", function () {
+                    cityInput.value = this.dataset.city;
+                    zipCodeInput.value = this.dataset.postcode;
+                    suggestionsContainer.innerHTML = "";
                 });
-            })
-            .catch(error => console.error("Erreur API : ", error));
-    });
+
+                suggestionsContainer.appendChild(suggestionItem);
+            });
+        } catch (error) {
+            console.error("Erreur lors de la récupération des données : ", error);
+        }
+    }
+
+    function handleClickOutside(event) {
+        if (!cityInput.contains(event.target) && !suggestionsContainer.contains(event.target)) {
+            suggestionsContainer.innerHTML = "";
+        }
+    }
 });
