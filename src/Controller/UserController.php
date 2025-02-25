@@ -12,7 +12,7 @@ final class UserController extends AbstractController
     public function index(): Response
     {
         return $this->render('user/index.html.twig', [
-            'controller_name' => 'Page de connexion',
+            'controller_name' => 'Mon profil',
         ]);
     }
 }

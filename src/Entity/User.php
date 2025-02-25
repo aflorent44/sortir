@@ -24,7 +24,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 200,  unique: true)]
     #[Assert\Email(message: 'Votre email est incorrect.')]
     #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$',
+        pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$/',
         message: 'Vous devez utiliser votre adresse @campus-eni.fr'
     )]
     #[Assert\NotBlank]
