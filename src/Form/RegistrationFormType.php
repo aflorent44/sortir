@@ -2,7 +2,10 @@
 
 namespace App\Form;
 
+use App\Entity\Campus;
 use App\Entity\User;
+use Doctrine\ORM\Mapping\Entity;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -47,6 +50,11 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('phoneNumber', TextType::class, [
                 'label' => 'Numéro de téléphone : '
+            ])
+            ->add('campus', EntityType::class, [
+                'class' => Campus::class,
+                'choice_label' => 'name',
+                'label' => 'Campus : ',
             ])
         ;
     }

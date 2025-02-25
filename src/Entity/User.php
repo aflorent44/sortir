@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -17,10 +18,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 150,  unique: true)]
+    #[ORM\Column(length: 200,  unique: true)]
+    #[Assert\Email(message: 'Votre email est incorrect.')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$',
+        message: 'Vous devez utiliser votre adresse @campus-eni.fr'
+    )]
+    #[Assert\NotBlank]
     private ?string $email = null;
 
     /**
@@ -35,13 +42,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre nom doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre nom doit contenir maximum {{ limit }} caractères.')]
     private ?string $name = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre prénom doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre prénom doit contenir maximum {{ limit }} caractères.')]
     private ?string $firstName = null;
 
-    #[ORM\Column(type: 'string', length: 10)]
+    #[ORM\Column(type: 'string', length: 20)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Regex(
+        pattern: '/^0[67]([-. ]?[0-9]{2}){4}$/',
+        message: 'Le numéro de téléphone doit commencer par 06 ou 07 et être au format valide.'
+    )]
     private ?string $phoneNumber = null;
 
     #[ORM\Column]
@@ -60,6 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->user = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -226,4 +247,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
 }
