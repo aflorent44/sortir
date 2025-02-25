@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Address;
 use App\Entity\Event;
+use App\Enum\EventStatus;
+use App\Form\AddressType;
 use App\Form\EventType;
 use App\Repository\EventRepository;
+use Composer\XdebugHandler\Status;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,20 +30,28 @@ final class EventController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $event = new Event();
-        $form = $this->createForm(EventType::class, $event);
-        $form->handleRequest($request);
+        $eventForm = $this->createForm(EventType::class, $event);
+        $eventForm->handleRequest($request);
+        $address = new Address();
+        $addressForm = $this->createForm(AddressType::class, $address);
+        $addressForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
 
+            $entityManager->persist($address);
+            $event->setAddress($address);
+            //$event->setHost($this->getUser());
             $entityManager->persist($event);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
+        dump($event);
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
-            'form' => $form,
+            'eventForm' => $eventForm,
+            'addressForm' => $addressForm,
         ]);
     }
 

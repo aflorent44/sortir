@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Services;
+
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class CityApiService

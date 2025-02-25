@@ -8,9 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\EventStatus;
-
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Event
 {
     #[ORM\Id]
@@ -19,18 +20,23 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
+
     private ?\DateTimeImmutable $beginsAt = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?\DateTimeImmutable $endsAt = null;
 
     #[ORM\Column]
     private ?\DateInterval $duration = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?\DateTimeImmutable $registrationEndsAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -53,7 +59,7 @@ class Event
     private ?Address $address = null;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $host = null;
 
     /**
@@ -66,6 +72,7 @@ class Event
     {
         $this->campuses = new ArrayCollection();
         $this->participants = new ArrayCollection();
+        $this->status = EventStatus::CREATED;
     }
 
     public function getId(): ?int
@@ -114,11 +121,13 @@ class Event
         return $this->duration;
     }
 
-    public function setDuration(\DateInterval $duration): static
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setDuration(): void
     {
-        $this->duration = $duration;
-
-        return $this;
+        if ($this->beginsAt !== null && $this->endsAt !== null) {
+            $this->duration = $this->beginsAt->diff($this->endsAt);
+        }
     }
 
     public function getRegistrationEndsAt(): ?\DateTimeImmutable
@@ -157,14 +166,6 @@ class Event
         return $this;
     }
 
-    /**
-     * @return Collection<int, Campus>
-     */
-    public function getCampuses(): Collection
-    {
-        return $this->campuses;
-    }
-
     public function getStatus(): EventStatus
     {
         return $this->status;
@@ -174,6 +175,14 @@ class Event
     {
         $this->status = $status;
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Campus>
+     */
+    public function getCampuses(): Collection
+    {
+        return $this->campuses;
     }
 
     public function addCampus(Campus $campus): static
