@@ -3,8 +3,6 @@
 
 {{ form_start(eventForm) }}
     {{ form_widget(eventForm) }}
-    {{ form_row(addressForm.city) }}
-    {{ form_row(addressForm.zipCode) }}
     {{ form_widget(addressForm) }}
     <button class="btn">{{ button_label|default('Save') }}</button>
 {{ form_end(eventForm) }}
