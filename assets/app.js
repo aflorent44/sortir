@@ -1,5 +1,5 @@
 import './bootstrap.js';
-import './js/services/addressService.js';
+import './js/addressAutocomplete.js';
 
 /*
  * Welcome to your app's main JavaScript file!

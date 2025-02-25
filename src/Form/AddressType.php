@@ -14,10 +14,6 @@ class AddressType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('street', TextType::class, [
-                'attr' => ['id' => 'street', 'placeholder' => 'Entrez une rue'],
-                'label' =>'Rue',
-            ])
             ->add('city', TextType::class, [
                 'attr' => ['id' => 'city', 'placeholder' => 'Entrez une ville ou un code postal...'],
                 'label' =>'Ville',
@@ -25,6 +21,10 @@ class AddressType extends AbstractType
             ->add('zipCode', TextType::class, [
                 'attr' => ['id' => 'zipCode'],
                 'label' =>'Code Postal',
+            ])
+            ->add('street', TextType::class, [
+                'attr' => ['id' => 'street', 'placeholder' => 'Entrez une rue'],
+                'label' =>'Rue',
             ])
             ->add('lat', TextType::class, [
                 'attr' => ['id' => 'lat'],

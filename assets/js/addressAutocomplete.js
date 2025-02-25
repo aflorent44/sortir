@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function handleCityInput() {
         const query = cityInput.value.trim();
 
-        if (query.length < 3) {
+        if (query.length <= 3) {
             citySuggestions.innerHTML = "";
             return;
         }
@@ -66,8 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 suggestionItem.addEventListener("click", function () {
                     cityInput.value = this.dataset.city;
                     zipCodeInput.value = this.dataset.postcode;
-                    latInput.value = feature.geometry.coordinates[1];
-                    lngInput.value = feature.geometry.coordinates[0];
+
 
                     citySuggestions.innerHTML = "";
                 });
@@ -81,19 +80,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function handleStreetInput(query) {
         query = query.trim();
-        const selectedCity = cityInput.value;
-        if (query.length < 2 || !selectedCity) {
+        const selectedCity = zipCodeInput.value;
+        if (query.length <= 3 || !selectedCity) {
             streetSuggestions.innerHTML = "";
             return;
         }
 
-        let apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${query}&type=street&city=${encodeURIComponent(selectedCity)}&limit=5`;
+        let apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${query}&type=street&postcode=${encodeURIComponent(selectedCity)}&limit=5`;
 
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
             streetSuggestions.innerHTML = "";
             console.log(apiUrl)
+
             data.features.forEach(feature => {
                 const streetName = feature.properties.street || feature.properties.name;
 
@@ -104,6 +104,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 suggestionItem.addEventListener("click", function () {
                     streetInput.value = this.dataset.street;
                     streetSuggestions.innerHTML = "";
+                    latInput.value = feature.geometry.coordinates[1];
+                    lngInput.value = feature.geometry.coordinates[0];
                 });
 
                 streetSuggestions.appendChild(suggestionItem);
