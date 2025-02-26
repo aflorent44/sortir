@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Address;
 use App\Entity\Event;
 use App\Enum\EventStatus;
+use App\EventListener\EventStatusListener;
 use App\Form\AddressType;
 use App\Form\EventType;
 use App\Form\FilterType;
@@ -22,8 +23,9 @@ final class EventController extends AbstractController
 {
 
     #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
-    public function index(Request $request, EventRepository $eventRepository): Response
+    public function index(Request $request, EventRepository $eventRepository, EventStatusListener $eventStatusListener): Response
     {
+
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
 
@@ -31,6 +33,7 @@ final class EventController extends AbstractController
             $campus = $form->get('campus')->getData();
             if ($campus) {
                 $events = $eventRepository->findByCampus($campus);
+                $this->addFlash('info', 'Filtrage par campus: ' . $campus->getName());
             } else {
                 $events = $eventRepository->findAll();
             }
@@ -38,6 +41,7 @@ final class EventController extends AbstractController
             $events = $eventRepository->findAll();
         }
 
+        $eventStatusListener->updateAllEventsStatus($events);
         return $this->render('event/index.html.twig', [
             'events' => $events,
             'filterForm' => $form,
@@ -81,8 +85,9 @@ final class EventController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'])]
-    public function show(Event $event): Response
+    public function show(Event $event, EventStatusListener $eventStatusListener): Response
     {
+        $eventStatusListener->updateOneEventStatus($event);
         return $this->render('event/show.html.twig', [
             'event' => $event,
         ]);

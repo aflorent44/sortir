@@ -6,6 +6,10 @@
     <h1>Event</h1>
     <table class="table">
         <tbody>
+        {% if event.host.id == app.user.id %}
+        <h2>Vous êtes l'organisateur.ice de cette sortie</h2>
+        {% endif %}
+
         <tr>
             <th>Id</th>
             <td>{{ event.id }}</td>
@@ -67,13 +71,13 @@
         <button type="submit" class="btn">Annuler la sortie</button>
     </form>
     {% endif %}
-
+    {% if event.host.id != app.user.id %}
     <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
         <button type="submit" class="btn">S'inscrire à cette sortie</button>
     </form>
     <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
         <button type="submit" class="btn">Se désister</button>
     </form>
-
+    {% endif %}
 
 {% endblock %}
