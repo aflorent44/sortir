@@ -15,18 +15,19 @@
     </head>
     <body class="flex flex-col min-h-screen">
     {% include 'partials/_header.html.twig' %}
+    <div class="container mt-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
     <main class="flex-grow p-4">
         {% block body %}
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success">
-                    {{ message }}
-                </div>
-            {% endfor %}
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-error">
-                    {{ message }}
-                </div>
-            {% endfor %}
+
         {% endblock %}
     </main>
     {% include 'partials/_footer.html.twig' %}

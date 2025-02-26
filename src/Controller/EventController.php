@@ -92,7 +92,6 @@ final class EventController extends AbstractController
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
         $address = $event->getAddress() ?? new Address();
-
         $eventForm = $this->createForm(EventType::class, $event);
         $eventForm->handleRequest($request);
         $addressForm = $this->createForm(AddressType::class, $address);
@@ -100,7 +99,6 @@ final class EventController extends AbstractController
 
         if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
             $entityManager->flush();
-
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -111,50 +109,44 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET','POST'])]
+    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET', 'POST'])]
     public function register(Event $event, EntityManagerInterface $entityManager): Response
     {
 
-        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && !($event->getParticipants()->contains($this->getUser())) && $event->getStatus() == EventStatus::OPENED)
-        {
+        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && !($event->getParticipants()->contains($this->getUser())) && $event->getStatus() == EventStatus::OPENED) {
             $event->getParticipants()->add($this->getUser());
-            $entityManager->persist($event);
             $entityManager->flush();
-            $this->addFlash('success', 'Vous êtes bien inscrit.e pour la sortie ' . $event->getName());
-        } else
-        {
+            $this->addFlash('success', 'Vous êtes bien inscrit.e pour la sortie "'. $event->getName(). '"');
+        } else {
             $this->addFlash('error', 'Il n\'est pas possible de s\'inscrire à cette sortie');
         }
-        return $this->render('event/show.html.twig', [
-            'event' => $event,
-        ]);
+
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
-    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['GET','POST'])]
+    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['GET', 'POST'])]
     public function cancelRegistration(Event $event, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
 
-        if ($event->getParticipants()->contains($this->getUser()) && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED))
-        {
-            $user = $this->getUser();
+        if ($event->getParticipants()->contains($this->getUser()) && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED)) {
 
-            foreach ($event->getParticipants() as $participant)
-            {
+            foreach ($event->getParticipants() as $participant) {
                 if ($participant->getId() == $this->getUser()->getId()) {
                     dump($participant->getId());
                     dump($this->getUser()->getId());
                     $event->removeParticipant($user);
-                    $entityManager->persist($event);
                     $entityManager->flush();
+                    $this->addFlash('success', 'Vous êtes bien désinscrit.e pour la sortie "'. $event->getName().'"');
                 }
             }
 
-            $this->addFlash('success', 'Vous êtes bien désinscrit.e pour la sortie ' . $event->getName());
         }
 
-        return $this->render('event/show.html.twig', [
-            'event' => $event,
-        ]);
+//        return $this->render('event/show.html.twig', [
+//            'event' => $event,
+//        ]);
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
     }
 
     public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
@@ -163,8 +155,6 @@ final class EventController extends AbstractController
         $entityManager->remove($event);
 
     }
-
-
 
 
 }
