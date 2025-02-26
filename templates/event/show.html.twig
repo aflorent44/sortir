@@ -58,6 +58,12 @@
             <th>Nombre de participants inscrits</th>
             <td>{{ event.participants.count }}</td>
         </tr>
+        <tr>
+            <th>Nom des participants</th>
+            {% for part in event.participants %}
+            <td><a href="{{ path('user_profil', {'id': part.id}) }}">{{ part.firstName }} {{ part.name }}</a></td>
+            {% endfor %}
+        </tr>
         </tbody>
     </table>
 
