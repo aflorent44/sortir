@@ -6,42 +6,42 @@
     <h1>Event</h1>
     <table class="table">
         <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ event.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ event.name }}</td>
-            </tr>
-            <tr>
-                <th>BeginsAt</th>
-                <td>{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>EndsAt</th>
-                <td>{{ event.endsAt ? event.endsAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Duration</th>
-                <td>{{ event.duration ? event.duration.format('%y year(s), %m month(s), %d day(s)') : '' }}</td>
-            </tr>
-            <tr>
-                <th>RegistrationEndsAt</th>
-                <td>{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ event.description }}</td>
-            </tr>
-            <tr>
-                <th>MaxParticipantNumber</th>
-                <td>{{ event.maxParticipantNumber }}</td>
-            </tr>
-            <tr>
-                <th>Ville</th>
-                <td>{{ event.address.city }}</td>
-            </tr>
+        <tr>
+            <th>Id</th>
+            <td>{{ event.id }}</td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td>{{ event.name }}</td>
+        </tr>
+        <tr>
+            <th>BeginsAt</th>
+            <td>{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>EndsAt</th>
+            <td>{{ event.endsAt ? event.endsAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Duration</th>
+            <td>{{ event.duration ? event.duration.format('%y year(s), %m month(s), %d day(s)') : '' }}</td>
+        </tr>
+        <tr>
+            <th>RegistrationEndsAt</th>
+            <td>{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{ event.description }}</td>
+        </tr>
+        <tr>
+            <th>MaxParticipantNumber</th>
+            <td>{{ event.maxParticipantNumber }}</td>
+        </tr>
+        <tr>
+            <th>Ville</th>
+            <td>{{ event.address.city }}</td>
+        </tr>
         <tr>
             <th>Status</th>
             <td>{{ event.status.value }}</td>
@@ -59,8 +59,14 @@
 
     <a href="{{ path('app_event_index') }}">back to list</a>
 
-    <a href="{{ path('app_event_edit', {'id': event.id}) }}">edit</a>
+    <a href="{{ path('app_event_edit', {'id': event.id}) }}">Modifier la sortie</a>
 
     <a href="{{ path('app_event_register', {'id': event.id}) }}">S'inscrire à cette sortie</a>
+
     <a href="{{ path('app_event_cancel_registration', {'id': event.id}) }}">Se désister</a>
+
+    <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST">
+        <button type="submit" class="btn" >Annuler la sortie</button>
+    </form>
+
 {% endblock %}

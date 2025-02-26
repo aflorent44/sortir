@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Address;
-use App\Entity\User;
 use App\Entity\Event;
 use App\Enum\EventStatus;
 use App\Form\AddressType;
@@ -11,6 +10,7 @@ use App\Form\EventType;
 use App\Form\FilterType;
 use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
+use App\Service\EventRegistrationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +20,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/event')]
 final class EventController extends AbstractController
 {
+
+    private EventRegistrationService $eventRegistrationService;
+
     #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
     public function index(Request $request, EventRepository $eventRepository, EntityManagerInterface $entityManager, CampusRepository $campusRepository): Response
     {
@@ -109,52 +112,50 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET', 'POST'])]
-    public function register(Event $event, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['POST'])]
+    public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
 
-        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && !($event->getParticipants()->contains($this->getUser())) && $event->getStatus() == EventStatus::OPENED) {
-            $event->getParticipants()->add($this->getUser());
+        if ($event->getHost() == $this->getUser() && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED)) {
+            $event->setStatus(EventStatus::CANCELLED);
             $entityManager->flush();
-            $this->addFlash('success', 'Vous êtes bien inscrit.e pour la sortie "'. $event->getName(). '"');
+            $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
+        } else {
+            $this->addFlash("error", "Impossible de supprimer cette sortie");
+        }
+
+        return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET', 'POST'])]
+    public function register(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
+    {
+        if ($eventRegistrationService->registerUser($event, $this->getUser())) {
+            $this->addFlash('success', 'Vous êtes bien inscrit.e pour la sortie "' . $event->getName() . '"');
         } else {
             $this->addFlash('error', 'Il n\'est pas possible de s\'inscrire à cette sortie');
         }
 
-        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        return $this->render('event/show.html.twig', [
+            'event' => $event,
+        ]);
     }
 
     #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['GET', 'POST'])]
-    public function cancelRegistration(Event $event, EntityManagerInterface $entityManager): Response
+    public function cancelRegistration(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
-        $user = $this->getUser();
-
-        if ($event->getParticipants()->contains($this->getUser()) && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED)) {
-
-            foreach ($event->getParticipants() as $participant) {
-                if ($participant->getId() == $this->getUser()->getId()) {
-                    dump($participant->getId());
-                    dump($this->getUser()->getId());
-                    $event->removeParticipant($user);
-                    $entityManager->flush();
-                    $this->addFlash('success', 'Vous êtes bien désinscrit.e pour la sortie "'. $event->getName().'"');
-                }
-            }
-
+        if ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
+            $this->addFlash('success', 'Nous vous confirmons l\'annulation de votre inscription à la sortie "' . $event->getName() . '"');
+        } else {
+            $this->addFlash('error', 'Impossible d\'annuler votre inscription à cette sortie');
         }
 
-//        return $this->render('event/show.html.twig', [
-//            'event' => $event,
-//        ]);
-        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        return $this->render('event/show.html.twig', [
+            'event' => $event,
+        ]);
     }
 
-    public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
-    {
-        $eventName = $event->getName();
-        $entityManager->remove($event);
 
-    }
 
 
 }
