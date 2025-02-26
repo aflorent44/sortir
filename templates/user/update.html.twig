@@ -5,10 +5,20 @@
 {% block body %}
     <h2>{{ controller_name }}</h2>
     <br>
+    {{ form_errors(profilForm) }}
     <div>
-        {{ form(profilForm) }}
+        {{ form_start(profilForm) }}
+        {{ form_row(profilForm.campus) }}
+        {{ form_row(profilForm.firstName) }}
+        {{ form_row(profilForm.name) }}
+        {{ form_row(profilForm.phoneNumber) }}
+        {{ form_row(profilForm.email) }}
+        {{ form_row(profilForm.oldPassword) }}
+        {{ form_row(profilForm.newPassword) }}
+        {{ form_row(profilForm.confirmPassword) }}
         <br>
         <button type="submit" class="btn">Valider</button>
         <button type="reset" class="btn">Annuler</button>
+        {{ form_end(profilForm) }}
     </div>
 {% endblock %}

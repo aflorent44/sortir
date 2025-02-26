@@ -16,5 +16,7 @@
 {#                <img src="{{ asset('img/logo_user.svg') }}" alt="logo_user" class="logo-user">#}
 {#            </li>#}
         </ul>
+        <br>
+        <a href="{{ path("user_update_profil", {'id': app.user.id}) }}" class="mr-5 hover:text-gray-900">Modifier</a>
     </div>
 {% endblock %}
