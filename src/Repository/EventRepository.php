@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Campus;
 use App\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,4 +41,35 @@ class EventRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+
+        /**
+         * @return Event[] Returns an array of Event objects
+         */
+//    public function findByCampus(Campus $campus): array
+//    {
+//        return $this->createQueryBuilder('e')
+//            ->join('e.campus.id', 'c')  // Jointure entre 'Event' et 'Campus'
+//            ->andWhere('c = :campus')   // On filtre sur le campus spécifique
+//            ->setParameter('campus', $campus)
+//            ->orderBy('e.beginsAt', 'ASC') // Tri par date de début
+//            ->getQuery()
+//            ->getResult();
+//    }
+
+
+// src/Repository/EventRepository.php
+    public function findByCampus(int $campusId) : array
+    {
+        return $this->createQueryBuilder('e')
+            ->join('e.campuses', 'c')
+            ->where('c.id = :campusId')
+            ->setParameter('campusId', $campusId)
+            ->getQuery()
+            ->getResult();
+    }
+
+
+
+
 }
