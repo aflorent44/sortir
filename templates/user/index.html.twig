@@ -1,12 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Sortir - Accueil{% endblock %}
+{% block title %}Sortir - Profil{% endblock %}
 
 {% block body %}
-
-<div class="example-wrapper">
-    <h1>{{ controller_name }}! </h1>
-
-
-</div>
+    <div>
+        <h1>{{ controller_name }} : </h1>
+        <br>
+        <ul>
+            <li>{{ user.campus.name }}</li>
+            <li>{{ user.firstName }}</li>
+            <li>{{ user.name }}</li>
+            <li>{{ user.phoneNumber }}</li>
+            <li>{{ user.email }}</li>
+{#            <li>#}
+{#                <img src="{{ asset('img/logo_user.svg') }}" alt="logo_user" class="logo-user">#}
+{#            </li>#}
+        </ul>
+    </div>
 {% endblock %}
