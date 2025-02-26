@@ -2,46 +2,84 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use App\Form\RegistrationFormType;
-use App\Repository\UserRepository;
+use App\Form\ProfilFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/user', name: 'user_')]
 #[IsGranted('ROLE_USER')]
 final class UserController extends AbstractController
 {
-    #[Route('/{id}', name:'profil', requirements: ['id'=>'\d+'])]
-    public function update(int $id, UserRepository $userRepository): Response
+    #[Route('/{id}', name: 'profil', requirements: ['id' => '\d+'])]
+    public function getOneUser(int $id, UserRepository $userRepository): Response
     {
-        $profil = $userRepository->find($id);
+        $user = $userRepository->find($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur non trouvé');
+        }
 
         return $this->render('user\index.html.twig', [
             'controller_name' => 'Mon Profil',
-            'user' => $profil,
+            'user' => $user,
         ]);
     }
 
-    #[Route('/update/{id}', name:'update', requirements: ['id'=>'\d+'])]
-    public function updateProfil(User $user, Request $request, EntityManagerInterface $em): Response
+    #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function updateProfil(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
     {
-        $profilForm = $this->createForm(RegistrationFormType::class, $user);
+        // Récupération de l'utilisateur connecté
+        $user = $this->getUser();
+        // Sauvegarde du campus
+        $campus = $user->getCampus();
+
+        $profilForm = $this->createForm(ProfilFormType::class, $user);
         $profilForm->handleRequest($request);
 
         if ($profilForm->isSubmitted() && $profilForm->isValid()) {
+            // Récupération des champs du formulaire
+            $oldPassword = $profilForm->get('oldPassword')->getData();
+            $newPassword = $profilForm->get('newPassword')->getData();
+            $confirmPassword = $profilForm->get('confirmPassword')->getData();
+
+            // Vérification de l'ancien mot de passe
+            if ($oldPassword && !$userPasswordHasher->isPasswordValid($user, $oldPassword)) {
+                $this->addFlash('error', 'Ancien mot de passe incorrect.');
+                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+            }
+
+            // Vérification de la confirmation du nouveau mot de passe
+//            if ($newPassword && $newPassword !== $confirmPassword) {
+//                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+//                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+//            }
+
+            // Hash du nouveau mot de passe
+            if ($newPassword) {
+                $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($encodedPassword);
+            }
+
+            // Mise à jour des autres informations
+            $em->persist($user);
             $em->flush();
             $this->addFlash('success', 'Profil modifié avec succès');
-            return $this->redirectToRoute('user_index', ['id' => $user->getId()]);
+
+            // Redirection nécessaire pour Turbo Drive
+            return $this->redirectToRoute('user_profil', ['id' => $user->getId()]);
         }
-        return $this->render('user\update.html.twig', [
+
+        // Affichage du formulaire
+        return $this->render('user/update.html.twig', [
             'controller_name' => 'Modifier mes infos : ',
-            'profilForm' => $profilForm,
+            'profilForm' => $profilForm->createView(),
         ]);
     }
     

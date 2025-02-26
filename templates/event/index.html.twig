@@ -5,8 +5,14 @@
 {% block body %}
     <h1>Event index</h1>
 
+    {% if app.user %}
+        <div class="mb-3">
+            Vous êtes connecté(e) en tant que {{ app.user.firstName }} {{ app.user.name }} <a
+                    href="{{ path('app_logout') }}"><br> Se déconnecter</a>
+        </div>
+    {% endif %}
 
-        {{ form(filterForm) }}
+    {{ form(filterForm) }}
 
 
     <table class="table">
