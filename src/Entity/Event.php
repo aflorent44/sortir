@@ -82,7 +82,6 @@ class Event
     {
         $this->campuses = new ArrayCollection();
         $this->participants = new ArrayCollection();
-        //$this->status = EventStatus::CREATED;
     }
 
     public function getId(): ?int

@@ -14,7 +14,7 @@ class EventStatusListener
 
     public function prePersist(Event $event): void
     {
-        $this->prePersist($event);
+        $this->updateStatus($event);
     }
 
     public function preUpdate(Event $event, PreUpdateEventArgs $args): void

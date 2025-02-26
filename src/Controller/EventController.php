@@ -3,16 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Address;
-use App\Entity\Campus;
+use App\Entity\User;
 use App\Entity\Event;
 use App\Enum\EventStatus;
 use App\Form\AddressType;
-use App\Form\CampusType;
 use App\Form\EventType;
 use App\Form\FilterType;
 use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
-use Composer\XdebugHandler\Status;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -117,7 +115,7 @@ final class EventController extends AbstractController
     public function register(Event $event, EntityManagerInterface $entityManager): Response
     {
 
-        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && $event->getStatus() == EventStatus::OPENED)
+        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && !($event->getParticipants()->contains($this->getUser())) && $event->getStatus() == EventStatus::OPENED)
         {
             $event->getParticipants()->add($this->getUser());
             $entityManager->persist($event);
@@ -138,19 +136,32 @@ final class EventController extends AbstractController
 
         if ($event->getParticipants()->contains($this->getUser()) && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED))
         {
+            $user = $this->getUser();
+
             foreach ($event->getParticipants() as $participant)
             {
                 if ($participant->getId() == $this->getUser()->getId()) {
-                    $event->getParticipants()->remove($participant);
+                    dump($participant->getId());
+                    dump($this->getUser()->getId());
+                    $event->removeParticipant($user);
+                    $entityManager->persist($event);
+                    $entityManager->flush();
                 }
             }
-            $entityManager->flush();
+
             $this->addFlash('success', 'Vous êtes bien désinscrit.e pour la sortie ' . $event->getName());
         }
 
         return $this->render('event/show.html.twig', [
             'event' => $event,
         ]);
+    }
+
+    public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+    {
+        $eventName = $event->getName();
+        $entityManager->remove($event);
+
     }
 
 
