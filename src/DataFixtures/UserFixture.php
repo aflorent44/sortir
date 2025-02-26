@@ -27,7 +27,7 @@ class UserFixture extends Fixture
         $admin = new User();
         $admin->setEmail('admin@campus-eni.fr');
         $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setName($faker->name);
+        $admin->setName($faker->lastName);
         $admin->setFirstName($faker->firstName);
         $admin->setPhoneNumber('0601020304');
         $admin->setActive(true);
@@ -49,7 +49,7 @@ class UserFixture extends Fixture
             $user = new User();
             $user->setEmail("user$i@campus-eni.fr");
             $user->setRoles(['ROLE_USER']);
-            $user->setName($faker->name);
+            $user->setName($faker->lastName);
             $user->setFirstName($faker->firstName);
             $user->setPhoneNumber('06' . $faker->numerify(' ## ## ## ##'));
             $user->setActive($faker->boolean(80)); // 80% de profil actif);
