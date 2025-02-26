@@ -47,10 +47,21 @@
             <th>Status</th>
             <td>{{ event.status.value }}</td>
         </tr>
+        <tr>
+            <th>Hôte</th>
+            <td>{{ event.host.id }}</td>
+        </tr>
+        <tr>
+            <th>Nombre de participants inscrits</th>
+            <td>{{ event.participants.count }}</td>
+        </tr>
         </tbody>
     </table>
 
     <a href="{{ path('app_event_index') }}">back to list</a>
 
     <a href="{{ path('app_event_edit', {'id': event.id}) }}">edit</a>
+
+    <a href="{{ path('app_event_register', {'id': event.id}) }}">S'inscrire à cette sortie</a>
+    <a href="{{ path('app_event_cancel_registration', {'id': event.id}) }}">Se désister</a>
 {% endblock %}

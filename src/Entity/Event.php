@@ -21,6 +21,10 @@ class Event
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "Le nom de la sortie doit être renseignée.")]
+    #[Assert\Length(min: 3, max: 255,
+        minMessage: "Le nom de la sortie doit comporter au moins {{ limit }} caractères.",
+        maxMessage: "Le nom de la sortie doit comporter maximum {{ limit }} caractères."
+    )]
     private ?string $name = null;
 
     #[ORM\Column]

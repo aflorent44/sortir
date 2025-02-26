@@ -46,17 +46,6 @@ final class EventController extends AbstractController
         ]);
     }
 
-
-//    #[Route('/campus/{id}', name: 'app_event_by_campus', methods: ['GET'])]
-//    public function eventsByCampus(Campus $campus, EventRepository $eventRepository): Response
-//    {
-//        $events = $eventRepository->findByCampus($campus);
-//
-//        return $this->render('event/index.html.twig', [
-//            'events' => $events,
-//        ]);
-//    }
-
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
@@ -123,5 +112,48 @@ final class EventController extends AbstractController
             'addressForm' => $addressForm,
         ]);
     }
+
+    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET','POST'])]
+    public function register(Event $event, EntityManagerInterface $entityManager): Response
+    {
+
+        if ($event->getParticipants()->count() < $event->getMaxParticipantNumber() && $event->getHost() !== $this->getUser() && $event->getStatus() == EventStatus::OPENED)
+        {
+            $event->getParticipants()->add($this->getUser());
+            $entityManager->persist($event);
+            $entityManager->flush();
+            $this->addFlash('success', 'Vous êtes bien inscrit.e pour la sortie ' . $event->getName());
+        } else
+        {
+            $this->addFlash('error', 'Il n\'est pas possible de s\'inscrire à cette sortie');
+        }
+        return $this->render('event/show.html.twig', [
+            'event' => $event,
+        ]);
+    }
+
+    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['GET','POST'])]
+    public function cancelRegistration(Event $event, EntityManagerInterface $entityManager): Response
+    {
+
+        if ($event->getParticipants()->contains($this->getUser()) && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED))
+        {
+            foreach ($event->getParticipants() as $participant)
+            {
+                if ($participant->getId() == $this->getUser()->getId()) {
+                    $event->getParticipants()->remove($participant);
+                }
+            }
+            $entityManager->flush();
+            $this->addFlash('success', 'Vous êtes bien désinscrit.e pour la sortie ' . $event->getName());
+        }
+
+        return $this->render('event/show.html.twig', [
+            'event' => $event,
+        ]);
+    }
+
+
+
 
 }

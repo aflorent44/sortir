@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Sortir app!{% endblock %}</title>
@@ -17,6 +17,16 @@
     {% include 'partials/_header.html.twig' %}
     <main class="flex-grow p-4">
         {% block body %}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-error">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endblock %}
     </main>
     {% include 'partials/_footer.html.twig' %}
