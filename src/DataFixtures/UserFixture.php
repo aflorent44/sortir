@@ -51,7 +51,7 @@ class UserFixture extends Fixture
             $user->setRoles(['ROLE_USER']);
             $user->setName($faker->name);
             $user->setFirstName($faker->firstName);
-            $user->setPhoneNumber('06' . $faker->numerify(' ## ## ## ##'));
+            $user->setPhoneNumber('06' . $faker->numerify('########'));
             $user->setActive($faker->boolean(80)); // 80% de profil actif);
 
             $hashedPassword = $this->passwordHasher->hashPassword(

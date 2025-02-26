@@ -1,20 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
     const cityInput = document.getElementById("address_city");
-    const zipCodeInput = document.getElementById("address_zipCode")
+    const postCodeInput = document.getElementById("address_zipCode")
     const streetInput = document.getElementById("address_street")
     const latInput = document.getElementById("address_lat")
     const lngInput = document.getElementById("address_lng")
 
-    if (!cityInput || !zipCodeInput) return;
+    if (!cityInput || !postCodeInput) return;
 
-    const citySuggestions = document.createElement("ul");
-    citySuggestions.classList.add("suggestions-list");
+    const citySuggestions = document.getElementById("suggestions-list");
 
     if (!cityInput.parentNode.querySelector(".suggestions-list")) {
         cityInput.parentNode.appendChild(citySuggestions);
-    }
-    if (!zipCodeInput.parentNode.querySelector(".suggestions-list") && !cityInput.parentNode.querySelector(".suggestions-list")) {
-        zipCodeInput.parentNode.appendChild(citySuggestions);
     }
 
     const streetSuggestions = document.createElement("ul");
@@ -28,9 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
     cityInput.removeEventListener("input", handleCityInput);
     cityInput.addEventListener("input", handleCityInput);
 
-    zipCodeInput.removeEventListener("input", handleCityInput);
-    zipCodeInput.addEventListener("input", handleCityInput);
-
     streetInput.removeEventListener("input", handleStreetInput);
     streetInput.addEventListener("input", () => handleStreetInput(streetInput.value));
 
@@ -40,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function handleCityInput() {
         const query = cityInput.value.trim();
 
-        if (query.length <= 3) {
+        if (query.length < 3) {
             citySuggestions.innerHTML = "";
             return;
         }
@@ -48,30 +41,30 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&type=municipality&limit=5`);
             const data = await response.json();
-
+            citySuggestions.classList.remove("hidden")
             citySuggestions.innerHTML = "";
 
             data.features.forEach(feature => {
-                const suggestionItem = document.createElement("li");
+                const suggestion = document.createElement("li")
                 if (feature.properties.type === "municipality"){
                 const cityName = feature.properties.city;
                 const cityPostcode = feature.properties.postcode || "";
 
 
-                suggestionItem.textContent = `${cityName} (${cityPostcode})`;
-                suggestionItem.dataset.city = cityName;
-                suggestionItem.dataset.postcode = cityPostcode;
+                suggestion.textContent = `${cityName} (${cityPostcode})`;
+                suggestion.dataset.city = cityName;
+                suggestion.dataset.postcode = cityPostcode;
 
                 }
-                suggestionItem.addEventListener("click", function () {
+                suggestion.addEventListener("click", function () {
                     cityInput.value = this.dataset.city;
-                    zipCodeInput.value = this.dataset.postcode;
+                    postCodeInput.value = this.dataset.postcode;
 
 
                     citySuggestions.innerHTML = "";
                 });
 
-                citySuggestions.appendChild(suggestionItem);
+                citySuggestions.appendChild(suggestion);
             });
         } catch (error) {
             console.error("Erreur lors de la récupération des données : ", error);
@@ -80,8 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function handleStreetInput(query) {
         query = query.trim();
-        const selectedCity = zipCodeInput.value;
-        if (query.length <= 3 || !selectedCity) {
+        const selectedCity = postCodeInput.value;
+        if (query.length < 3 || !selectedCity) {
             streetSuggestions.innerHTML = "";
             return;
         }
@@ -97,18 +90,18 @@ document.addEventListener("DOMContentLoaded", function () {
             data.features.forEach(feature => {
                 const streetName = feature.properties.street || feature.properties.name;
 
-                const suggestionItem = document.createElement("li");
-                suggestionItem.textContent = streetName;
-                suggestionItem.dataset.street = streetName;
+                const suggestion = document.createElement("li");
+                suggestion.textContent = streetName;
+                suggestion.dataset.street = streetName;
 
-                suggestionItem.addEventListener("click", function () {
+                suggestion.addEventListener("click", function () {
                     streetInput.value = this.dataset.street;
                     streetSuggestions.innerHTML = "";
                     latInput.value = feature.geometry.coordinates[1];
                     lngInput.value = feature.geometry.coordinates[0];
                 });
 
-                streetSuggestions.appendChild(suggestionItem);
+                streetSuggestions.appendChild(suggestion);
             });
         } catch (error) {
             console.error("Erreur lors de la récupération des rues : ", error);
@@ -116,7 +109,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function handleClickOutside(event) {
-        if (!cityInput.contains(event.target) && !zipCodeInput.contains(event.target) && !citySuggestions.contains(event.target)) {
+        if (!cityInput.contains(event.target) && !postCodeInput.contains(event.target) && !citySuggestions.contains(event.target)) {
+            citySuggestions.classList.add("hidden")
             citySuggestions.innerHTML = "";
         }
         if (!streetInput.contains(event.target) && !streetSuggestions.contains(event.target)) {
