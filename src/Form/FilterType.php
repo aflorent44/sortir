@@ -17,11 +17,12 @@ class FilterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('campuses', EntityType::class, [
+            ->add('campus', EntityType::class, [
                 'class' => Campus::class,
                 'choice_label' => 'name',
                 'multiple' => false,
                 'label' => 'Campus',
+                'mapped' => false,
             ])
             ->add('btn', SubmitType::class, [
                 'label' => 'Filtrer',

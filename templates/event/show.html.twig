@@ -57,16 +57,23 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_event_index') }}">back to list</a>
+    <a href="{{ path('app_event_index') }}">Retour</a>
 
-    <a href="{{ path('app_event_edit', {'id': event.id}) }}">Modifier la sortie</a>
-
-    <a href="{{ path('app_event_register', {'id': event.id}) }}">S'inscrire à cette sortie</a>
-
-    <a href="{{ path('app_event_cancel_registration', {'id': event.id}) }}">Se désister</a>
-
-    <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST">
-        <button type="submit" class="btn" >Annuler la sortie</button>
+    {% if event.host.id == app.user.id %}
+    <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="POST">
+        <button type="submit" class="btn">Modifier la sortie</button>
     </form>
+    <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST">
+        <button type="submit" class="btn">Annuler la sortie</button>
+    </form>
+    {% endif %}
+
+    <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
+        <button type="submit" class="btn">S'inscrire à cette sortie</button>
+    </form>
+    <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
+        <button type="submit" class="btn">Se désister</button>
+    </form>
+
 
 {% endblock %}

@@ -43,9 +43,9 @@ class EventRepository extends ServiceEntityRepository
     //    }
 
 
-        /**
-         * @return Event[] Returns an array of Event objects
-         */
+    /**
+     * @return Event[] Returns an array of Event objects
+     */
 //    public function findByCampus(Campus $campus): array
 //    {
 //        return $this->createQueryBuilder('e')
@@ -58,18 +58,15 @@ class EventRepository extends ServiceEntityRepository
 //    }
 
 
-// src/Repository/EventRepository.php
-    public function findByCampus(int $campusId) : array
+    public function findByCampus(Campus $campus): array
     {
         return $this->createQueryBuilder('e')
             ->join('e.campuses', 'c')
-            ->where('c.id = :campusId')
-            ->setParameter('campusId', $campusId)
+            ->where('c = :campus')
+            ->setParameter('campus', $campus)
             ->getQuery()
             ->getResult();
     }
-
-
 
 
 }

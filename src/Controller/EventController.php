@@ -21,19 +21,16 @@ use Symfony\Component\Routing\Attribute\Route;
 final class EventController extends AbstractController
 {
 
-    private EventRegistrationService $eventRegistrationService;
-
     #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
-    public function index(Request $request, EventRepository $eventRepository, EntityManagerInterface $entityManager, CampusRepository $campusRepository): Response
+    public function index(Request $request, EventRepository $eventRepository): Response
     {
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $filters = $form->getData();
-            if (!empty($filters['campuses'])) {
-                //dd($filters['campuses']);
-                $events = $eventRepository->findByCampus($filters['campuses']->getId());
+            $campus = $form->get('campus')->getData();
+            if ($campus) {
+                $events = $eventRepository->findByCampus($campus);
             } else {
                 $events = $eventRepository->findAll();
             }
@@ -127,7 +124,7 @@ final class EventController extends AbstractController
         return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/register', name: 'app_event_register', methods: ['GET', 'POST'])]
+    #[Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]
     public function register(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
         if ($eventRegistrationService->registerUser($event, $this->getUser())) {
@@ -136,12 +133,10 @@ final class EventController extends AbstractController
             $this->addFlash('error', 'Il n\'est pas possible de s\'inscrire à cette sortie');
         }
 
-        return $this->render('event/show.html.twig', [
-            'event' => $event,
-        ]);
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['GET', 'POST'])]
+    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['POST'])]
     public function cancelRegistration(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
         if ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
@@ -150,12 +145,8 @@ final class EventController extends AbstractController
             $this->addFlash('error', 'Impossible d\'annuler votre inscription à cette sortie');
         }
 
-        return $this->render('event/show.html.twig', [
-            'event' => $event,
-        ]);
+        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
-
-
 
 
 }

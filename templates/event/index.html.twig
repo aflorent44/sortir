@@ -3,7 +3,6 @@
 {% block title %}Event index{% endblock %}
 
 {% block body %}
-    <h1>Event index</h1>
 
     {% if app.user %}
         <div class="mb-3">
@@ -11,6 +10,8 @@
                     href="{{ path('app_logout') }}"><br> Se déconnecter</a>
         </div>
     {% endif %}
+
+    <h1>Les sorties</h1>
 
     {{ form(filterForm) }}
 
@@ -42,9 +43,11 @@
                 <td>{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i') : '' }}</td>
                 <td>{{ event.description }}</td>
                 <td>{{ event.maxParticipantNumber }}</td>
-                {% for campus in event.campuses %}
-                    <td>{{ campus.name }}</td>
-                {% endfor %}
+                <td>
+                    {% for campus in event.campuses %}
+                        {{ campus.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
                 <td>{{ event.address.city }}</td>
                 <td>{{ event.status.value }}</td>
                 <td>
