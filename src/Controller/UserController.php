@@ -44,4 +44,5 @@ final class UserController extends AbstractController
             'profilForm' => $profilForm,
         ]);
     }
+    
 }
