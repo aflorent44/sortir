@@ -1,6 +1,9 @@
-{% form_theme form 'tailwind_2_layout.html.twig' %}
+{% form_theme eventForm 'tailwind_2_layout.html.twig' %}
+{% form_theme addressForm 'tailwind_2_layout.html.twig' %}
 
-{{ form_start(form) }}
-    {{ form_widget(form) }}
+{{ form_start(eventForm) }}
+    {{ form_widget(eventForm) }}
+    {{ form_widget(addressForm) }}
     <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+{{ form_end(eventForm) }}
+<script src="{{ asset('js/addressAutocomplete.js') }}"></script>

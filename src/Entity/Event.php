@@ -8,9 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\EventStatus;
-
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Event
 {
     #[ORM\Id]
@@ -19,41 +20,52 @@ class Event
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom de la sortie doit être renseignée.")]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "La date de début de la sortie doit être renseignée.")]
+    #[Assert\GreaterThan("today", message: "La date de début de la sortie doit être future.")]
     private ?\DateTimeImmutable $beginsAt = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "La date de fin de la sortie doit être renseignée.")]
+    #[Assert\GreaterThan(propertyPath: "beginsAt", message: "La date de fin de la sortie doit être après la date de début.")]
     private ?\DateTimeImmutable $endsAt = null;
 
     #[ORM\Column]
     private ?\DateInterval $duration = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "La date de fin des inscriptions doit être renseignée.")]
+    #[Assert\GreaterThan("today", message: "La date de fin des inscriptions doit être future.")]
+    #[Assert\LessThan(propertyPath: "beginsAt", message: "La date de fin des inscription doit être antérieure à la date de début de la sortie.")]
     private ?\DateTimeImmutable $registrationEndsAt = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?int $maxParticipantNumber = null;
 
     /**
      * @var Collection<int, Campus>
      */
     #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinTable(name: 'event_campus')]
     private Collection $campuses;
 
     #[ORM\Column(enumType: EventStatus::class)]
-    private EventStatus $status;
+    private EventStatus $status = EventStatus::OPENED;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $address = null;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $host = null;
 
     /**
@@ -66,6 +78,7 @@ class Event
     {
         $this->campuses = new ArrayCollection();
         $this->participants = new ArrayCollection();
+        //$this->status = EventStatus::CREATED;
     }
 
     public function getId(): ?int
@@ -114,11 +127,13 @@ class Event
         return $this->duration;
     }
 
-    public function setDuration(\DateInterval $duration): static
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function setDuration(): void
     {
-        $this->duration = $duration;
-
-        return $this;
+        if ($this->beginsAt !== null && $this->endsAt !== null) {
+            $this->duration = $this->beginsAt->diff($this->endsAt);
+        }
     }
 
     public function getRegistrationEndsAt(): ?\DateTimeImmutable
@@ -157,14 +172,6 @@ class Event
         return $this;
     }
 
-    /**
-     * @return Collection<int, Campus>
-     */
-    public function getCampuses(): Collection
-    {
-        return $this->campuses;
-    }
-
     public function getStatus(): EventStatus
     {
         return $this->status;
@@ -174,6 +181,14 @@ class Event
     {
         $this->status = $status;
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Campus>
+     */
+    public function getCampuses(): Collection
+    {
+        return $this->campuses;
     }
 
     public function addCampus(Campus $campus): static
