@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdminController!{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-bold mb-4">Liste des utilisateurs</h1>
+
+    <table class="min-w-full border-r-2 border border-gray-600">
+        <thead>
+        <tr class="bg-gray-200">
+            <th class="border border-gray-600 px-4 py-2">ID</th>
+            <th class="border border-gray-600 px-4 py-2">Nom</th>
+            <th class="border border-gray-600 px-4 py-2">Email</th>
+            <th class="border border-gray-600 px-4 py-2">Rôle</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr class=" bg-gray-100 hover:bg-gray-50">
+                <td class="border border-gray-600 px-4 py-2">{{ user.id }}</td>
+                <td class="border border-gray-600 px-4 py-2">{{ user.email }}</td>
+                <td class="border border-gray-600 px-4 py-2">
+                    {{ user.roles|join(', ') }}
+                </td>
+                <td class="border border-gray-300 px-4 py-2">
+                    <a href="{{ path("user_profil", {id: user.id}) }}" class="text-blue-500 hover:underline">Modifier</a> |
+                    <a href="" class="text-red-500 hover:underline" onclick="return confirm('Supprimer cet utilisateur ?')">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5" class="text-center border border-gray-300 px-4 py-2">Aucun utilisateur trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </table>
+
+{% endblock %}

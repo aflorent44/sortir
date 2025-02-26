@@ -2,22 +2,44 @@
     <div class="container mx-auto flex flex-wrap p-4 flex-col md:flex-row items-center">
         <nav class="flex lg:w-2/5 flex-wrap items-center text-base md:ml-auto">
             <a href="{{ path("app_event_index") }}" class="mr-5 hover:text-gray-900 ">Sorties</a>
-            <a class="mr-5 hover:text-gray-900">Profile</a>
-            <a class="mr-5 hover:text-gray-900">Third Link</a>
+            {% if app.user %}
+                {% if "ROLE_ADMIN" in app.user.roles %}
+                    <a href="{{ path('admin_dashboard') }}" class="mr-5 hover:text-gray-900">Dashboard</a>
+                {% else %}
+                    <a href="{{ path('user_profil', {'id': app.user.id}) }}" class="mr-5 hover:text-gray-900">Profile</a>
+                {% endif %}
+            {% endif %}
             <a class="hover:text-gray-900">Fourth Link</a>
+
         </nav>
-        <a href="{{ path("app_event_index") }}"class="flex order-first lg:order-none lg:w-1/5 title-font font-medium items-center text-gray-900 lg:items-center lg:justify-center mb-4 md:mb-0">
+        <a href="{{ path("app_event_index") }}" class="flex order-first lg:order-none lg:w-1/5 title-font font-medium items-center text-gray-900 lg:items-center lg:justify-center mb-4 md:mb-0">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
             </svg>
             <span class="animate__animated animate__bounce ml-3 text-xl">Sortir !</span>
         </a>
         <div class="lg:w-2/5 inline-flex lg:justify-end ml-5 lg:ml-0">
-            <button class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">Button
-                <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
-                    <path d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-            </button>
+            {% if app.user %}
+                <form method="POST" action="{{ path('app_logout') }}">
+                    <button type="submit" class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+                        Déconnexion
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </form>
+            {% endif %}
+            {% if not app.user %}
+                <form method="GET" action="{{ path('app_login') }}">
+                    <button type="submit" class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+                        Connexion
+                        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </form>
+            {% endif %}
+
         </div>
     </div>
 </header>
