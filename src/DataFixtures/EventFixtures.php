@@ -3,38 +3,49 @@
 namespace App\DataFixtures;
 
 use App\Entity\Event;
+use App\Entity\Address;
 use App\Entity\User;
+use App\Enum\EventStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class EventFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $faker = \Faker\Factory::create('fr_FR');
+        $faker = Factory::create('fr_FR');
 
-        for ($i = 0; $i < 15; $i++) {
+        // Récupérer toutes les adresses existantes en base de données
+        $addresses = $manager->getRepository(Address::class)->findAll();
+        // Récupérer tous les utilisateurs existants en base de données
+        $users = $manager->getRepository(User::class)->findAll();
+
+        for ($i = 0; $i < 20; $i++) {
             $event = new Event();
-            $event->setName($faker->word)
-                ->setDescription($faker->text)
-                ->setMaxParticipantNumber(rand(1, 10))
-                ->setHost($this->getReference('host_' . rand(1, 10), User::class))
-                ->setBeginsAt($faker->dateTime)
-                ->setEndsAt($faker->dateTime)
-                ->setRegistrationEndsAt($faker->dateTime);
+            $beginsAt = $faker->dateTimeBetween('+1 week', '+2 months');
+            $endsAt = (clone $beginsAt)->modify('+' . $faker->numberBetween(1, 5) . ' hours');
+            $registrationEndsAt = (clone $beginsAt)->modify('-' . $faker->numberBetween(3, 10) . ' days');
+
+            $event->setName($faker->sentence(3))
+                ->setBeginsAt(\DateTimeImmutable::createFromMutable($beginsAt))
+                ->setEndsAt(\DateTimeImmutable::createFromMutable($endsAt))
+                ->setRegistrationEndsAt(\DateTimeImmutable::createFromMutable($registrationEndsAt))
+                ->setDescription($faker->paragraph)
+                ->setMaxParticipantNumber($faker->numberBetween(5, 50))
+                ->setStatus($faker->randomElement(EventStatus::cases()));
+
+            if (!empty($addresses)) {
+                $event->setAddress($faker->randomElement($addresses));
+            }
+
+            if (!empty($users)) {
+                $event->setHost($faker->randomElement($users));
+            }
+
             $manager->persist($event);
         }
-        // $product = new Product();
-        // $manager->persist($product);
 
-        //$manager->flush();
-    }
-
-    public function getDependencies(): array
-    {
-        return [
-            CampusFixtures::class,
-            UserFixture::class,
-        ];
+        $manager->flush();
     }
 }
