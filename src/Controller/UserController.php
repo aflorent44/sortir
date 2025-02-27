@@ -8,6 +8,7 @@ use App\Form\ProfilFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/user', name: 'user_')]
 #[IsGranted('ROLE_USER')]
@@ -39,7 +41,7 @@ final class UserController extends AbstractController
 
     #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
+    public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, SluggerInterface $slugger): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
@@ -73,8 +75,28 @@ final class UserController extends AbstractController
                 $user->setPassword($encodedPassword);
             }
 
+            $imageProfil = $profilForm->get('image')->getData();
+            if ($imageProfil) {
+                //gestion de l'image téléchargée
+                $originalImageName = pathinfo($imageProfil->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeImageName = $slugger->slug($originalImageName);
+                $newImageName = $safeImageName . '-' . uniqid() . '.' . $imageProfil->guessExtension();
+                //déplacer le fichier dans le dossier public/uploads
+                try {
+                    $imageProfil->move(
+                        $this->getParameter('images_directory'),
+                        $newImageName
+                    );
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                    return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                }
+                //maj du User avec le nouveau fichier image
+                $user->setImageProfile($newImageName);
+            }
+
             // Mise à jour des autres informations
-//            $em->persist($user);
+            $em->persist($user);
             $em->flush();
             dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
