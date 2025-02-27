@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\AddressRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,7 +19,8 @@ final class AdminController extends AbstractController
         return $this->render('admin/dashboard.html.twig');
     }
 
-    #[Route('/users', name: 'users', methods: ['GET'])]
+    #[Route('/dashboard/users', name: 'dashboard_users', methods: ['GET'])]
+    #[isGranted('ROLE_ADMIN')]
     public function users(UserRepository $userRepository): Response
     {
         $users = $userRepository->findAll();
@@ -26,6 +28,16 @@ final class AdminController extends AbstractController
         return $this->render('admin/users.html.twig', [
             'users' => $users,
             ]);
+    }
+    #[Route('/dashboard/addresses', name: 'dashboard_addresses', methods: ['GET'])]
+    #[isGranted('ROLE_ADMIN')]
+    public function addresses(AddressRepository $addressRepository): Response
+    {
+        $addresses = $addressRepository->findAll();
+
+        return $this->render('admin/addresses.html.twig', [
+            'addresses' => $addresses,
+        ]);
     }
 
 #
