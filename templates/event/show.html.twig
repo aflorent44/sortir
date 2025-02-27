@@ -7,7 +7,7 @@
     <table class="table">
         <tbody>
         {% if event.host.id == app.user.id %}
-        <h2>Vous êtes l'organisateur.ice de cette sortie</h2>
+            <h2>Vous êtes l'organisateur.ice de cette sortie</h2>
         {% endif %}
 
         <tr>
@@ -61,7 +61,7 @@
         <tr>
             <th>Nom des participants</th>
             {% for part in event.participants %}
-            <td><a href="{{ path('user_profil', {'id': part.id}) }}">{{ part.firstName }} {{ part.name }}</a></td>
+                <td><a href="{{ path('user_profil', {'id': part.id}) }}">{{ part.firstName }} {{ part.name }}</a></td>
             {% endfor %}
         </tr>
         </tbody>
@@ -70,20 +70,19 @@
     <a href="{{ path('app_event_index') }}">Retour</a>
 
     {% if event.host.id == app.user.id %}
-    <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="POST">
-        <button type="submit" class="btn">Modifier la sortie</button>
-    </form>
-    <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST">
-        <button type="submit" class="btn">Annuler la sortie</button>
-    </form>
+        <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET">
+            <button type="submit" class="btn">Modifier la sortie</button>
+        </form>
+
+        <a href="{{ path('app_event_cancel', {'id': event.id}) }}">Annuler la sortie</a>
     {% endif %}
     {% if event.host.id != app.user.id %}
-    <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
-        <button type="submit" class="btn">S'inscrire à cette sortie</button>
-    </form>
-    <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
-        <button type="submit" class="btn">Se désister</button>
-    </form>
+        <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
+            <button type="submit" class="btn">S'inscrire à cette sortie</button>
+        </form>
+        <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
+            <button type="submit" class="btn">Se désister</button>
+        </form>
     {% endif %}
 
 {% endblock %}

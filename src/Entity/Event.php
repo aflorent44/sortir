@@ -69,7 +69,7 @@ class Event
     private ?Address $address = null;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $host = null;
 
     /**

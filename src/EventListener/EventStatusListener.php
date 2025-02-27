@@ -46,7 +46,7 @@ class EventStatusListener
         } elseif ($event->getRegistrationEndsAt() <= $now || $event->getParticipants()->count() == $event->getMaxParticipantNumber()) {
             $event->setStatus(EventStatus::CLOSED);
         } else {
-            $event->setStatus(EventStatus::OPENED);
+            $event->setStatus($event->getStatus());
         }
     }
 

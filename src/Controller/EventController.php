@@ -7,11 +7,13 @@ use App\Entity\Event;
 use App\Enum\EventStatus;
 use App\EventListener\EventStatusListener;
 use App\Form\AddressType;
+use App\Form\CancelType;
 use App\Form\EventType;
 use App\Form\FilterType;
 use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
 use App\Service\EventRegistrationService;
+use ContainerMjX9Puf\getConsole_ErrorListenerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,19 +31,24 @@ final class EventController extends AbstractController
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
 
+        $user = $this->getUser(); // Récupérer l'utilisateur connecté
+        $isHost = $form->get('isHost')->getData(); // Vérifier s'il veut filtrer en tant qu'hôte
+        $isParticipant = $form->get('isParticipant')->getData(); // Vérifier s'il veut filtrer en tant que participant
+
         if ($form->isSubmitted() && $form->isValid()) {
             $campus = $form->get('campus')->getData();
-            if ($campus) {
-                $events = $eventRepository->findByCampus($campus);
-                $this->addFlash('info', 'Filtrage par campus: ' . $campus->getName());
-            } else {
-                $events = $eventRepository->findAll();
-            }
+            $name = $form->get('name')->getData();
+            $dateMin = $form->get('dateMin')->getData();
+            $dateMax = $form->get('dateMax')->getData();
+            $status = $form->get('ended')->getData();
+
+            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant);
         } else {
             $events = $eventRepository->findAll();
         }
 
         $eventStatusListener->updateAllEventsStatus($events);
+
         return $this->render('event/index.html.twig', [
             'events' => $events,
             'filterForm' => $form,
@@ -70,6 +77,11 @@ final class EventController extends AbstractController
             $entityManager->persist($address);
             $event->setAddress($address);
             $event->setHost($this->getUser());
+            if ($eventForm->getClickedButton() === $eventForm->get('save')) {
+                $event->setStatus(EventStatus::CREATED);
+            } elseif ($eventForm->getClickedButton() === $eventForm->get('publish')) {
+                $event->setStatus(EventStatus::OPENED);
+            }
             $entityManager->persist($event);
             $entityManager->flush();
 
@@ -103,6 +115,11 @@ final class EventController extends AbstractController
         $addressForm->handleRequest($request);
 
         if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
+            if ($eventForm->getClickedButton() === $eventForm->get('save')) {
+                $event->setStatus(EventStatus::CREATED);
+            } elseif ($eventForm->getClickedButton() === $eventForm->get('publish')) {
+                $event->setStatus(EventStatus::OPENED);
+            }
             $entityManager->flush();
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -114,19 +131,50 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['POST'])]
+    #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['GET', 'POST'])]
     public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
 
-        if ($event->getHost() == $this->getUser() && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED)) {
-            $event->setStatus(EventStatus::CANCELLED);
-            $entityManager->flush();
-            $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
-        } else {
-            $this->addFlash("error", "Impossible de supprimer cette sortie");
+        $form = $this->createForm(CancelType::class, $event);
+        //$request->setMethod('POST');
+        $form->handleRequest($request);
+        dump($request->getMethod());
+        if ($form->isSubmitted() && $form->isValid()) {
+            dump("Formulaire soumis");
+
+            if ($form->get('submit')->isClicked()) {
+                dump("Bouton cliqué");
+
+                if ($this->isCsrfTokenValid('cancel_event', $request->request->get('_token'))) {
+                    dump("Token valide");
+
+                    if ($event->getHost() == $this->getUser() &&
+                        in_array($event->getStatus(), [EventStatus::OPENED, EventStatus::CLOSED, EventStatus::CREATED])) {
+
+                        $cancelReason = $form->get('cancelReason')->getData();
+                        dump("Motif d'annulation : " . $cancelReason);
+
+                        $event->setStatus(EventStatus::CANCELLED);
+                        $entityManager->flush();
+
+                        $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
+
+                        //return $this->redirectToRoute('app_event_index');
+                    } else {
+                        $this->addFlash("error", "Impossible de supprimer cette sortie");
+                    }
+                } else {
+                    dump("Token invalide !");
+                }
+            }
         }
 
-        return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
+
+        dump("fin de fonction");
+        return $this->render('event/cancel.html.twig', [
+            'event' => $event,
+            'cancelForm' => $form,
+        ]);
     }
 
     #[Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]

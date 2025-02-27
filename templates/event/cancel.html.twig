@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cancel{% endblock %}
+{% form_theme cancelForm 'tailwind_2_layout.html.twig' %}
+{% block body %}
+
+
+    <h1>Annuler la sortie</h1>
+    <table class="table">
+        <tbody>
+
+        <tr>
+            <th>Name</th>
+            <td>{{ event.name }}</td>
+        </tr>
+        <tr>
+            <th>BeginsAt</th>
+            <td>{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '' }}</td>
+        </tr>
+        <tr>
+            <th>Campus</th>
+            <td>
+                {% for campus in event.campuses %}
+                    {{ campus.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <th>Lieu</th>
+            <td>{{ event.address.name }}</td>
+        </tr>
+        <tr>
+            <th>Ville</th>
+            <td>{{ event.address.city }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_event_show', {'id': event.id}) }}">Retour</a>
+
+    {% if event.host.id == app.user.id %}
+        {{ form_start(cancelForm, {'method': 'POST'}) }}
+        {{ form_row(cancelForm.cancelReason) }}
+            {{ form_row(cancelForm.submit) }}
+        {{ form_end(cancelForm) }}
+    {% endif %}
+
+{% endblock %}
