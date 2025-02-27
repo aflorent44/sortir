@@ -5,12 +5,13 @@ namespace App\DataFixtures;
 use App\Entity\Campus;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
-class UserFixture extends Fixture
+class UserFixture extends Fixture implements DependentFixtureInterface
 {
     private UserPasswordHasherInterface $passwordHasher;
 
@@ -62,7 +63,7 @@ class UserFixture extends Fixture
 
             $randomCampus = $this->getReference('campus_' .rand(1, 4),  Campus::class);
             $user->setCampus($randomCampus);
-
+            $this->setReference('host_', $user);
             $manager->persist($user);
         }
         $manager->flush();
@@ -73,4 +74,5 @@ class UserFixture extends Fixture
             CampusFixtures::class,
         ];
     }
+
 }
