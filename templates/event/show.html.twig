@@ -16,6 +16,7 @@
                 'Fin d\'inscription': event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i:s') : '',
                 'Description': event.description,
                 'Participants max': event.maxParticipantNumber,
+                'Adresses': event.address.street,
                 'Ville': event.address.city,
                 'Statut': event.status.value,
                 'Hôte': event.host.id,
