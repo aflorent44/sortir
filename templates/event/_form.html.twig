@@ -5,12 +5,19 @@
 
 
 {{ form_start(eventForm) }}
-    {{ form_widget(eventForm) }}
+    {{ form_row(eventForm.name) }}
+    {{ form_row(eventForm.beginsAt) }}
+    {{ form_row(eventForm.endsAt) }}
+    {{ form_row(eventForm.registrationEndsAt) }}
+    {{ form_row(eventForm.maxParticipantNumber) }}
+    {{ form_row(eventForm.campuses) }}
+    {{ form_row(eventForm.description) }}
     {{ form_row(addressForm.name) }}
     {{ form_row(addressForm.city) }}
     <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
     {{ form_widget(addressForm) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    {{ form_row(eventForm.save) }}
+    {{ form_row(eventForm.publish) }}
 {{ form_end(eventForm) }}
 </div>
 <script src="{{ asset('js/addressAutocomplete.js') }}"></script>

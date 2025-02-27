@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Campus;
 use App\Entity\Event;
+use App\Entity\User;
+use App\Enum\EventStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -43,9 +45,6 @@ class EventRepository extends ServiceEntityRepository
     //    }
 
 
-        /**
-         * @return Event[] Returns an array of Event objects
-         */
 //    public function findByCampus(Campus $campus): array
 //    {
 //        return $this->createQueryBuilder('e')
@@ -57,19 +56,100 @@ class EventRepository extends ServiceEntityRepository
 //            ->getResult();
 //    }
 
-
-// src/Repository/EventRepository.php
-    public function findByCampus(int $campusId) : array
+    /**
+     * @return Event[] Returns an array of Event objects
+     */
+    public function findByCampus(Campus $campus): array
     {
         return $this->createQueryBuilder('e')
             ->join('e.campuses', 'c')
-            ->where('c.id = :campusId')
-            ->setParameter('campusId', $campusId)
+            ->where('c = :campus')
+            ->setParameter('campus', $campus)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByName(string $name): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('LOWER(e.name) LIKE LOWER(:name)')
+            ->setParameter('name', '%' . $name . '%')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByDate(\DateTimeImmutable $dateMin, \DateTimeImmutable $dateMax): array
+    {
+        return $this->createQueryBuilder('e')
+            ->where('e.date >= :dateMin AND e.date <= :dateMax')
+            ->setParameter('dateMin', $dateMin)
+            ->setParameter('dateMax', $dateMax)
             ->getQuery()
             ->getResult();
     }
 
 
+    public function findByFilters(
+        ?Campus    $campus,
+        ?string    $name,
+        ?\DateTime $dateMin,
+        ?\DateTime $dateMax,
+        ?string    $status,
+        ?User      $user,
+        bool       $isHost,
+        bool       $isParticipant
+    ): array
+    {
+        $queryBuilder = $this->createQueryBuilder('e');
+
+        dump($status);
+        if ($campus) {
+            $queryBuilder
+                ->join('e.campuses', 'c')
+                ->andWhere('c = :campus')
+                ->setParameter('campus', $campus);
+        }
+
+        if ($name) {
+            $queryBuilder->andWhere('e.name LIKE :name')
+                ->setParameter('name', '%' . $name . '%');
+        }
+
+        if ($dateMin) {
+            $queryBuilder->andWhere('e.beginsAt >= :dateMin')
+                ->setParameter('dateMin', $dateMin);
+        }
+
+        if ($dateMax) {
+            $queryBuilder->andWhere('e.endsAt <= :dateMax')
+                ->setParameter('dateMax', $dateMax);
+        }
+
+        if ($status || $isHost || $isParticipant) {
+            $orX = $queryBuilder->expr()->orX();
+
+            if ($status) {
+                $orX->add('e.status = :ended');
+                $queryBuilder->setParameter('ended', EventStatus::ENDED);
+            }
+
+            if ($isHost) {
+                $orX->add('e.host = :user');
+            }
+
+            if ($isParticipant) {
+                $orX->add(':user MEMBER OF e.participants');
+            }
+
+            $queryBuilder->andWhere($orX);
+        }
+
+        if ($isHost || $isParticipant) {
+            $queryBuilder->setParameter('user', $user);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 
 
 }

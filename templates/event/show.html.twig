@@ -1,14 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Détails de l'Événement{% endblock %}
+{% block title %}Détails de la sortie{% endblock %}
 
 {% block body %}
+
     <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-6 text-xl sm:text-base md:text-base">
         <h1 class="text-4xl sm:text-3xl font-bold text-center mb-8">Détails de l'Événement</h1>
+        {% if event.host.id == app.user.id %}
+            <h2>Vous êtes l'organisateur.ice de cette sortie</h2>
+        {% endif %}
         <table class="w-full border-collapse border border-gray-200 rounded-lg shadow-sm text-lg sm:text-xl md:text-lg">
             <tbody>
             {% for label, value in {
-                'Id': event.id,
                 'Nom': event.name,
                 'Début': event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '',
                 'Fin': event.endsAt ? event.endsAt|date('Y-m-d H:i:s') : '',
@@ -26,6 +29,12 @@
                     <th class="text-left p-6 font-medium bg-gray-100 text-xl sm:text-2xl md:text-lg">{{ label }}</th>
                     <td class="p-6 text-xl sm:text-2xl md:text-lg">{{ value }}</td>
                 </tr>
+                <tr>
+                    <th>Nom des participants</th>
+                    {% for part in event.participants %}
+                        <td><a href="{{ path('user_profil', {'id': part.id}) }}">{{ part.firstName }} {{ part.name }}</a></td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
             </tbody>
         </table>
@@ -36,6 +45,23 @@
             <a href="{{ path('app_event_register', {'id': event.id}) }}" class="w-full sm:w-auto bg-green-500 text-white p-4 rounded-lg hover:bg-green-600">S'inscrire</a>
             <a href="{{ path('app_event_cancel_registration', {'id': event.id}) }}" class="w-full sm:w-auto bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600">Se désister</a>
         </div>
+    <a href="{{ path('app_event_index') }}">Retour</a>
+
+    {% if event.host.id == app.user.id %}
+        <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET">
+            <button type="submit" class="btn">Modifier la sortie</button>
+        </form>
+
+        <a href="{{ path('app_event_cancel', {'id': event.id}) }}">Annuler la sortie</a>
+    {% endif %}
+    {% if event.host.id != app.user.id %}
+        <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
+            <button type="submit" class="btn">S'inscrire à cette sortie</button>
+        </form>
+        <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
+            <button type="submit" class="btn">Se désister</button>
+        </form>
+    {% endif %}
 
         <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST" class="mt-6 text-center">
             <button type="submit" class="w-full sm:w-auto bg-red-500 text-white p-4 rounded-lg hover:bg-red-600 text-xl sm:text-2xl md:text-lg">Annuler la sortie</button>
