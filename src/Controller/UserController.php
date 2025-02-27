@@ -88,8 +88,14 @@ final class UserController extends AbstractController
     }
 
     #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, SessionInterface $session): Response
     {
+        $isAdmin = $this->isGranted("ROLE_ADMIN");
+        if (!$isAdmin && $user !== $this->getUser()) {
+            $this->createAccessDeniedException("Réservé aux admins");
+        }
+
         $user=$em->getRepository(User::class)->find($user->getId());
         $em->remove($user);
         $em->flush();
