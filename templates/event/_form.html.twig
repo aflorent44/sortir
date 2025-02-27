@@ -1,16 +1,29 @@
 {% form_theme eventForm 'tailwind_2_layout.html.twig' %}
 {% form_theme addressForm 'tailwind_2_layout.html.twig' %}
 
-<div class="w-1/3">
+<div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    {{ form_start(eventForm, {'attr': {'class': 'space-y-8'}}) }}
+    <div class="space-y-8">
+        {% for field in eventForm %}
+            <div>
+                {{ form_label(field, null, {'attr': {'class': 'block text-2xl md:text-lg font-medium text-gray-700'}}) }}
+                {{ form_widget(field, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+                {{ form_errors(field, {'attr': {'class': 'text-red-500 text-lg md:text-md'}}) }}
+            </div>
+        {% endfor %}
+    </div>
 
+    <div class="space-y-8">
+        {{ form_label(addressForm.name, null, {'attr': {'class': 'block text-2xl md:text-lg font-medium text-gray-700'}}) }}
+        {{ form_widget(addressForm.name, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
 
-{{ form_start(eventForm) }}
-    {{ form_widget(eventForm) }}
-    {{ form_row(addressForm.name) }}
-    {{ form_row(addressForm.city) }}
+        {{ form_label(addressForm.city, null, {'attr': {'class': 'block text-2xl md:text-lg font-medium text-gray-700'}}) }}
+        {{ form_widget(addressForm.city, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+    </div>
+
     <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
-    {{ form_widget(addressForm) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(eventForm) }}
+
+    <button class="w-full bg-blue-500 text-white py-4 md:py-3 text-2xl md:text-lg rounded-lg hover:bg-blue-600">{{ button_label|default('Save') }}</button>
+    {{ form_end(eventForm) }}
 </div>
 <script src="{{ asset('js/addressAutocomplete.js') }}"></script>
