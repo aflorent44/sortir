@@ -1,31 +1,39 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Modifier profil{% endblock %}
+{% block title %}Modifier Profil{% endblock %}
 
 {% block body %}
-    <h2>{{ controller_name }}</h2>
-    <br>
-    {{ form_errors(profilForm) }}
-    <div>
-        {{ form_start(profilForm) }}
-        {{ form_row(profilForm.campus, { 'attr': {'hidden': not is_granted('ROLE_ADMIN')} }) }}
-        {{ form_row(profilForm.firstName) }}
-        {{ form_row(profilForm.name) }}
-        {{ form_row(profilForm.phoneNumber) }}
-        {{ form_row(profilForm.email) }}
-        {{ form_row(profilForm.oldPassword) }}
-        {{ form_row(profilForm.newPassword) }}
-        {{ form_row(profilForm.confirmPassword) }}
-        {{ form_row(profilForm.image) }}
-        <br>
-        {{ form_end(profilForm) }}
-    </div>
-    <form action="{{ path("user_delete", {id: user.id}) }}" method="POST">
-        {% if app.user and app.user.id == user.id %}
-            <button type="submit" class="btn">Supprimer mon compte</button>
-        {% elseif "ROLE_ADMIN" in app.user.roles %}
-            <button type="submit">Supprimer utilisateur</button>
-        {% endif %}
-    </form>
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md mt-6 text-lg sm:text-base">
+        <h2 class="text-4xl font-bold text-center mb-6">Modifier le Profil</h2>
 
+        {{ form_errors(profilForm) }}
+
+        <div class="space-y-6">
+            {{ form_start(profilForm, { 'attr': {'class': 'space-y-4'} }) }}
+
+            {% if is_granted('ROLE_ADMIN') %}
+                {{ form_row(profilForm.campus) }}
+            {% endif %}
+            {{ form_row(profilForm.firstName, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.name, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.phoneNumber, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.email, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.oldPassword, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.newPassword, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.confirmPassword, { 'attr': {'class': 'w-full p-3 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+            {{ form_row(profilForm.image, { 'attr': {'class': 'w-full pt-2 border border-gray-300 rounded-lg text-xl sm:text-lg'} }) }}
+
+            <div class="text-center">
+                <button type="submit" class="mb-3 w-full bg-blue-500 text-white py-4 px-6 rounded-lg hover:bg-blue-600 text-2xl sm:text-lg">Mettre à jour</button>
+            </div>
+        </div>
+
+        {% if app.user and app.user.id == user.id or "ROLE_ADMIN" in app.user.roles %}
+            <form action="{{ path("user_delete", {id: user.id}) }}" method="POST" class="mt-6 text-center">
+                <button type="submit" class="w-full bg-red-500 text-white py-4 px-6 rounded-lg hover:bg-red-600 text-2xl sm:text-lg">
+                    {% if app.user.id == user.id %}Supprimer mon compte{% else %}Supprimer utilisateur{% endif %}
+                </button>
+            </form>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -3,22 +3,23 @@
 {% block title %}Sortir - Profil{% endblock %}
 
 {% block body %}
-    <div>
-        <h1>{{ controller_name }} : </h1>
-        <br>
-        <ul>
-            <li>{{ user.campus.name }}</li>
-            <li>{{ user.firstName }}</li>
-            <li>{{ user.name }}</li>
-            <li>{{ user.phoneNumber }}</li>
-            <li>{{ user.email }}</li>
+    <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md mt-6 text-lg sm:text-base md:text-lg">
+        <h1 class="text-4xl sm:text-5xl font-bold text-center mb-8">Profil de {{ user.firstName }}</h1>
+
+        <div class="flex flex-col items-center">
             {% if app.user.imageProfile %}
-            <li>
-                <img src="{{ asset('uploads/images/' ~ app.user.imageProfile) }}" alt="Photo de profil">
-            </li>
+                <img src="{{ asset('uploads/images/' ~ app.user.imageProfile) }}" alt="Photo de profil" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-gray-300 shadow-md">
             {% endif %}
-        </ul>
-        <br>
-        <a href="{{ path("user_update_profil", {'id': app.user.id}) }}" class="mr-5 hover:text-gray-900">Modifier</a>
+
+            <ul class="mt-6 w-full text-center text-xl sm:text-2xl md:text-lg">
+                <li class="p-4 border-b border-gray-300"><span class="font-bold">Campus :</span> {{ user.campus.name }}</li>
+                <li class="p-4 border-b border-gray-300"><span class="font-bold">Prénom :</span> {{ user.firstName }}</li>
+                <li class="p-4 border-b border-gray-300"><span class="font-bold">Nom :</span> {{ user.name }}</li>
+                <li class="p-4 border-b border-gray-300"><span class="font-bold">Téléphone :</span> {{ user.phoneNumber }}</li>
+                <li class="p-4 border-b border-gray-300"><span class="font-bold">Email :</span> {{ user.email }}</li>
+            </ul>
+
+            <a href="{{ path('user_update_profil', {'id': app.user.id}) }}" class="mt-6 bg-blue-500 text-white py-4 px-8 rounded-lg hover:bg-blue-600 text-xl sm:text-2xl md:text-lg">Modifier le profil</a>
+        </div>
     </div>
 {% endblock %}
