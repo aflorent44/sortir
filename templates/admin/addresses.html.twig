@@ -10,7 +10,7 @@
         <tr class="bg-gray-200">
             <th class="border border-gray-600 px-4 py-2">ID</th>
             <th class="border border-gray-600 px-4 py-2">Nom</th>
-            <th class="border border-gray-600 px-4 py-2">Email</th>
+            <th class="border border-gray-600 px-4 py-2">addresse</th>
             <th class="border border-gray-600 px-4 py-2">Rôle</th>
         </tr>
         </thead>
@@ -18,7 +18,7 @@
         {% for address in addresses %}
             <tr class=" bg-gray-100 hover:bg-gray-50">
                 <td class="border border-gray-600 px-4 py-2">{{ address.id }}</td>
-                <td class="border border-gray-600 px-4 py-2">{{ address.name }}</td>
+                <td class="border border-gray-600 px-4 py-2">{{ address.name }} {{  }}</td>
                 <td class="border border-gray-600 px-4 py-2">{{ address.street}}</td>
                 <td class="border border-gray-600 px-4 py-2">{{ address.city}}</td>
                 <td class="border border-gray-300 px-4 py-2">

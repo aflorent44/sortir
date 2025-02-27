@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 suggestion.dataset.street = suggestionContent;
 
                 suggestion.addEventListener("click", function () {
-                    streetInput.value = this.dataset.street;
+                    streetInput.value = streetName;
                     streetSuggestions.innerHTML = "";
                     latInput.value = feature.geometry.coordinates[1];
                     lngInput.value = feature.geometry.coordinates[0];
