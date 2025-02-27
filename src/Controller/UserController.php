@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Campus;
 use App\Entity\User;
 use App\Form\ProfilFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class UserController extends AbstractController
 {
+    private UserRepository $userRepository;
+
     #[Route('/{id}', name: 'profil', requirements: ['id' => '\d+'])]
     public function getOneUser(int $id, UserRepository $userRepository): Response
     {
@@ -34,13 +37,13 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/update/{id}', name:'update_profil', requirements: ['id'=>'\d+'])]
+    #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
-            $this->createAccessDeniedException("Réservé aux admins");
+            throw $this->createAccessDeniedException("Réservé aux admins");
         }
 
         $profilForm = $this->createForm(ProfilFormType::class, $user);
@@ -71,8 +74,9 @@ final class UserController extends AbstractController
             }
 
             // Mise à jour des autres informations
-            $em->persist($user);
+//            $em->persist($user);
             $em->flush();
+            dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
 
             // Redirection nécessaire pour Turbo Drive
@@ -96,7 +100,7 @@ final class UserController extends AbstractController
             $this->createAccessDeniedException("Réservé aux admins");
         }
 
-        $user=$em->getRepository(User::class)->find($user->getId());
+        $user = $em->getRepository(User::class)->find($user->getId());
         $em->remove($user);
         $em->flush();
 
