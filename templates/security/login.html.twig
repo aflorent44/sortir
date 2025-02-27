@@ -9,36 +9,32 @@
         {% endif %}
 
         <h1 class="h3 mb-3 font-weight-normal">Connectez-vous : </h1>
+
         <label for="email">Email : </label>
         <input type="email" value="{{ last_email }}" name="_username" id="email" class="form-control"
                autocomplete="email" required autofocus>
         <label for="password">Mot de passe : </label>
         <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password"
                required>
-
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}">
 
-{#        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.#}
-{#        See https://symfony.com/doc/current/security/remember_me.html#}
-
-        <div class="checkbox mb-3 flex justify-between w-1/2">
-            <div>
-                <input type="checkbox" name="_remember_me" id="_remember_me">
-                <label for="_remember_me">Remember me</label>
-            </div>
-            <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
+        {#        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality. #}
+        {#        See https://symfony.com/doc/current/security/remember_me.html #}
         <div class="checkbox mb-3">
-            <input type="checkbox" name="_remember_me" id="_remember_me">
-            <label for="_remember_me">Se souvenir de moi</label>
+            <label>
+                <input type="checkbox" name="_remember_me">Remember me
+            </label>
         </div>
-
+        <div>
         {% if is_granted('IS_AUTHENTICATED') == false %}
-        <button class="btn btn-lg btn-primary" type="submit">
-            Se connecter
-        </button>
+            <button class="btn btn-lg btn-primary" type="submit">
+                Se connecter
+            </button>
 
-        <a href="{{ path('app_register') }}">S'inscrire</a>
+            <a href="{{ path('app_register') }}">S'inscrire</a>
         {% endif %}
+        </div>
+        <a href="{{ path('app_forgot_password_request') }}">Mot de passe oublié ?</a>
     </form>
 {% endblock %}

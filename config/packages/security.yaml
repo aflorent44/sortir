@@ -21,14 +21,11 @@ security:
         check_path: app_login
         default_target_path: app_event_index
         enable_csrf: true
-
       remember_me:
-        secret: '%env(APP_SECRET)%'    # Utilisation du APP_SECRET pour sécuriser le token
-        lifetime: 2592000              # Durée du cookie : 30 jours (en secondes)
-        path: '/'                      # Le cookie est disponible sur tout le site
-        httponly: true                 # Protection contre les attaques XSS
-        always_remember_me: false
-#        remember_me_parameter: _remember_me   # Nom du champ dans le formulaire
+        secret: '%env(APP_SECRET)%'   # Utilisation du APP_SECRET pour sécuriser le token
+        lifetime: 604800              # Durée du cookie : 1 semaine (en secondes)
+        path: '/'                     # Le cookie est disponible sur tout le site
+        name: REMEMBERME              # nom du cookie
       logout:
         path: app_logout
         target: app_login
