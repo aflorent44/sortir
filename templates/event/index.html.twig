@@ -1,63 +1,104 @@
-{% extends 'base.html.twig' %}
+    {% extends 'base.html.twig' %}
 
-{% block title %}Event index{% endblock %}
+    {% block title %}Event index{% endblock %}
 
-{% block body %}
-    <p class="text-3xl font-bold underline mb-4">Event index</p>
+    {% block body %}
+        <p class="text-3xl font-bold underline mb-4">Event index</p>
 
-    {% if app.user %}
-        <div class="mb-3 text-3xl lg:text-lg">
-            Vous êtes connecté(e) en tant que <span class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
+        {% if app.user %}
+            <div class="mb-3 text-3xl lg:text-lg">
+                Vous êtes connecté(e) en tant que <span class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
+            </div>
+        {% endif %}
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Les Sorties</h1>
+        <div class="mb-6">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-4">Filtrer les événements</h2>
+            <div>
+                {{ form_start(filterForm, {'attr': {'class': 'space-y-4 bg-gray-100 p-6 rounded-lg shadow-md'}}) }}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        {{ form_label(filterForm.campus, null, {'label_attr': {'class': 'block font-semibold mb-1'}}) }}
+                        {{ form_widget(filterForm.campus, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(filterForm.name, null, {'label_attr': {'class': 'block font-semibold mb-1'}}) }}
+                        {{ form_widget(filterForm.name, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(filterForm.dateMin, null, {'label_attr': {'class': 'block font-semibold mb-1'}}) }}
+                        {{ form_widget(filterForm.dateMin, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+                    </div>
+
+                    <div>
+                        {{ form_label(filterForm.dateMax, null, {'label_attr': {'class': 'block font-semibold mb-1'}}) }}
+                        {{ form_widget(filterForm.dateMax, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                    {{ form_row(filterForm.isHost, {'attr': {'class': 'flex items-center space-x-2 mr-2'}}) }}
+                    {{ form_row(filterForm.isParticipant, {'attr': {'class': 'flex items-center space-x-2 mr-2'}}) }}
+                    {{ form_row(filterForm.ended, {'attr': {'class': 'flex items-center space-x-2 mr-2'}}) }}
+                </div>
+
+                <div class="flex justify-between mt-6">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        🔍 Rechercher
+                    </button>
+                    <button type="reset" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+                        🔄 Réinitialiser
+                    </button>
+                </div>
+                {{ form_end(filterForm) }}
+            </div>
         </div>
-    {% endif %}
 
-    <h1>Les sorties</h1>
-
-    <div class="mb-6 text-3xl lg:text-lg">{{ form(filterForm) }}</div>
-
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
-            <thead class="bg-gray-100 text-gray-700">
-            <tr>
-                <th class="px-4 py-2 border">Id</th>
-                <th class="px-4 py-2 border">Nom</th>
-                <th class="px-4 py-2 border">Début</th>
-                <th class="px-4 py-2 border">Fin</th>
-                <th class="px-4 py-2 border">Durée</th>
-                <th class="px-4 py-2 border">Fin de l'enregistrement</th>
-                <th class="px-4 py-2 border">Description</th>
-                <th class="px-4 py-2 border">Participants max</th>
-                <th class="px-4 py-2 border">Campus</th>
-                <th class="px-4 py-2 border">Ville</th>
-                <th class="px-4 py-2 border">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for event in events %}
-                <tr class="hover:bg-gray-50 even:bg-gray-100">
-                    <td class="px-4 py-2 border text-center">{{ event.id }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.name }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.endsAt ? event.endsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.duration ? event.duration.format('%d jour(s), %Hh:%i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.description }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.maxParticipantNumber }}</td>
-                    <td class="px-4 py-2 border text-center">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.address.city }}</td>
-                    <td class="px-4 py-2 border text-center">
-                        <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-blue-500 hover:underline">Voir</a>
-                        <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="text-yellow-500 hover:underline ml-2">Modifier</a>
-                    </td>
-                </tr>
-            {% else %}
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
+                <thead class="bg-gray-100 text-gray-700">
                 <tr>
-                    <td colspan="11" class="text-center py-4">Aucun enregistrement n'a été trouvé</td>
+                    <th class="px-4 py-2 border">Id</th>
+                    <th class="px-4 py-2 border">Nom</th>
+                    <th class="px-4 py-2 border">Début</th>
+                    <th class="px-4 py-2 border">Fin</th>
+                    <th class="px-4 py-2 border">Durée</th>
+                    <th class="px-4 py-2 border">Fin de l'enregistrement</th>
+                    <th class="px-4 py-2 border">Description</th>
+                    <th class="px-4 py-2 border">Participants max</th>
+                    <th class="px-4 py-2 border">Campus</th>
+                    <th class="px-4 py-2 border">Ville</th>
+                    <th class="px-4 py-2 border">Actions</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                {% for event in events %}
+                    <tr class="hover:bg-gray-50 even:bg-gray-100">
+                        <td class="px-4 py-2 border text-center">{{ event.id }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.name }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i') : '' }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.endsAt ? event.endsAt|date('Y-m-d H:i') : '' }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.duration ? event.duration.format('%d jour(s), %Hh:%i') : '' }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i') : '' }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.description }}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.maxParticipantNumber }}</td>
+                        <td class="px-4 py-2 border text-center">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
+                        <td class="px-4 py-2 border text-center">{{ event.address.city }}</td>
+                        <td class="px-4 py-2 border text-center">
+                            <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-blue-500 hover:underline">Voir</a>
+                            <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="text-yellow-500 hover:underline ml-2">Modifier</a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="11" class="text-center py-4">Aucun enregistrement n'a été trouvé</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     <div class="mt-4">
         <a href="{{ path('app_event_new') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-3xl lg:text-lg">Créer un nouvel événement</a>
