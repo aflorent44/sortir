@@ -23,6 +23,7 @@ class ProfilFormType extends AbstractType
             ->add('campus', EntityType::class, [
                 'class' => Campus::class,
                 'choice_label' => 'name',
+                'attr' => ['readonly' => true]
             ])
             ->add('firstName', TextType::class, [
                 'label' => 'Prénom'
