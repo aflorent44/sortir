@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Campus;
 use App\Entity\User;
 use App\Form\ProfilFormType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,19 +35,32 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/update/{id}', name:'update_profil', requirements: ['id'=>'\d+'])]
+    #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
-            $this->createAccessDeniedException("Réservé aux admins");
+            throw $this->createAccessDeniedException("Réservé aux admins");
         }
 
         $profilForm = $this->createForm(ProfilFormType::class, $user);
         $profilForm->handleRequest($request);
 
         if ($profilForm->isSubmitted() && $profilForm->isValid()) {
+            // Si l'utilisateur n'est pas admin, réassigner le campus sans modification
+            if (!$isAdmin) {
+                $campus = $user->getCampus();
+                dump($user);
+                if ($campus !== null) {
+                    $campus = $em->getRepository(Campus::class)->find($user->getCampus()->getId());
+                    $user->setCampus($campus);
+                } else {
+                    $this->addFlash('error', 'Campus non trouvé.');
+                    return $this->redirectToRoute('user_profil', ['id' => $user->getId()]);
+                }
+            }
+
             // Récupération des champs du formulaire
             $oldPassword = $profilForm->get('oldPassword')->getData();
             $newPassword = $profilForm->get('newPassword')->getData();
@@ -57,12 +71,6 @@ final class UserController extends AbstractController
                 $this->addFlash('error', 'Ancien mot de passe incorrect.');
                 return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
             }
-
-            // Vérification de la confirmation du nouveau mot de passe
-//            if ($newPassword && $newPassword !== $confirmPassword) {
-//                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-//                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
-//            }
 
             // Hash du nouveau mot de passe
             if ($newPassword) {
@@ -87,10 +95,10 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
+    #[Route('/delete/{id}', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, SessionInterface $session): Response
     {
-        $user=$em->getRepository(User::class)->find($user->getId());
+        $user = $em->getRepository(User::class)->find($user->getId());
         $em->remove($user);
         $em->flush();
 
