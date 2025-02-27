@@ -47,13 +47,13 @@ document.addEventListener("DOMContentLoaded", function () {
             data.features.forEach(feature => {
                 const suggestion = document.createElement("li")
                 if (feature.properties.type === "municipality"){
-                const cityName = feature.properties.city;
-                const cityPostcode = feature.properties.postcode || "";
+                    const cityName = feature.properties.city;
+                    const cityPostcode = feature.properties.postcode || "";
 
 
-                suggestion.textContent = `${cityName} (${cityPostcode})`;
-                suggestion.dataset.city = cityName;
-                suggestion.dataset.postcode = cityPostcode;
+                    suggestion.textContent = `${cityName} (${cityPostcode})`;
+                    suggestion.dataset.city = cityName;
+                    suggestion.dataset.postcode = cityPostcode;
 
                 }
                 suggestion.addEventListener("click", function () {
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        let apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${query}&type=street&postcode=${encodeURIComponent(selectedCity)}&limit=5`;
+        let apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${query}&type=housenumber&postcode=${encodeURIComponent(selectedCity)}&limit=5`;
 
         try {
             const response = await fetch(apiUrl);
@@ -88,11 +88,11 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(apiUrl)
 
             data.features.forEach(feature => {
-                const streetName = feature.properties.street || feature.properties.name;
-
+                const suggestionContent = feature.properties.housenumber + " " + feature.properties.street + ", " + feature.properties.city;
+                const streetName = feature.properties.housenumber + " " + feature.properties.street
                 const suggestion = document.createElement("li");
-                suggestion.textContent = streetName;
-                suggestion.dataset.street = streetName;
+                suggestion.textContent = suggestionContent;
+                suggestion.dataset.street = suggestionContent;
 
                 suggestion.addEventListener("click", function () {
                     streetInput.value = this.dataset.street;
