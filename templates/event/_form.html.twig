@@ -19,6 +19,9 @@
 
         {{ form_label(addressForm.city, null, {'attr': {'class': 'block text-2xl md:text-lg font-medium text-gray-700'}}) }}
         {{ form_widget(addressForm.city, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
+
+        {{ form_label(addressForm, null, {'attr': {'class': 'block text-2xl md:text-lg font-medium text-gray-700'}}) }}
+        {{ form_widget(addressForm, {'attr': {'class': 'w-full border-gray-300 rounded-lg p-5 md:p-4 text-2xl md:text-lg focus:ring-blue-500 focus:border-blue-500'}}) }}
     </div>
 
     <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
