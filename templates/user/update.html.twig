@@ -16,9 +16,8 @@
         {{ form_row(profilForm.oldPassword) }}
         {{ form_row(profilForm.newPassword) }}
         {{ form_row(profilForm.confirmPassword) }}
+        {{ form_row(profilForm.image) }}
         <br>
-        <button type="submit" class="btn">Valider</button>
-        <button type="reset" class="btn">Annuler</button>
         {{ form_end(profilForm) }}
     </div>
     <form action="{{ path("user_delete", {id: user.id}) }}" method="POST">
