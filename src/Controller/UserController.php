@@ -34,7 +34,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
+    #[Route('/update/{id}', name: 'update_prcd soofil', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function updateProfil(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
     {
