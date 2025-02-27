@@ -34,14 +34,14 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/update/{id}', name: 'update_prcd soofil', requirements: ['id' => '\d+'])]
+    #[Route('/update/{id}', name:'update_profil', requirements: ['id'=>'\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function updateProfil(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
+    public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
     {
-        // Récupération de l'utilisateur connecté
-        $user = $this->getUser();
-        // Sauvegarde du campus
-        $campus = $user->getCampus();
+        $isAdmin = $this->isGranted("ROLE_ADMIN");
+        if (!$isAdmin && $user !== $this->getUser()) {
+            $this->createAccessDeniedException("Réservé aux admins");
+        }
 
         $profilForm = $this->createForm(ProfilFormType::class, $user);
         $profilForm->handleRequest($request);

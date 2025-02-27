@@ -23,7 +23,7 @@
                     {{ user.roles|join(', ') }}
                 </td>
                 <td class="border border-gray-300 px-4 py-2">
-                    <a href="{{ path("user_profil", {id: user.id}) }}" class="text-blue-500 hover:underline">Modifier</a> |
+                    <a href="{{ path("user_update_profil", {id: user.id}) }}" class="text-blue-500 hover:underline">Modifier</a> |
                     <a href="" class="text-red-500 hover:underline" onclick="return confirm('Supprimer cet utilisateur ?')">Supprimer</a>
                 </td>
             </tr>

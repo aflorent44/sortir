@@ -7,6 +7,7 @@ use App\Entity\User;
 use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -30,23 +31,30 @@ class RegistrationFormType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'Email : '
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => 'Mot de passe : ',
-                // instead of being set onto the object directly,
-                // this is read and encoded in the controller
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password'],
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Entrez un mot de passe SVP.',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit contenir minimum {{ limit }} caractères.',
-                        // max length allowed by Symfony for security reasons
-                        'max' => 4096,
-                    ]),
+                'options' => [
+                    'attr' => ['autocomplete' => 'new-password'],
                 ],
+                'first_options' => [
+                    'label' => 'Mot de passe : ',
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Entrez un mot de passe SVP.',
+                        ]),
+                        new Length([
+                            'min' => 6,
+                            'minMessage' => 'Votre mot de passe doit contenir minimum {{ limit }} caractères.',
+                            // max length allowed by Symfony for security reasons
+                            'max' => 4096,
+                        ]),
+                    ],
+                ],
+                'second_options' => [
+                    'label' => 'Confirmation mot de passe : ',
+                ],
+                'invalid_message' => 'Les mots de passe ne correspondent pas.',
             ])
             ->add('phoneNumber', TextType::class, [
                 'label' => 'Numéro de téléphone : '
@@ -55,8 +63,7 @@ class RegistrationFormType extends AbstractType
                 'class' => Campus::class,
                 'choice_label' => 'name',
                 'label' => 'Campus : ',
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
