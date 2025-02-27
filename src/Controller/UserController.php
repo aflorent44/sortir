@@ -20,6 +20,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class UserController extends AbstractController
 {
+    private UserRepository $userRepository;
+
     #[Route('/{id}', name: 'profil', requirements: ['id' => '\d+'])]
     public function getOneUser(int $id, UserRepository $userRepository): Response
     {
@@ -48,19 +50,6 @@ final class UserController extends AbstractController
         $profilForm->handleRequest($request);
 
         if ($profilForm->isSubmitted() && $profilForm->isValid()) {
-            // Si l'utilisateur n'est pas admin, réassigner le campus sans modification
-            if (!$isAdmin) {
-                $campus = $user->getCampus();
-                dump($user);
-                if ($campus !== null) {
-                    $campus = $em->getRepository(Campus::class)->find($user->getCampus()->getId());
-                    $user->setCampus($campus);
-                } else {
-                    $this->addFlash('error', 'Campus non trouvé.');
-                    return $this->redirectToRoute('user_profil', ['id' => $user->getId()]);
-                }
-            }
-
             // Récupération des champs du formulaire
             $oldPassword = $profilForm->get('oldPassword')->getData();
             $newPassword = $profilForm->get('newPassword')->getData();
@@ -79,8 +68,9 @@ final class UserController extends AbstractController
             }
 
             // Mise à jour des autres informations
-            $em->persist($user);
+//            $em->persist($user);
             $em->flush();
+            dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
 
             // Redirection nécessaire pour Turbo Drive
