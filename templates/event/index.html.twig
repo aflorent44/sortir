@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Event index{% endblock %}
+{% block title %}Liste des Sorties {% endblock %}
 
 {% block body %}
-    <p class="text-3xl font-bold underline mb-4">Event index</p>
+    <p class="text-3xl font-bold underline mb-4">Liste des Sorties</p>
 
     {% if app.user %}
         <div class="mb-3 text-3xl lg:text-lg">
@@ -52,7 +52,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="11" class="text-center py-4">Aucun enregistrement n'a été trouvé</td>
+                    <td colspan="11" class="text-center py-4">Aucune sortie trouvée :'(</td>
                 </tr>
             {% endfor %}
             </tbody>

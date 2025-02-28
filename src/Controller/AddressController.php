@@ -62,9 +62,8 @@ final class AddressController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-            if ($isAdmin) {
-                return $this->redirectToRoute('app_address_show', ['id' => $address->getId()], Response::HTTP_SEE_OTHER);
-            }
+            return $this->redirectToRoute('app_address_show', ['id' => $address->getId()], Response::HTTP_SEE_OTHER);
+
         }
 
         return $this->render('address/edit.html.twig', [
