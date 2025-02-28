@@ -24,7 +24,7 @@ class AddressType extends AbstractType
             ])
             ->add('street', TextType::class, [
                 'attr' => ['id' => 'street', 'placeholder' => 'Entrez une rue'],
-                'label' =>'Rue',
+                'label' =>'Agit dresse',
             ])
             ->add('lat', TextType::class, [
                 'attr' => ['id' => 'lat'],

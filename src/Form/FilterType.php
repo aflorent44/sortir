@@ -66,12 +66,6 @@ class FilterType extends AbstractType
                 'label' => 'Sorties terminées',
                 'mapped' => false,
                 'required' => false,
-            ])
-            ->add('btn', SubmitType::class, [
-                'label' => 'Rechercher',
-            ])
-            ->add('reset', ResetType::class, [
-                'label' => 'Réinitialiser',
             ]);
     }
 

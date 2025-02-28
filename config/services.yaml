@@ -6,7 +6,7 @@
 parameters:
     locale: 'fr'
     timezone: 'Europe/Paris'
-    images_directory: '%kernel.project_dir%/public/uploads/images'
+    images_directory: '%kernel.project_dir%/public/uploads/img'
 
 services:
     # default configuration for services in *this* file
