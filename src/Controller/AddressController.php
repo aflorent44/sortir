@@ -55,13 +55,16 @@ final class AddressController extends AbstractController
     #[Route('/{id}/edit', name: 'app_address_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Address $address, EntityManagerInterface $entityManager): Response
     {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
         $form = $this->createForm(AddressType::class, $address);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
+            if ($isAdmin) {
+                return $this->redirectToRoute('app_address_show', ['id' => $address->getId()], Response::HTTP_SEE_OTHER);
+            }
         }
 
         return $this->render('address/edit.html.twig', [

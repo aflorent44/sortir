@@ -21,7 +21,6 @@
         <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
             <thead class="bg-gray-100 text-gray-700">
             <tr>
-                <th class="px-4 py-2 border">Id</th>
                 <th class="px-4 py-2 border">Nom</th>
                 <th class="px-4 py-2 border">Début</th>
                 <th class="px-4 py-2 border">Fin</th>
@@ -37,7 +36,6 @@
             <tbody>
             {% for event in events %}
                 <tr class="hover:bg-gray-50 even:bg-gray-100">
-                    <td class="px-4 py-2 border text-center">{{ event.id }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.name }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i') : '' }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.endsAt ? event.endsAt|date('Y-m-d H:i') : '' }}</td>
