@@ -1,4 +1,4 @@
-<header class="text-gray-600 body-font bg-gray-100">
+<header class="text-gray-600 body-font bg-[#579FB5]">
     <div class="container mx-auto flex flex-wrap p-4 flex-col md:flex-row items-center">
         <nav class="flex lg:w-2/5 flex-wrap items-center text-base md:ml-auto">
             {% if app.user %}
@@ -23,7 +23,7 @@
         <div class="lg:w-2/5 inline-flex lg:justify-end ml-5 lg:ml-0">
             {% if app.user %}
                 <form method="POST" action="{{ path('app_logout') }}">
-                    <button type="submit" class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+                    <button type="submit" class="inline-flex items-center bg-[#9693EC] border-0 py-1 px-3 focus:outline-none hover:bg-[#7A77D9] rounded text-white mt-4 md:mt-0">
                         Déconnexion
                         <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
                             <path d="M5 12h14M12 5l7 7-7 7"></path>
@@ -33,7 +33,7 @@
             {% endif %}
             {% if not app.user %}
                 <form method="GET" action="{{ path('app_login') }}">
-                    <button type="submit" class="inline-flex items-center bg-gray-100 border-0 py-1 px-3 focus:outline-none hover:bg-gray-200 rounded text-base mt-4 md:mt-0">
+                    <button type="submit" class="inline-flex items-center bg-[#9693EC] border-0 py-1 px-3 focus:outline-none hover:bg-[#7A77D9] rounded text-white mt-4 md:mt-0">
                         Connexion
                         <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-4 h-4 ml-1" viewBox="0 0 24 24">
                             <path d="M5 12h14M12 5l7 7-7 7"></path>

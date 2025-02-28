@@ -1,73 +1,133 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Liste des Sorties {% endblock %}
+{% block title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-    <p class="text-3xl font-bold underline mb-4">Liste des Sorties</p>
+    <div class="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-[#54CCD8] rounded-t-xl shadow-md p-6 mb-6">
+                <h1 class="text-2xl font-bold text-white">Liste des Sorties</h1>
+                {% if app.user %}
+                    <div class="mt-2 text-white">
+                        Vous êtes connecté(e) en tant que <span
+                                class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
+                    </div>
+                {% endif %}
+            </div>
 
-    {% if app.user %}
-        <div class="mb-3 text-3xl lg:text-lg">
-            Vous êtes connecté(e) en tant que <span
-                    class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
+            <div id="map"></div>
+            <script src="{{ asset('js/eventsMap.js') }}"></script>
+            <!-- Filtres et bouton d'action -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="w-full md:w-3/4">
+                        {{ form_start(filterForm, {'attr': {'class': 'flex flex-col sm:flex-row flex-wrap gap-4'}}) }}
+                        {% for field in filterForm.children %}
+                            <div class="w-full sm:w-auto">
+                                {{ form_label(field, null, {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-1 text-sm'}}) }}
+                                {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }}
+                            </div>
+                        {% endfor %}
+                        <div class="mt-auto pt-4 sm:pt-0">
+                            <button type="submit"
+                                    class="w-full sm:w-auto px-4 py-2 bg-[#579FB5] text-white rounded-lg hover:bg-[#4A8A9E] transition-colors duration-300">
+                                Filtrer
+                            </button>
+                        </div>
+                        {{ form_end(filterForm) }}
+                    </div>
+
+                    <div class="w-full md:w-1/4 flex justify-center md:justify-end mt-4 md:mt-0">
+                        <a href="{{ path('app_event_new') }}"
+                           class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Organiser une sortie
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                        <tr class="bg-[#54CCD8] text-white">
+                            <th class="px-4 py-3 text-left">Nom</th>
+                            <th class="px-4 py-3 text-left">Début</th>
+                            <th class="px-4 py-3 text-left">Fin</th>
+                            <th class="px-4 py-3 text-left">Durée</th>
+                            <th class="px-4 py-3 text-left">Inscriptions jusqu'au</th>
+                            <th class="px-4 py-3 text-left">Participants max</th>
+                            <th class="px-4 py-3 text-left">Campus</th>
+                            <th class="px-4 py-3 text-left">Ville</th>
+                            <th class="px-4 py-3 text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for event in events %}
+                            <tr class="hover:bg-gray-50 border-b border-gray-200">
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-gray-900">{{ event.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ event.description|length > 30 ? event.description|slice(0, 30) ~ '...' : event.description }}</div>
+                                </td>
+                                <td class="px-4 py-3">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</td>
+                                <td class="px-4 py-3">{{ event.endsAt ? event.endsAt|date('d/m/Y H:i') : '' }}</td>
+                                <td class="px-4 py-3">{{ event.duration ? event.duration.format('%d j, %Hh%i') : '' }}</td>
+                                <td class="px-4 py-3">{{ event.registrationEndsAt ? event.registrationEndsAt|date('d/m/Y H:i') : '' }}</td>
+                                <td class="px-4 py-3 text-center">{{ event.maxParticipantNumber }}</td>
+                                <td class="px-4 py-3">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
+                                <td class="px-4 py-3">{{ event.address.city }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex justify-center space-x-2">
+                                        <a href="{{ path('app_event_show', {'id': event.id}) }}"
+                                           class="px-3 py-1 bg-[#579FB5] text-white rounded hover:bg-[#4A8A9E] transition-colors duration-300 text-sm flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Voir
+                                        </a>
+                                        <a href="{{ path('app_event_edit', {'id': event.id}) }}"
+                                           class="px-3 py-1 bg-[#FCB038] text-white rounded hover:bg-[#E09927] transition-colors duration-300 text-sm flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            Modifier
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="px-4 py-8 text-center">
+                                    <div class="flex flex-col items-center justify-center space-y-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300"
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <p class="text-gray-500 text-lg">Aucune sortie trouvée</p>
+                                        <p class="text-[#9693EC]">Créez votre première sortie en cliquant sur "Organiser
+                                            une sortie"</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    {% endif %}
-
-    <h1>Les sorties</h1>
-
-    <div id="map"></div>
-
-    <script src="{{ asset('js/eventsMap.js') }}"></script>
-
-
-    <div class="mb-6 text-3xl lg:text-lg">{{ form(filterForm) }}</div>
-    <div class="mt-4">
-        <a href="{{ path('app_event_new') }}"
-           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-3xl lg:text-lg">Organiser une
-            sortie</a>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
-            <thead class="bg-gray-100 text-gray-700">
-            <tr>
-                <th class="px-4 py-2 border">Nom</th>
-                <th class="px-4 py-2 border">Début</th>
-                <th class="px-4 py-2 border">Fin</th>
-                <th class="px-4 py-2 border">Durée</th>
-                <th class="px-4 py-2 border">Fin de l'enregistrement</th>
-                <th class="px-4 py-2 border">Description</th>
-                <th class="px-4 py-2 border">Participants max</th>
-                <th class="px-4 py-2 border">Campus</th>
-                <th class="px-4 py-2 border">Ville</th>
-                <th class="px-4 py-2 border">Statut</th>
-                <th class="px-4 py-2 border">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for event in events %}
-                <tr class="hover:bg-gray-50 even:bg-gray-100">
-                    <td class="px-4 py-2 border text-center">{{ event.name }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.endsAt ? event.endsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.duration ? event.duration.format('%d jour(s), %Hh:%i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i') : '' }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.description }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.maxParticipantNumber }}</td>
-                    <td class="px-4 py-2 border text-center">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.address.city }}</td>
-                    <td class="px-4 py-2 border text-center">{{ event.status.value }}</td>
-                    <td class="px-4 py-2 border text-center">
-                        <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-blue-500 hover:underline">Voir</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="11" class="text-center py-4">Aucune sortie trouvée :'(</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
 
 
 {% endblock %}

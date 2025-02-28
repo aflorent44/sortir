@@ -76,10 +76,9 @@ final class AddressController extends AbstractController
     #[isGranted('ROLE_ADMIN')]
     public function delete(Request $request, Address $address, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$address->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($address);
             $entityManager->flush();
-        }
+
 
         return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
     }
