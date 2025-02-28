@@ -59,7 +59,6 @@ class StartServicesCommand extends Command
         }
 
         $output->writeln('<info>Tous les services ont été lancés dans des terminaux séparés.</info>');
-        $output->writeln('<comment>Note: Ces fenêtres sont des fenêtres CMD standards et non des terminaux intégrés à PhpStorm.</comment>');
         return Command::SUCCESS;
     }
 }

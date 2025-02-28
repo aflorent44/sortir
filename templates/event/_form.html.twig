@@ -15,7 +15,11 @@
     {{ form_row(addressForm.name) }}
     {{ form_row(addressForm.city) }}
     <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
-    {{ form_widget(addressForm) }}
+    {{ form_row(addressForm.zipCode) }}
+    {{ form_row(addressForm.street) }}
+    <ul id="street-suggestions" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
+
+    {{ form_widget(addressForm, { 'attr': {'hidden': true} }) }}
     {{ form_row(eventForm.save) }}
     {{ form_row(eventForm.publish) }}
 {{ form_end(eventForm) }}

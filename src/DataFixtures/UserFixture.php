@@ -27,6 +27,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         //création admin
         $admin = new User();
         $admin->setEmail('admin@campus-eni.fr');
+        $admin->setPseudo('admin_test');
         $admin->setRoles(['ROLE_ADMIN']);
         $admin->setName($faker->lastName);
         $admin->setFirstName($faker->firstName);
@@ -49,6 +50,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         for ($i = 1; $i < 10; $i++) {
             $user = new User();
             $user->setEmail("user$i@campus-eni.fr");
+            $user->setPseudo("user$i");
             $user->setRoles(['ROLE_USER']);
             $user->setName($faker->lastName);
             $user->setFirstName($faker->firstName);

@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'Il y a déjà un compte utilisateur avec cet email.')]
+#[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà pris.')]
+#[UniqueEntity(fields: ['phoneNumber'], message: 'Ce numéro de téléphone est déjà utilisé.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -22,7 +24,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 200,  unique: true)]
-    #[Assert\Email(message: 'Votre email est incorrect.')]
+    #[Assert\Email(message: 'Votre email {{ value }} est incorrect.')]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$/',
         message: 'Vous devez utiliser votre adresse @campus-eni.fr'
@@ -56,7 +58,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: 'Votre prénom doit contenir maximum {{ limit }} caractères.')]
     private ?string $firstName = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: 'string', length: 20, unique: true)]
     #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
     #[Assert\Regex(
         pattern: '/^0[67]([-. ]?[0-9]{2}){4}$/',
@@ -80,10 +82,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageProfile = null;
 
+    #[ORM\Column(type: 'string', length: 50, unique: true)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre pseudo doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre pseudo doit contenir maximum {{ limit }} caractères.')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._-]+$/',
+        message: 'Le pseudo ne peut contenir que des lettres, chiffres et les symboles "-", "_" et ".".'
+    )]
+    private ?string $pseudo = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $profileImage = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
         $this->user = new ArrayCollection();
+        $this->profileImage = 'user1.png';
     }
 
     public function getId(): ?int
@@ -259,6 +276,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImageProfile(?string $imageProfile): static
     {
         $this->imageProfile = $imageProfile;
+        return $this;
+    }
+
+    public function getPseudo(): ?string
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo(string $pseudo): static
+    {
+        $this->pseudo = $pseudo;
+
+        return $this;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    public function setProfileImage(?string $profileImage): static
+    {
+        $this->profileImage = $profileImage;
+
         return $this;
     }
 

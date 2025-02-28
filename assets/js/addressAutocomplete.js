@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("turbo:load", function () {
     const cityInput = document.getElementById("address_city");
     const postCodeInput = document.getElementById("address_zipCode")
     const streetInput = document.getElementById("address_street")
@@ -13,8 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
         cityInput.parentNode.appendChild(citySuggestions);
     }
 
-    const streetSuggestions = document.createElement("ul");
-    streetSuggestions.classList.add("suggestions-list");
+    const streetSuggestions = document.getElementById("street-suggestions");
 
     if (!streetInput.parentNode.querySelector(".suggestions-list")) {
         streetInput.parentNode.appendChild(streetSuggestions);
@@ -84,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch(apiUrl);
             const data = await response.json();
+            streetSuggestions.classList.remove("hidden")
             streetSuggestions.innerHTML = "";
             console.log(apiUrl)
 
