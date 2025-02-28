@@ -75,15 +75,15 @@ final class UserController extends AbstractController
                 $user->setPassword($encodedPassword);
             }
 
-            $imageProfil = $profilForm->get('image')->getData();
-            if ($imageProfil) {
+            $imageProfile = $profilForm->get('image')->getData();
+            if ($imageProfile) {
                 //gestion de l'image téléchargée
-                $originalImageName = pathinfo($imageProfil->getClientOriginalName(), PATHINFO_FILENAME);
+                $originalImageName = pathinfo($imageProfile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeImageName = $slugger->slug($originalImageName);
-                $newImageName = $safeImageName . '-' . uniqid() . '.' . $imageProfil->guessExtension();
+                $newImageName = $safeImageName . '-' . uniqid() . '.' . $imageProfile->guessExtension();
                 //déplacer le fichier dans le dossier public/uploads
                 try {
-                    $imageProfil->move(
+                    $imageProfile->move(
                         $this->getParameter('images_directory'),
                         $newImageName
                     );
