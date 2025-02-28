@@ -23,7 +23,9 @@
                 <td class="border border-gray-600 px-4 py-2">{{ address.city}}</td>
                 <td class="border border-gray-300 px-4 py-2">
                     {#  <a href="{{ path("user_update_profil", {id: address.id}) }}" class="text-blue-500 hover:underline">Modifier</a> #}
-                    <a href="" class="text-red-500 hover:underline" onclick="return confirm('Supprimer ce lieu ?')">Supprimer</a>
+                    <form action="{{ path("app_address_delete", { id: address.id } ) }}" method="POST">
+                        <input type="submit" class="text-red-500 hover:underline" onclick="return confirm('Supprimer cette adresse ?')" value="Supprimer">
+                    </form>
                 </td>
             </tr>
         {% else %}
