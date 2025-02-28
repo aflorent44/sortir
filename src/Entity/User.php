@@ -80,6 +80,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageProfile = null;
 
+    #[ORM\Column(type: 'string', length: 50)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre pseudo doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre pseudo doit contenir maximum {{ limit }} caractères.')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._-]+$/',
+        message: 'Le pseudo ne peut contenir que des lettres, chiffres et les symboles "-", "_" et ".".'
+    )]
+    private ?string $pseudo = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
@@ -259,6 +270,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setImageProfile(?string $imageProfile): static
     {
         $this->imageProfile = $imageProfile;
+        return $this;
+    }
+
+    public function getPseudo(): ?string
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo(string $pseudo): static
+    {
+        $this->pseudo = $pseudo;
+
         return $this;
     }
 

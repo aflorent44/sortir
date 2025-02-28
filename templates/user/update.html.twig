@@ -9,6 +9,7 @@
     <div>
         {{ form_start(profilForm) }}
         {{ form_row(profilForm.campus, { 'attr': {'hidden': not is_granted('ROLE_ADMIN')} }) }}
+        {{ form_row(profilForm.pseudo) }}
         {{ form_row(profilForm.firstName) }}
         {{ form_row(profilForm.name) }}
         {{ form_row(profilForm.phoneNumber) }}
