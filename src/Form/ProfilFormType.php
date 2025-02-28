@@ -84,10 +84,7 @@ class ProfilFormType extends AbstractType
                         'mimeTypesMessage' => 'Votre image doit être au format .jpeg, .jpg, .png ou .bmp'
                     ])
                 ]
-            ])
-        ->add('save', SubmitType::class, [
-            'label' => 'Enregistrer',
-        ]);
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

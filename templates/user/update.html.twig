@@ -3,30 +3,117 @@
 {% block title %}Modifier profil{% endblock %}
 
 {% block body %}
-    <h2>{{ controller_name }}</h2>
-    <br>
-    {{ form_errors(profilForm) }}
-    <div>
-        {{ form_start(profilForm) }}
-        {{ form_row(profilForm.campus, { 'attr': {'hidden': not is_granted('ROLE_ADMIN')} }) }}
-        {{ form_row(profilForm.pseudo) }}
-        {{ form_row(profilForm.firstName) }}
-        {{ form_row(profilForm.name) }}
-        {{ form_row(profilForm.phoneNumber) }}
-        {{ form_row(profilForm.email) }}
-        {{ form_row(profilForm.oldPassword) }}
-        {{ form_row(profilForm.newPassword) }}
-        {{ form_row(profilForm.confirmPassword) }}
-        {{ form_row(profilForm.image) }}
-        <br>
-        {{ form_end(profilForm) }}
-    </div>
-    <form action="{{ path("user_delete", {id: user.id}) }}" method="POST">
-        {% if app.user and app.user.id == user.id %}
-            <button type="submit" class="btn">Supprimer mon compte</button>
-        {% elseif "ROLE_ADMIN" in app.user.roles %}
-            <button type="submit">Supprimer utilisateur</button>
-        {% endif %}
-    </form>
+    <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-[#54CCD8] p-6">
+                <h1 class="text-2xl font-bold text-white">{{ controller_name }}</h1>
+            </div>
 
+            <div class="p-6 bg-[#EAF3F5]">
+                {% if form_errors(profilForm) %}
+                    <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
+                        {{ form_errors(profilForm) }}
+                    </div>
+                {% endif %}
+
+                {{ form_start(profilForm) }}
+
+                {{ form_row(profilForm.campus, { 'attr': {'hidden': not is_granted('ROLE_ADMIN')} }) }}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="mb-4">
+                        {{ form_label(profilForm.pseudo, 'Pseudo', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.pseudo, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.pseudo, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.firstName, 'Prénom', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.firstName, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.firstName, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.name, 'Nom', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.name, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.name, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.phoneNumber, 'Téléphone', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.phoneNumber, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.phoneNumber, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.email, 'Email', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.email, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.email, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.oldPassword, 'Ancien mot de passe', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.oldPassword, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.oldPassword, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.newPassword, 'Nouveau mot de passe', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.newPassword, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.newPassword, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(profilForm.confirmPassword, 'Confirmer le mot de passe', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(profilForm.confirmPassword, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(profilForm.confirmPassword, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="col-span-full">
+                        <div class="mt-2 flex items-center gap-x-3">
+                            {{ form_label(profilForm.image, 'Image', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                            {{ form_widget(profilForm.image, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                            {{ form_errors(profilForm.image, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                        </div>
+                    </div>
+
+                    <div class="w-full sm:w-auto">
+                        <button type="submit"
+                                class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Enregistrer
+                        </button>
+                    </div>
+                </div>
+
+                {{ form_end(profilForm) }}
+                <br>
+
+                <form action="{{ path("user_delete", {id: user.id}) }}" method="POST" class="w-full sm:w-auto">
+                    <div>
+                        {% if app.user and app.user.id == user.id %}
+                            <button type="submit"
+                                    class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors duration-300 shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Supprimer mon compte
+                            </button>
+                        {% elseif "ROLE_ADMIN" in app.user.roles %}
+                            <button type="submit"
+                                    class="btn bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors duration-300 shadow-md">
+                                Supprimer utilisateur
+                            </button>
+                        {% endif %}
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
 {% endblock %}
