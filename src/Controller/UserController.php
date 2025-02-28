@@ -75,15 +75,15 @@ final class UserController extends AbstractController
                 $user->setPassword($encodedPassword);
             }
 
-            $imageProfile = $profilForm->get('image')->getData();
-            if ($imageProfile) {
+            $profileImage = $profilForm->get('image')->getData();
+            if ($profileImage) {
                 //gestion de l'image téléchargée
-                $originalImageName = pathinfo($imageProfile->getClientOriginalName(), PATHINFO_FILENAME);
+                $originalImageName = pathinfo($profileImage->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeImageName = $slugger->slug($originalImageName);
-                $newImageName = $safeImageName . '-' . uniqid() . '.' . $imageProfile->guessExtension();
+                $newImageName = $safeImageName . '-' . uniqid() . '.' . $profileImage->guessExtension();
                 //déplacer le fichier dans le dossier public/uploads
                 try {
-                    $imageProfile->move(
+                    $profileImage->move(
                         $this->getParameter('images_directory'),
                         $newImageName
                     );
@@ -92,7 +92,7 @@ final class UserController extends AbstractController
                     return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
                 }
                 //maj du User avec le nouveau fichier image
-                $user->setImageProfile($newImageName);
+                $user->setProfileImage($newImageName);
             }
 
             // Mise à jour des autres informations
