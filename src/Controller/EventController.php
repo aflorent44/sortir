@@ -151,16 +151,26 @@ final class EventController extends AbstractController
         $form = $this->createForm(CancelType::class, $event);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+         if ($form->isSubmitted() && $form->isValid()) {
+             if (!in_array($event->getStatus(), [EventStatus::CANCELLED, EventStatus::ENDED, EventStatus::PENDING])) {
 
-            $event->setStatus(EventStatus::CANCELLED);
-            $entityManager->flush();
 
-            $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
-            $this->addFlash("error", "Impossible de supprimer cette sortie");
+                 $event->setStatus(EventStatus::CANCELLED);
+                 $entityManager->flush();
 
-            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+                 $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
+                 $this->addFlash("error", "Impossible d'annuler cette sortie");
+
+                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+             } else {
+                 $message = $event->getStatus()->value;
+                 $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
+                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+             }
+
         }
+
+
         return $this->render('event/cancel.html.twig', [
             'event' => $event,
             'cancelForm' => $form,
