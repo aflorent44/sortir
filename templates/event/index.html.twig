@@ -29,12 +29,6 @@
                                     {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }}
                                 </div>
                             {% endfor %}
-                            <div class="mt-auto pt-4 sm:pt-0">
-                                <button type="submit"
-                                        class="w-full sm:w-auto px-4 py-2 bg-[#579FB5] text-white rounded-lg hover:bg-[#4A8A9E] transition-colors duration-300">
-                                    Filtrer
-                                </button>
-                            </div>
                             {{ form_end(filterForm) }}
                         </div>
 
@@ -52,7 +46,7 @@
                         </div>
                     </div>
                 </div>
-
+                <div>Nombre de résultats : {{ result }}</div>
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse">
@@ -60,10 +54,9 @@
                             <tr class="bg-[#54CCD8] text-white">
                                 <th class="px-4 py-3 text-left">Nom</th>
                                 <th class="px-4 py-3 text-left">Début</th>
-                                <th class="px-4 py-3 text-left">Fin</th>
                                 <th class="px-4 py-3 text-left">Durée</th>
                                 <th class="px-4 py-3 text-left">Inscriptions jusqu'au</th>
-                                <th class="px-4 py-3 text-left">Participants max</th>
+                                <th class="px-4 py-3 text-left">Participants</th>
                                 <th class="px-4 py-3 text-left">Campus</th>
                                 <th class="px-4 py-3 text-left">Ville</th>
                                 <th class="px-4 py-3 text-center">Actions</th>
@@ -77,10 +70,12 @@
                                         <div class="text-sm text-gray-500">{{ event.description|length > 30 ? event.description|slice(0, 30) ~ '...' : event.description }}</div>
                                     </td>
                                     <td class="px-4 py-3">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</td>
-                                    <td class="px-4 py-3">{{ event.endsAt ? event.endsAt|date('d/m/Y H:i') : '' }}</td>
-                                    <td class="px-4 py-3">{{ event.duration ? event.duration.format('%d j, %Hh%i') : '' }}</td>
+                                    <td class="px-4 py-3">{{ event.duration ?
+                                        ((event.duration.d * 24) + event.duration.h) ~ 'h ' ~
+                                        (event.duration.i < 10 ? '0' ~ event.duration.i : event.duration.i) : 'Non précisée' }}</td>
                                     <td class="px-4 py-3">{{ event.registrationEndsAt ? event.registrationEndsAt|date('d/m/Y H:i') : '' }}</td>
-                                    <td class="px-4 py-3 text-center">{{ event.maxParticipantNumber }}</td>
+                                    <td class="px-4 py-3 text-center">{{ event.participants.count }}
+                                        / {{ event.maxParticipantNumber }}</td>
                                     <td class="px-4 py-3">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
                                     <td class="px-4 py-3">{{ event.address.city }}</td>
                                     <td class="px-4 py-3">

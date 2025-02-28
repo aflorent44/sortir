@@ -48,48 +48,46 @@
                                 'Début': event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '',
                                 'Fin': event.endsAt ? event.endsAt|date('d/m/Y H:i') : '',
                                 'Durée': event.duration ?
-                                ((event.duration.d * 24) + event.duration.h) ~ 'h ' ~
+                                ((event.duration.days * 24) + event.duration.h) ~ 'h ' ~
                                 (event.duration.i < 10 ? '0' ~ event.duration.i : event.duration.i) ~ 'min' :
                                 'Non précisée',
                                 'Fin d\'inscription': event.registrationEndsAt ? event.registrationEndsAt|date('d/m/Y H:i') : '',
                                 'Description': event.description,
-                                'Participants max': event.maxParticipantNumber
+                                'Participants inscrits': event.participants|length ~ ' / ' ~ event.maxParticipantNumber
                             } %}
                                 <tr class="border-b border-[#54CCD8]/20">
                                     <th class="text-left p-4 font-medium bg-[#54CCD8]/10 text-[#579FB5] w-1/3">{{ label }}</th>
                                     <td class="p-4">{{ value }}</td>
                                 </tr>
                             {% endfor %}
-
-                            <!-- Participants Section -->
-                            <tr>
-                                <th class="text-left p-4 font-medium bg-[#54CCD8]/10 text-[#579FB5] w-1/3">
-                                    Participants inscrits ({{ event.participants|length }})
-                                </th>
-                                <td class="p-4">
-                                    {% if event.participants|length > 0 %}
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {% for participant in event.participants %}
-                                                <a href="{{ path('user_profil', {'id': participant.id}) }}"
-                                                   class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
-                                                    <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
-                                                        {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
-                                                    </div>
-                                                    <span class="font-medium text-[#579FB5]">
-                            {{ participant.firstName }} {{ participant.name }}
-                          </span>
-                                                </a>
-                                            {% endfor %}
-                                        </div>
-                                    {% else %}
-                                        <p class="text-gray-500 italic">Aucun participant inscrit pour le moment</p>
-                                    {% endif %}
-                                </td>
-                            </tr>
                             </tbody>
                         </table>
+
+                        <!-- Participants Section (En bas du tableau) -->
+                        <div class="mt-2 mb-2">
+{#                            <h2 class="text-lg font-semibold text-[#579FB5]">Participants inscrits :</h2>#}
+
+                            {% if event.participants|length > 0 %}
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {% for participant in event.participants %}
+                                        <a href="{{ path('user_profil', {'id': participant.id}) }}"
+                                           class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                            <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                                {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
+                                            </div>
+                                            <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 italic text-center mt-4 mb-4">Aucun participant inscrit pour le moment</p>
+                            {% endif %}
+                        </div>
+
                     </div>
                 </div>
+
+                {% include 'partials/_flash.html.twig' %}
 
                 <!-- Action Buttons -->
                 <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">

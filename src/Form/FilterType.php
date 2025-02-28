@@ -57,11 +57,11 @@ class FilterType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
-//            ->add('notPart', checkboxType::class, [
-//                'label' => 'Sorties auxquelles je ne suis pas inscrit.e',
-//                'mapped' => false,
-//                'required' => false,
-//            ])
+            ->add('isNotParticipant', checkboxType::class, [
+                'label' => 'Sorties auxquelles je ne suis pas inscrit.e',
+                'mapped' => false,
+                'required' => false,
+            ])
             ->add('ended', checkboxType::class, [
                 'label' => 'Sorties terminées',
                 'mapped' => false,

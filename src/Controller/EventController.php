@@ -36,15 +36,16 @@ final class EventController extends AbstractController
         $user = $this->getUser(); // Récupérer l'utilisateur connecté
         $isHost = $form->get('isHost')->getData(); // Vérifier s'il veut filtrer en tant qu'hôte
         $isParticipant = $form->get('isParticipant')->getData(); // Vérifier s'il veut filtrer en tant que participant
-
+        $isNotParticipant = $form->get('isNotParticipant')->getData();
         if ($form->isSubmitted() && $form->isValid()) {
             $campus = $form->get('campus')->getData();
             $name = $form->get('name')->getData();
             $dateMin = $form->get('dateMin')->getData();
             $dateMax = $form->get('dateMax')->getData();
+            $dateMax = $form->get('dateMax')->getData();
             $status = $form->get('ended')->getData();
 
-            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant);
+            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant, $isNotParticipant);
         } else {
             $events = $eventRepository->findAll();
         }
@@ -53,6 +54,7 @@ final class EventController extends AbstractController
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
+            'result' => count($events),
             'filterForm' => $form,
         ]);
     }
@@ -89,7 +91,6 @@ final class EventController extends AbstractController
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
-        dump($event);
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
