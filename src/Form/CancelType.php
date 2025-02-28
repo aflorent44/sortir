@@ -27,6 +27,10 @@ class CancelType extends AbstractType
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Confirmer l\'annulation',
+            ])
+            ->add('_method', HiddenType::class, [
+                'data' => 'POST',
+                'mapped' => false,
             ]);
     }
 
@@ -34,7 +38,9 @@ class CancelType extends AbstractType
     {
         $resolver->setDefaults([
             'method' => 'POST',
-            'csrf_protection' => false,
+            'csrf_protection' => true,
+            'csrf_field_name' => '_token',
+            'csrf_token_id' => 'cancel_event',
         ]);
     }
 }

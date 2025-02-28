@@ -19,8 +19,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/event')]
+#[IsGranted("IS_AUTHENTICATED_FULLY")]
 final class EventController extends AbstractController
 {
 
@@ -108,6 +110,12 @@ final class EventController extends AbstractController
     #[Route('/{id}/edit', name: 'app_event_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
+        // Vérifier si l'événement est en statut CREATED
+        if ($event->getStatus() !== EventStatus::CREATED) {
+            $this->addFlash('error', 'Seuls les événements avec le statut "créée" peuvent être modifiés.');
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+        }
+
         $address = $event->getAddress() ?? new Address();
         $eventForm = $this->createForm(EventType::class, $event);
         $eventForm->handleRequest($request);
@@ -121,7 +129,7 @@ final class EventController extends AbstractController
                 $event->setStatus(EventStatus::OPENED);
             }
             $entityManager->flush();
-            return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('event/edit.html.twig', [
@@ -134,13 +142,16 @@ final class EventController extends AbstractController
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['GET', 'POST'])]
     public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-
+// Ajoutez au début de votre méthode cancel :
+        dump($request->isMethod('POST'));
+        dump($request->getContent());
+        dump($request->request->all()); // Voir si des données POST sont présentes
         $form = $this->createForm(CancelType::class, $event);
         //$request->setMethod('POST');
         $form->handleRequest($request);
         dump($request->getMethod());
-        if ($form->isSubmitted() && $form->isValid()) {
-            dump("Formulaire soumis");
+        if ($request->isMethod('POST') && $form->isSubmitted() && $form->isValid()) {
+            dump("Formulaire soumis en POST");
 
             if ($form->get('submit')->isClicked()) {
                 dump("Bouton cliqué");
@@ -168,9 +179,12 @@ final class EventController extends AbstractController
                 }
             }
         }
-
-
         dump("fin de fonction");
+        if ($request->isMethod('POST')) {
+            dump("C'est bien une requête POST");
+        } else {
+            dump("GET 2");
+        }
         return $this->render('event/cancel.html.twig', [
             'event' => $event,
             'cancelForm' => $form,
