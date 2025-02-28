@@ -279,6 +279,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getProfileImage(): ?string
     {
+        // Si profileImage est null ou égal à 'user1.png', on ne retourne rien
+        // ce qui forcera le template à utiliser l'image par défaut
+        if ($this->profileImage === 'user1.png' || $this->profileImage === null) {
+            return null;
+        }
         return $this->profileImage;
     }
 
