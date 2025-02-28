@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Event;
 use App\Repository\EventRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,7 +17,6 @@ class EventApiController extends AbstractController
     {
 
         $events = $eventRepository->findAll();
-        // Transformer les entités en tableau
         $data = [];
         foreach ($events as $event) {
             $data[] = [
@@ -32,5 +32,20 @@ class EventApiController extends AbstractController
 
         return $this->json($data);
     }
+
+    #[Route('/{id}', name: 'event', methods: ['GET'])]
+    public function show(Event $event) : JsonResponse
+    {
+        $data[] = [
+            'id' => $event->getId(),
+            'name' => $event->getName(),
+            'lat' => $event->getAddress()->getLat(),
+            'lng' => $event->getAddress()->getLng(),
+        ];
+
+        return $this->json($data);
+    }
+
+
 
 }
