@@ -19,7 +19,6 @@
         <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
             <thead class="bg-gray-100 text-gray-700">
             <tr>
-                <th class="px-4 py-2 border">Id</th>
                 <th class="px-4 py-2 border">Nom</th>
                 <th class="px-4 py-2 border">Début</th>
                 <th class="px-4 py-2 border">Fin</th>
@@ -29,13 +28,13 @@
                 <th class="px-4 py-2 border">Participants max</th>
                 <th class="px-4 py-2 border">Campus</th>
                 <th class="px-4 py-2 border">Ville</th>
+                <th class="px-4 py-2 border">Statut</th>
                 <th class="px-4 py-2 border">Actions</th>
             </tr>
             </thead>
             <tbody>
             {% for event in events %}
                 <tr class="hover:bg-gray-50 even:bg-gray-100">
-                    <td class="px-4 py-2 border text-center">{{ event.id }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.name }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i') : '' }}</td>
                     <td class="px-4 py-2 border text-center">{{ event.endsAt ? event.endsAt|date('Y-m-d H:i') : '' }}</td>
@@ -45,9 +44,9 @@
                     <td class="px-4 py-2 border text-center">{{ event.maxParticipantNumber }}</td>
                     <td class="px-4 py-2 border text-center">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
                     <td class="px-4 py-2 border text-center">{{ event.address.city }}</td>
+                    <td class="px-4 py-2 border text-center">{{ event.status.value }}</td>
                     <td class="px-4 py-2 border text-center">
                         <a href="{{ path('app_event_show', {'id': event.id}) }}" class="text-blue-500 hover:underline">Voir</a>
-                        <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="text-yellow-500 hover:underline ml-2">Modifier</a>
                     </td>
                 </tr>
             {% else %}

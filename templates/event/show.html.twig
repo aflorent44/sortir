@@ -15,56 +15,82 @@
                 'Nom': event.name,
                 'Début': event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '',
                 'Fin': event.endsAt ? event.endsAt|date('Y-m-d H:i:s') : '',
-                'Durée': event.duration ? event.duration.format('%y année(s), %m mois, %d jour(s)') : '',
+                'Durée': event.duration ?
+                ((event.duration.d * 24) + event.duration.h) ~ 'h ' ~
+                (event.duration.i < 10 ? '0' ~ event.duration.i : event.duration.i) ~ 'min' :
+                'Non précisée',
                 'Fin d\'inscription': event.registrationEndsAt ? event.registrationEndsAt|date('Y-m-d H:i:s') : '',
                 'Description': event.description,
                 'Participants max': event.maxParticipantNumber,
-                'Adresses': event.address.street,
+                'Adresse': event.address.street,
                 'Ville': event.address.city,
                 'Statut': event.status.value,
-                'Hôte': event.host.id,
-                'Participants inscrits': event.participants.count
+                'Hôte': event.host.firstName ~ ' ' ~ event.host.name
             } %}
                 <tr class="border-b border-gray-300">
                     <th class="text-left p-6 font-medium bg-gray-100 text-xl sm:text-2xl md:text-lg">{{ label }}</th>
                     <td class="p-6 text-xl sm:text-2xl md:text-lg">{{ value }}</td>
                 </tr>
-                <tr>
-                    <th>Nom des participants</th>
-                    {% for part in event.participants %}
-                        <td><a href="{{ path('user_profil', {'id': part.id}) }}">{{ part.firstName }} {{ part.name }}</a></td>
-                    {% endfor %}
-                </tr>
             {% endfor %}
+
+            {# Affichage spécial pour les participants #}
+            <tr class="border-b border-gray-300">
+                <th class="text-left p-6 font-medium bg-gray-100 text-xl sm:text-2xl md:text-lg">Participants inscrits ({{ event.participants|length }})</th>
+                <td class="p-6 text-xl sm:text-2xl md:text-lg">
+                    {% if event.participants|length > 0 %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {% for participant in event.participants %}
+                                <a href="{{ path('user_profil', {'id': participant.id}) }}"
+                                   class="flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <span class="font-medium">{{ participant.firstName }} {{ participant.name }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-500 italic">Aucun participant inscrit pour le moment</p>
+                    {% endif %}
+                </td>
+            </tr>
             </tbody>
         </table>
 
         <div class="flex flex-col sm:flex-row gap-6 mt-8 text-center text-xl sm:text-2xl md:text-lg justify-center">
             <a href="{{ path('app_event_index') }}" class="w-full sm:w-auto bg-gray-500 text-white p-4 rounded-lg hover:bg-gray-600">Retour à la liste</a>
-            <a href="{{ path('app_event_edit', {'id': event.id}) }}" class="w-full sm:w-auto bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600">Modifier la sortie</a>
-            <a href="{{ path('app_event_register', {'id': event.id}) }}" class="w-full sm:w-auto bg-green-500 text-white p-4 rounded-lg hover:bg-green-600">S'inscrire</a>
-            <a href="{{ path('app_event_cancel_registration', {'id': event.id}) }}" class="w-full sm:w-auto bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600">Se désister</a>
+
+
+            {% if event.host.id == app.user.id %}
+                {% if event.status.value == 'créée' %}
+                    <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET"class=text-center">
+                        <button type="submit"
+                                class="w-full sm:w-auto bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600">Modifier la
+                            sortie
+                        </button>
+                    </form>
+                {% endif %}
+                <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="GET"class=text-center">
+                    <button type="submit"
+                            class="w-full sm:w-auto bg-red-500 text-white p-4 rounded-lg hover:bg-red-600 text-xl sm:text-2xl md:text-lg">
+                        Annuler la sortie
+                    </button>
+                </form>
+            {% endif %}
+            {% if event.host.id != app.user.id %}
+                <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST"
+                    class="text-center">
+                    <button type="submit"
+                            class="w-full sm:w-auto bg-green-500 text-white p-4 rounded-lg hover:bg-green-600">
+                        S'inscrire à cette sortie
+                    </button>
+                </form>
+                <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST"
+                    class="text-center">
+                    <button type="submit"
+                            class="w-full sm:w-auto bg-yellow-500 text-white p-4 rounded-lg hover:bg-yellow-600">Se
+                        désister
+                    </button>
+                </form>
+            {% endif %}
         </div>
-    <a href="{{ path('app_event_index') }}">Retour</a>
 
-    {% if event.host.id == app.user.id %}
-        <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET">
-            <button type="submit" class="btn">Modifier la sortie</button>
-        </form>
-
-        <a href="{{ path('app_event_cancel', {'id': event.id}) }}">Annuler la sortie</a>
-    {% endif %}
-    {% if event.host.id != app.user.id %}
-        <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST">
-            <button type="submit" class="btn">S'inscrire à cette sortie</button>
-        </form>
-        <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST">
-            <button type="submit" class="btn">Se désister</button>
-        </form>
-    {% endif %}
-
-        <form action="{{ path('app_event_cancel', {'id': event.id}) }}" method="POST" class="mt-6 text-center">
-            <button type="submit" class="w-full sm:w-auto bg-red-500 text-white p-4 rounded-lg hover:bg-red-600 text-xl sm:text-2xl md:text-lg">Annuler la sortie</button>
-        </form>
     </div>
 {% endblock %}
