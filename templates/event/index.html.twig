@@ -7,15 +7,23 @@
 
     {% if app.user %}
         <div class="mb-3 text-3xl lg:text-lg">
-            Vous êtes connecté(e) en tant que <span class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
+            Vous êtes connecté(e) en tant que <span
+                    class="font-bold">{{ app.user.firstName }} {{ app.user.name }}</span>
         </div>
     {% endif %}
 
     <h1>Les sorties</h1>
 
+    <div id="map"></div>
+
+    <script src="{{ asset('js/eventsMap.js') }}"></script>
+
+
     <div class="mb-6 text-3xl lg:text-lg">{{ form(filterForm) }}</div>
     <div class="mt-4">
-        <a href="{{ path('app_event_new') }}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-3xl lg:text-lg">Organiser une sortie</a>
+        <a href="{{ path('app_event_new') }}"
+           class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-3xl lg:text-lg">Organiser une
+            sortie</a>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full border-collapse border border-gray-500 shadow-md rounded-lg text-3xl lg:text-lg">
@@ -59,6 +67,7 @@
             </tbody>
         </table>
     </div>
+
 
 
 {% endblock %}

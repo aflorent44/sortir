@@ -142,16 +142,12 @@ final class EventController extends AbstractController
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['GET', 'POST'])]
     public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-// Ajoutez au début de votre méthode cancel :
-        dump($request->isMethod('POST'));
-        dump($request->getContent());
-        dump($request->request->all()); // Voir si des données POST sont présentes
         $form = $this->createForm(CancelType::class, $event);
         //$request->setMethod('POST');
         $form->handleRequest($request);
         dump($request->getMethod());
-        if ($request->isMethod('POST') && $form->isSubmitted() && $form->isValid()) {
-            dump("Formulaire soumis en POST");
+        if ($form->isSubmitted() && $form->isValid()) {
+            dump("Formulaire soumis");
 
             if ($form->get('submit')->isClicked()) {
                 dump("Bouton cliqué");
