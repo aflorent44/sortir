@@ -1,0 +1,10 @@
+<div class="w-full md:w-3/4">
+    {{ form_start(filterForm, {'attr': {'class': 'flex flex-col sm:flex-row flex-wrap gap-4'}}) }}
+    {% for field in filterForm.children %}
+        <div class="w-full sm:w-auto">
+            {{ form_label(field, null, {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-1 text-sm'}}) }}
+            {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }}
+        </div>
+    {% endfor %}
+    {{ form_end(filterForm) }}
+</div>
