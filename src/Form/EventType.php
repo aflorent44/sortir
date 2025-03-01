@@ -21,25 +21,28 @@ class EventType extends AbstractType
     {
         $builder
             ->add('name', null, [
-                'label' => 'Nom de la sortie',
+                'attr' => ['placeholder' => "On fait quoi ?"],
+                'label' => 'Nomme ta sortie :',
             ])
             ->add('beginsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date et heure de début de la sortie'
+                'label' => "Quand-est-ce qu'on sort?"
             ])
             ->add('endsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date et heure de fin de la sortie'
+                'label' => 'Et on rentre quand ?'
             ])
             ->add('registrationEndsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date limite d\'inscription'
+                'label' => "Date limite d'inscription"
             ])
             ->add('description', TextareaType::class, [
+                'attr' => ['placeholder' => "Dis-nous en plus !"],
                 'label' => 'Description et infos',
             ])
             ->add('maxParticipantNumber', null, [
-                'label' => 'Nombre de places'
+                'attr' => ['placeholder' => "1000 !"],
+                'label' => "Y'a combien de places? "
             ])
             ->add('campuses', EntityType::class, [
                 'class' => Campus::class,

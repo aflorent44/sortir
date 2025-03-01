@@ -5,3 +5,7 @@
 body {
     background-color: #B6D5DF;
 }
+
+input::placeholder, textarea::placeholder {
+    color: #9c9c9c; /* gray-500 en Tailwind */
+}
