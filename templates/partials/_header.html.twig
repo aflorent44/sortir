@@ -18,7 +18,20 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
             </svg>
-            <span class="animate__animated animate__bounce ml-3 text-xl">Sortir !</span>
+            <span class="animate__animated animate__bounce ml-3 text-xl">Sortir
+               <span {{ stimulus_controller('symfony/ux-typed', {
+                   strings: ["!", "entre potes !", "en boîte !", "entre filles ❤", "de ma chambre .", "prendre l'air !",
+                    "avec des amis !", "faire du sport !", "boire un café !", "profiter du soleil !", "voir un film !", "marcher en forêt !", "danser toute la nuit !",
+                       "courir au parc !", "faire du shopping !" ],
+                   smartBackspace: true,
+                   startDelay: 0,
+                   typeSpeed: 30,
+                   backSpeed: 30,
+                   backDelay: 2000,
+                   loop: true,
+                   showCursor: true,
+                   cursorChar: '|'}) }}></span>
+            </span>
         </a>
         <div class="lg:w-2/5 inline-flex lg:justify-end ml-5 lg:ml-0">
             {% if app.user %}
