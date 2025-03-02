@@ -1,0 +1,147 @@
+<!-- HTML -->
+<div class="flash-container">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash-message flash-{{ label }}">
+                <div class="flash-content">
+                    <span class="flash-icon">
+                        {% if label == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elseif label == 'error' or label == 'danger' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elseif label == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% elseif label == 'info' %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </span>
+                    <span class="flash-text">{{ message }}</span>
+                </div>
+                <button type="button" class="flash-close" aria-label="Close">&times;</button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<!-- CSS -->
+<style>
+    .flash-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1050;
+        max-width: 350px;
+    }
+
+    .flash-message {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.3s ease-out forwards;
+        transition: opacity 0.5s ease-out, transform 0.3s ease-out;
+    }
+
+    .flash-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .flash-icon {
+        margin-right: 12px;
+        font-size: 20px;
+    }
+
+    .flash-text {
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .flash-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 20px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+        padding: 0 0 0 10px;
+        line-height: 1;
+    }
+
+    .flash-close:hover {
+        opacity: 1;
+    }
+
+    /* Style par type de message */
+    .flash-success {
+        background-color: #e7f7ee;
+        color: #0f8c45;
+        border-left: 4px solid #0f8c45;
+    }
+
+    .flash-error, .flash-danger {
+        background-color: #fdf1f2;
+        color: #d63939;
+        border-left: 4px solid #d63939;
+    }
+
+    .flash-warning {
+        background-color: #fff8e5;
+        color: #f59e0b;
+        border-left: 4px solid #f59e0b;
+    }
+
+    .flash-info {
+        background-color: #eef4ff;
+        color: #1a56db;
+        border-left: 4px solid #1a56db;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .flash-fade-out {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+</style>
+
+<!-- JavaScript avec jQuery -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pour chaque message flash
+        const flashMessages = document.querySelectorAll('.flash-message');
+
+        flashMessages.forEach(function(message) {
+            // Configurer le délai avant le fade out (3 secondes)
+            setTimeout(function() {
+                message.classList.add('flash-fade-out');
+                // Supprimer l'élément après l'animation
+                setTimeout(function() {
+                    message.remove();
+                }, 500); // 500ms = durée de la transition
+            }, 3000); // 3000ms = 3 secondes
+
+            // Ajouter l'événement click au bouton de fermeture
+            const closeButton = message.querySelector('.flash-close');
+            closeButton.addEventListener('click', function() {
+                message.classList.add('flash-fade-out');
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            });
+        });
+    });
+</script>

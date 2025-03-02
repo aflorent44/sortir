@@ -20,6 +20,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Map\Bridge\Leaflet\LeafletOptions;
+use Symfony\UX\Map\Bridge\Leaflet\Option\TileLayer;
+use Symfony\UX\Map\InfoWindow;
+use Symfony\UX\Map\Map;
+use Symfony\UX\Map\Marker;
+use Symfony\UX\Map\Point;
 
 #[Route('/event')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
@@ -29,6 +35,16 @@ final class EventController extends AbstractController
     #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
     public function index(Request $request, EventRepository $eventRepository, EventStatusListener $eventStatusListener): Response
     {
+        $map = (new Map())
+            ->center(new Point(48.8566, 2.3522))
+            ->zoom(6)
+            ->options((new LeafletOptions())
+                ->tileLayer(new TileLayer(
+                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    options: ['maxZoom' => 19]
+                ))
+            );
 
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
@@ -36,7 +52,7 @@ final class EventController extends AbstractController
         $user = $this->getUser(); // Récupérer l'utilisateur connecté
         $isHost = $form->get('isHost')->getData(); // Vérifier s'il veut filtrer en tant qu'hôte
         $isParticipant = $form->get('isParticipant')->getData(); // Vérifier s'il veut filtrer en tant que participant
-
+        $isNotParticipant = $form->get('isNotParticipant')->getData();
         if ($form->isSubmitted() && $form->isValid()) {
             $campus = $form->get('campus')->getData();
             $name = $form->get('name')->getData();
@@ -44,15 +60,26 @@ final class EventController extends AbstractController
             $dateMax = $form->get('dateMax')->getData();
             $status = $form->get('ended')->getData();
 
-            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant);
+            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant, $isNotParticipant);
         } else {
             $events = $eventRepository->findAll();
         }
 
         $eventStatusListener->updateAllEventsStatus($events);
+        foreach ($events as $event) {
+            $url = $this->generateUrl('app_event_show', ['id' => $event->getId()]);
+            $marker = new Marker(
+                position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
+                infoWindow: new InfoWindow(
+                    content: '<a href="' . $url . '">' . $event->getName() . '</a>',
+                ));
+            $map->addMarker($marker);
+        }
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
+            'map' => $map,
+            'result' => count($events),
             'filterForm' => $form,
         ]);
     }
@@ -60,7 +87,6 @@ final class EventController extends AbstractController
     #[Route('/new', name: 'app_event_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-
         $user = $this->getUser();
 
         if (!$user) {
@@ -89,7 +115,6 @@ final class EventController extends AbstractController
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
-        dump($event);
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
@@ -101,9 +126,26 @@ final class EventController extends AbstractController
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'])]
     public function show(Event $event, EventStatusListener $eventStatusListener): Response
     {
+        $map = (new Map())
+            ->center(new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()))
+            ->zoom(7)
+            ->options((new LeafletOptions())
+                ->tileLayer(new TileLayer(
+                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    options: ['maxZoom' => 19]
+                )))
+            ->addMarker(new Marker(
+                position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
+                infoWindow: new InfoWindow(
+                    content: $event->getName(),
+                )));
+
         $eventStatusListener->updateOneEventStatus($event);
+
         return $this->render('event/show.html.twig', [
             'event' => $event,
+            'map' => $map,
         ]);
     }
 
@@ -142,16 +184,12 @@ final class EventController extends AbstractController
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['GET', 'POST'])]
     public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-// Ajoutez au début de votre méthode cancel :
-        dump($request->isMethod('POST'));
-        dump($request->getContent());
-        dump($request->request->all()); // Voir si des données POST sont présentes
         $form = $this->createForm(CancelType::class, $event);
         //$request->setMethod('POST');
         $form->handleRequest($request);
         dump($request->getMethod());
-        if ($request->isMethod('POST') && $form->isSubmitted() && $form->isValid()) {
-            dump("Formulaire soumis en POST");
+        if ($form->isSubmitted() && $form->isValid()) {
+            dump("Formulaire soumis");
 
             if ($form->get('submit')->isClicked()) {
                 dump("Bouton cliqué");

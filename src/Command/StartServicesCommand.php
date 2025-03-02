@@ -23,7 +23,7 @@ class StartServicesCommand extends Command
             'symfony serve',
             'symfony console tailwind:build --watch',
             'php bin/console messenger:consume async -vv',
-            'npm run watch'
+            'npm run watch '
 
         ];
 
