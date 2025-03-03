@@ -1,3 +1,5 @@
+import 'core-js/stable';
+
 document.addEventListener("turbo:load", function () {
     const cityInput = document.getElementById("address_city");
     const postCodeInput = document.getElementById("address_zipCode")
