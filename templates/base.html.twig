@@ -22,6 +22,8 @@
 <body class="flex flex-col min-h-screen">
 {% include 'partials/_header.html.twig' %}
 <main class="flex-grow p-4">
+    {% include 'partials/_flash.html.twig' %}
+
     {% block body %}
     {% endblock %}
 </main>

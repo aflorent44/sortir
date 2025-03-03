@@ -57,7 +57,7 @@ class Event
      * @var Collection<int, Campus>
      */
     #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     #[ORM\JoinTable(name: 'event_campus')]
     private Collection $campuses;
 

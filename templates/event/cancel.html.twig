@@ -39,7 +39,7 @@
     <a href="{{ path('app_event_show', {'id': event.id}) }}">Retour</a>
 
     {% if event.host.id == app.user.id %}
-        {{ form_start(cancelForm, {'method': 'POST'}, {'onsubmit':"return confirm('Supprimer cet utilisateur ?')"}) }}
+        {{ form_start(cancelForm, { 'attr': { 'onsubmit': "return confirm('Êtes-vous sûr.e ? L\'annulation d'une sortie est irréversible')" } }) }}
         {{ form_row(cancelForm.cancelReason) }}
             {{ form_row(cancelForm.submit) }}
         {{ form_end(cancelForm) }}

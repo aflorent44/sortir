@@ -63,10 +63,20 @@ final class EventController extends AbstractController
 
             $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant, $isNotParticipant);
         } else {
-            $events = $eventRepository->findAll();
+            $events = $eventRepository->__findAll();
         }
 
         $eventStatusListener->updateAllEventsStatus($events);
+
+        foreach ($events as $key => $event) {
+            if ($event->getStatus() == EventStatus::CREATED && $this->getUser() != $event->getHost()) {
+                unset($events[$key]);
+            }
+            if ($event->getStatus() == EventStatus::CANCELLED && !(($event->getParticipants()->contains($user)) || $event->getHost() == $user)) {
+                unset($events[$key]);
+            }
+        }
+
         foreach ($events as $event) {
             $url = $this->generateUrl('app_event_show', ['id' => $event->getId()]);
             $marker = new Marker(
@@ -76,13 +86,6 @@ final class EventController extends AbstractController
                 ));
             $map->addMarker($marker);
         }
-
-        foreach ($events as $key => $event) {
-            if ($event->getStatus() == EventStatus::CREATED && $user->getId() != $event->getHost()->getId()) {
-                unset($events[$key]);
-            }
-        }
-
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
@@ -200,10 +203,8 @@ final class EventController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            dump("tutu");
-            if (!in_array($event->getStatus(), [EventStatus::CANCELLED, EventStatus::ENDED, EventStatus::PENDING])) {
+            if (in_array($event->getStatus(), [EventStatus::CREATED, EventStatus::OPENED, EventStatus::CLOSED])) {
 
-                dump("blabla");
                 $event->setStatus(EventStatus::CANCELLED);
                 $entityManager->flush();
 
@@ -247,6 +248,17 @@ final class EventController extends AbstractController
         }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'])]
+    public function delete(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
+    {
+        if ($event->getStatus() === EventStatus::CREATED && $event->getHost() == $this->getUser()) {
+            $entityManager->remove($event);
+            $entityManager->flush();
+            $this->addFlash('success', 'Nous vous confirmons la suppression définitive de la sortie ' . $event->getName());
+        }
+        return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
     }
 
 

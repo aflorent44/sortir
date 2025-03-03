@@ -89,10 +89,12 @@
                 </div>
             </div>
 
-            {% include 'partials/_flash.html.twig' %}
-
             {% if event.status.value == 'clôturée' %}
                 <div>Les inscriptions sont désormais clôturées pour cette sortie</div>
+            {% endif %}
+            {% if event.status.value == 'annulée' %}
+                <div>Cette sortie est annulée pour la raison suivante : </div>
+                <div>{{ event.cancelReason }}</div>
             {% endif %}
             <!-- Action Buttons -->
             <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
@@ -135,6 +137,21 @@
                             </button>
                         </form>
                     {% endif %}
+                    {% if event.status.value == 'créée' and app.user == event.host %}
+                        <form method="post" action="{{ path('app_event_delete', {'id': event.id}) }}"
+                              onsubmit="return confirm('Êtes-vous sûr.e ? Cette action est irréversible.')">
+                            <button type="submit"
+                                    class="w-full inline-flex items-center justify-center px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors duration-300 shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                Supprimer la sortie
+                            </button>
+                        </form>
+                    {% endif %}
+
                 {% endif %}
 
                 {% if event.host.id != app.user.id %}
