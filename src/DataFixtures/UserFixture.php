@@ -32,7 +32,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $admin->setName($faker->lastName);
         $admin->setFirstName($faker->firstName);
         $admin->setPhoneNumber('0601020304');
-        $admin->setActive(true);
+        $admin->setIsActive(true);
         //hacher le mdp
         $hashedPassword = $this->passwordHasher->hashPassword(
             $admin,
@@ -55,7 +55,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
             $user->setName($faker->lastName);
             $user->setFirstName($faker->firstName);
             $user->setPhoneNumber('06' . $faker->numerify('########'));
-            $user->setActive($faker->boolean(80)); // 80% de profil actif);
+            $user->setIsActive($faker->boolean(80)); // 80% de profil actif);
 
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user,
