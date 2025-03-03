@@ -26,10 +26,6 @@ class CancelType extends AbstractType
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Confirmer l\'annulation',
-            ])
-            ->add('_method', HiddenType::class, [
-                'data' => 'POST',
-                'mapped' => false,
             ]);
     }
 

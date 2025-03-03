@@ -114,6 +114,7 @@ document.addEventListener("turbo:load", function () {
             citySuggestions.innerHTML = "";
         }
         if (!streetInput.contains(event.target) && !streetSuggestions.contains(event.target)) {
+            streetSuggestions.classList.add("hidden")
             streetSuggestions.innerHTML = "";
         }
 
