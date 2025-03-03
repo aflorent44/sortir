@@ -77,10 +77,16 @@ final class EventController extends AbstractController
             $map->addMarker($marker);
         }
 
+        foreach ($events as $key => $event) {
+            if ($event->getStatus() == EventStatus::CREATED && $user->getId() != $event->getHost()->getId()) {
+                unset($events[$key]);
+            }
+        }
+
+
         return $this->render('event/index.html.twig', [
             'events' => $events,
             'map' => $map,
-            'result' => count($events),
             'filterForm' => $form,
         ]);
     }
@@ -117,7 +123,6 @@ final class EventController extends AbstractController
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
-        dump($event);
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
@@ -156,7 +161,7 @@ final class EventController extends AbstractController
     {
         // Vérifier si l'événement est en statut CREATED
         if ($event->getStatus() !== EventStatus::CREATED) {
-            $this->addFlash('error', 'Seuls les événements avec le statut "créée" peuvent être modifiés.');
+            $this->addFlash('error', 'Seules les sorties avec le statut "créée" peuvent être modifiées.');
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
@@ -194,22 +199,22 @@ final class EventController extends AbstractController
         $form = $this->createForm(CancelType::class, $event);
 
         $form->handleRequest($request);
-         if ($form->isSubmitted() && $form->isValid()) {
-             if (!in_array($event->getStatus(), [EventStatus::CANCELLED, EventStatus::ENDED, EventStatus::PENDING])) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            dump("tutu");
+            if (!in_array($event->getStatus(), [EventStatus::CANCELLED, EventStatus::ENDED, EventStatus::PENDING])) {
 
+                dump("blabla");
+                $event->setStatus(EventStatus::CANCELLED);
+                $entityManager->flush();
 
-                 $event->setStatus(EventStatus::CANCELLED);
-                 $entityManager->flush();
+                $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
 
-                 $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
-                 $this->addFlash("error", "Impossible d'annuler cette sortie");
-
-                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
-             } else {
-                 $message = $event->getStatus()->value;
-                 $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
-                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
-             }
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            } else {
+                $message = $event->getStatus()->value;
+                $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            }
 
         }
 

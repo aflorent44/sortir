@@ -16,11 +16,11 @@
                     {% endif %}
                 </div>
 
-                {#                <div id="map"></div> #}
                 <div>{{ ux_map(map, {style: 'height: 400px;'}) }}</div>
                 <!-- Filtres et bouton d'action -->
                 <div class="bg-white rounded-xl shadow-md p-6 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
                         {% include 'event/_filters.html.twig' %}
 
                         <div class="w-full md:w-1/4 flex justify-center md:justify-end mt-4 md:mt-0">
@@ -37,7 +37,8 @@
                         </div>
                     </div>
                 </div>
-                <div>Nombre de résultats : {{ result }}</div>
+
+                <div>Nombre de résultats : {{ events|length }}</div>
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse">
@@ -50,6 +51,7 @@
                                 <th class="px-4 py-3 text-left">Participants</th>
                                 <th class="px-4 py-3 text-left">Campus</th>
                                 <th class="px-4 py-3 text-left">Ville</th>
+                                <th class="px-4 py-3 text-left">Statut</th>
                                 <th class="px-4 py-3 text-center">Actions</th>
                             </tr>
                             </thead>
@@ -69,6 +71,7 @@
                                         / {{ event.maxParticipantNumber }}</td>
                                     <td class="px-4 py-3">{% for campus in event.campuses %} {{ campus.name }} {% endfor %}</td>
                                     <td class="px-4 py-3">{{ event.address.city }}</td>
+                                    <td class="px-4 py-3">{{ event.status.value|capitalize }}</td>
                                     <td class="px-4 py-3">
                                         <div class="flex justify-center space-x-2">
                                             <a href="{{ path('app_event_show', {'id': event.id}) }}"
@@ -84,6 +87,7 @@
                                                 </svg>
                                                 Voir
                                             </a>
+                                            {% if event.host == app.user and event.status.value == "créée" %}
                                             <a href="{{ path('app_event_edit', {'id': event.id}) }}"
                                                class="px-3 py-1 bg-[#FCB038] text-white rounded hover:bg-[#E09927] transition-colors duration-300 text-sm flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
@@ -94,6 +98,7 @@
                                                 </svg>
                                                 Modifier
                                             </a>
+                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
