@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\AddressRepository;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,8 +30,9 @@ final class AdminController extends AbstractController
 
         return $this->render('admin/users.html.twig', [
             'users' => $users,
-            ]);
+        ]);
     }
+
     #[Route('/dashboard/addresses', name: 'dashboard_addresses', methods: ['GET'])]
     #[isGranted('ROLE_ADMIN')]
     public function addresses(AddressRepository $addressRepository): Response
@@ -40,5 +44,12 @@ final class AdminController extends AbstractController
         ]);
     }
 
-#
-}
+    #[Route('/dashboard/users/{id}/toggle', name: 'dashboard_user_toggle', methods: ['GET', 'POST'])]
+    public function userToggle(User $user, EntityManagerInterface $em, int $id): Response
+    {
+        $user->setIsActive(!$user->isActive());
+        $em->flush();
+
+        $this->addFlash('success', 'Statut du compte mis à jour.');
+        return $this->redirectToRoute('admin_dashboard_users');
+    }}
