@@ -1,0 +1,15 @@
+<div data-controller="live">
+    <input type="text"
+           placeholder="Rechercher un utilisateur..."
+           value="{{ query }}"
+           data-action="input->live#update"
+           data-live-name="query" />
+
+    <ul>
+        {% for user in this.getUsers() %}
+            <li>{{ user.name }} {{ user.firstName }} ({{ user.pseudo }})</li>
+        {% else %}
+            <li>Aucun utilisateur trouvé</li>
+        {% endfor %}
+    </ul>
+</div>
