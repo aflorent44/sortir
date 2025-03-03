@@ -32,14 +32,15 @@ class EventStatusListener
 
     private function updateStatus(Event $event): void
     {
-        $nowMinus1Hour = new \DateTimeImmutable();
-        $now = $nowMinus1Hour->modify('+1 hour');
+        $now = new \DateTimeImmutable();
 
         if ($event->getStatus() === EventStatus::CANCELLED) {
             return;
         }
 
-        if ($event->getEndsAt() <= $now) {
+        if ($event->getEndsAt()->modify('+30 days') <= $now) {
+            $event->setStatus(EventStatus::ARCHIVED);
+        } elseif ($event->getEndsAt() <= $now) {
             $event->setStatus(EventStatus::ENDED);
         } elseif ($event->getBeginsAt() <= $now) {
             $event->setStatus(EventStatus::PENDING);

@@ -44,6 +44,15 @@ class EventRepository extends ServiceEntityRepository
     //        ;
     //    }
 
+    public function __findAll(): array
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.status != :archived')
+            ->setParameter('archived', EventStatus::ARCHIVED)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findByFilters(
         ?Campus    $campus,
         ?string    $name,
@@ -56,9 +65,10 @@ class EventRepository extends ServiceEntityRepository
         bool       $isNotParticipant,
     ): array
     {
-        $queryBuilder = $this->createQueryBuilder('e');
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->andWhere('e.status != :archived')
+            ->setParameter('archived', EventStatus::ARCHIVED);
 
-        dump($status);
         if ($campus) {
             $queryBuilder
                 ->join('e.campuses', 'c')
@@ -97,7 +107,7 @@ class EventRepository extends ServiceEntityRepository
                 $orX->add(':user MEMBER OF e.participants');
             }
 
-            if($isNotParticipant) {
+            if ($isNotParticipant) {
                 $orX->add(':user NOT MEMBER OF e.participants');
             }
 

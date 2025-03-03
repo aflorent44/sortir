@@ -51,7 +51,7 @@ class EventType extends AbstractType
                 'label' => 'Campus',
             ])
             ->add('save', SubmitType::class, [
-                'label' => 'Enregistrer',
+                'label' => 'Sauvegarder',
             ])
             ->add('publish', SubmitType::class, [
                 'label' => 'Publier',

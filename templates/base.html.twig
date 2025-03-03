@@ -36,6 +36,7 @@
         {% endfor %}
     </div>
     <main class="flex-grow p-4">
+        {% include 'partials/_flash.html.twig' %}
         {% block body %}
         {% endblock %}
     </main>
