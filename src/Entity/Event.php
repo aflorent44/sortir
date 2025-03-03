@@ -68,14 +68,16 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private ?Address $address = null;
 
-    #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")] // Permet de ne pas supprimer les événements
     private ?User $host = null;
+
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'events')]
+    #[ORM\JoinTable(name: 'event_participant')]
     private Collection $participants;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

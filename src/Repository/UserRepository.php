@@ -2,8 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Event;
 use App\Entity\User;
+use App\Enum\EventStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -52,4 +55,30 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         return $qb->getQuery()->getResult();
     }
+    public function deleteUser(User $user, EntityManagerInterface $entityManager): void
+    {
+        $eventsAsParticipant = $entityManager->getRepository(Event::class)->createQueryBuilder('e')
+            ->innerJoin('e.participants', 'p')
+            ->where('p = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getResult();
+
+        foreach ($eventsAsParticipant as $event) {
+            $event->removeParticipant($user);
+        }
+
+        $eventsAsHost = $entityManager->getRepository(Event::class)->findBy(['host' => $user]);
+
+        foreach ($eventsAsHost as $event) {
+            $event->setHost(null);
+            $event->setStatus(EventStatus::CANCELLED);
+            $event->setCancelReason("L'organisteur de la sortie n'est plus inscrit");
+        }
+
+        $entityManager->remove($user);
+        $entityManager->flush();
+    }
+
+
 }
