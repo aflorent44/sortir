@@ -1,4 +1,5 @@
-import "core-js/stable";
+// import "core-js/stable/index.js";
+
 
 const Encore = require('@symfony/webpack-encore');
 
