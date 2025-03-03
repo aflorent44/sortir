@@ -18,8 +18,8 @@ class AddressFixtures extends Fixture
             $address = new Address();
             $address->setName($faker->company) // Nom du lieu
             ->setStreet($faker->streetAddress) // Rue et numéro
-            ->setLat($faker->latitude) // Latitude aléatoire
-            ->setLng($faker->longitude) // Longitude aléatoire
+            ->setLat(mt_rand(44000, 50000) / 1000) // Latitude entre 44.000 et 50.000
+            ->setLng(mt_rand(1000, 6000) / 1000) // Longitude entre 1.000 et 6.000
             ->setCity($faker->city) // Ville
             ->setZipCode($faker->postcode); // Code postal
 
