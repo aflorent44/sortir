@@ -13,8 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'Il y a déjà un compte utilisateur avec cet email.')]
-#[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà pris.')]
+#[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
+#[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà utilisé.')]
 #[UniqueEntity(fields: ['phoneNumber'], message: 'Ce numéro de téléphone est déjà utilisé.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -23,7 +23,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 200,  unique: true)]
+    #[ORM\Column(length: 200, unique: true)]
     #[Assert\Email(message: 'Votre email {{ value }} est incorrect.')]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$/',
@@ -66,9 +66,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $phoneNumber = null;
 
-    #[ORM\Column]
-    private ?bool $active = null;
-
     /**
      * @var Collection<int, Event>
      */
@@ -92,6 +89,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $profileImage = null;
+
+    #[ORM\Column]
+    private ?bool $isActive = true;
 
     public function __construct()
     {
@@ -124,13 +124,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
+     * @return list<string>
      * @see UserInterface
      *
-     * @return list<string>
      */
     public function getRoles(): array
     {
@@ -211,18 +211,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): static
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Event>
      */
@@ -290,6 +278,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfileImage(?string $profileImage): static
     {
         $this->profileImage = $profileImage;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

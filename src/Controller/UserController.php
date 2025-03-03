@@ -63,13 +63,6 @@ final class UserController extends AbstractController
                 return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
             }
 
-            // Vérification de la confirmation du nouveau mot de passe
-//            if ($newPassword && $newPassword !== $confirmPassword) {
-//                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-//                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
-//            }
-
-            // Hash du nouveau mot de passe
             if ($newPassword) {
                 $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
                 $user->setPassword($encodedPassword);
@@ -137,6 +130,6 @@ final class UserController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'Utilisateur supprimé avec succès.');
-        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_users');
+        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_dashboard_users');
     }
 }

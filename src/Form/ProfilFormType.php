@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
+use Symfony\Component\Validator\Constraints\PasswordStrength;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Constraints\Callback;
 
@@ -52,10 +55,17 @@ class ProfilFormType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
+                    new NotBlank([
+                        'message' => 'Veuillez saisir un mot de passe s\'il vous plait.',
+                    ]),
                     new Length([
-                        'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères.'
-                    ])
+                        'min' => 8,
+                        'minMessage' => 'Votre mot de passe doit contenir minimum {{ limit }} caractères.',
+                        // max length allowed by Symfony for security reasons
+                        'max' => 4096,
+                    ]),
+                    new PasswordStrength(),
+                    new NotCompromisedPassword(),
                 ]
             ])
             ->add('confirmPassword', PasswordType::class, [
