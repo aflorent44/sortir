@@ -1,4 +1,6 @@
-require("core-js/stable/index.js");
+// import "core-js/stable/index.js";
+
+
 const Encore = require('@symfony/webpack-encore');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
