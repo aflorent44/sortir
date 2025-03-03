@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@symfony/stimulus-bundle": "^2.23.0",
-    "core-js": "^3.41.0",
+    "core-js": "3.38",
     "flowbite": "^3.1.2"
   },
   "scripts": {
