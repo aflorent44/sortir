@@ -18,19 +18,28 @@
             <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
         {% endblock %}
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-        {% block importmap %}{{ importmap('app') }}{% endblock %}
-    {% endblock %}
-</head>
-<body class="flex flex-col min-h-screen">
-{% include 'partials/_header.html.twig' %}
-<main class="flex-grow p-4">
-    {% include 'partials/_flash.html.twig' %}
-
-    {% block body %}
-    {% endblock %}
-</main>
-{% include 'partials/_footer.html.twig' %}
-</body>
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body class="flex flex-col min-h-screen">
+    {% include 'partials/_header.html.twig' %}
+    <div class="container mt-3">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert alert-{{ label }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <main class="flex-grow p-4">
+        {% include 'partials/_flash.html.twig' %}
+        {% block body %}
+        {% endblock %}
+    </main>
+    {% include 'partials/_footer.html.twig' %}
+    </body>
 </html>
