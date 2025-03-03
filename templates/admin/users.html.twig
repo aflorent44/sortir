@@ -28,6 +28,8 @@
                             <div class="flex flex-col sm:flex-row justify-center gap-4">
                                 <a href="{{ path('user_update_profil', {id: user.id}) }}"
                                    class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 text-xl sm:text-lg">Modifier</a>
+                                <a href="{{ path('admin_dashboard_user_toggle', {id: user.id}) }}"
+                                   class="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 text-xl sm:text-lg">{{ user.isActive ?'Désactiver' : 'Activer' }}</a>
 
                                 <form action="{{ path('user_delete', {id: user.id}) }}" method="POST"
                                       onsubmit="return confirm('Supprimer cet utilisateur ?')">
