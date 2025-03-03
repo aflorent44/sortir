@@ -22,4 +22,4 @@ return [
     Symfony\UX\Map\UXMapBundle::class => ['all' => true],
     Symfony\UX\Typed\TypedBundle::class => ['all' => true],
     Symfony\UX\TogglePassword\TogglePasswordBundle::class => ['all' => true],
-
+    ];
