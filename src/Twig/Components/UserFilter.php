@@ -24,6 +24,6 @@ final class UserFilter
 
     public function getUsers(): array
     {
-        return $this->ur->findByName($this->query);
+        return $this->ur->findAll($this->query);
     }
 }

@@ -1,12 +1,11 @@
 {
   "dependencies": {
-    "@symfony/stimulus-bundle": "^2.23.0",
     "flowbite": "^3.1.2"
   },
   "scripts": {
     "dev": "encore dev",
-    "watch": "encore dev --watch",
-    "build": "encore production"
+    "build": "encore production",
+    "watch": "encore dev --watch"
   },
   "devDependencies": {
     "@symfony/webpack-encore": "^5.1.0",
