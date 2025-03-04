@@ -16,7 +16,7 @@ use Symfony\Component\Mime\Email;
     name: 'app:send-event-reminders',
     description: 'Envoie des rappels aux participants des événements prévus dans 2 jours.',
 )]
-class SendEventRemindersCommand extends Command
+class EmailRappelCommand extends Command
 {
     private EntityManagerInterface $entityManager;
     private MailerInterface $mailer;
@@ -45,7 +45,6 @@ class SendEventRemindersCommand extends Command
             ->setParameter('start', $targetDateStart)
             ->setParameter('end', $targetDateEnd)
             ->getResult();
-
         if (empty($events)) {
             $io->success('Aucun événement prévu dans 2 jours.');
             return Command::SUCCESS;
