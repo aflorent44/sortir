@@ -31,11 +31,11 @@ class AddressType extends AbstractType
             ])
             ->add('lat', TextType::class, [
                 'attr' => ['id' => 'lat'],
-                'label' => 'latitude',
+                'label' =>'latitude',
             ])
             ->add('lng', TextType::class, [
                 'attr' => ['id' => 'lng'],
-                'label' => 'longitude',
+                'label' =>'longitude',
             ]);
     }
 

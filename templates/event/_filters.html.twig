@@ -1,10 +1,62 @@
-<div class="w-full md:w-3/4">
-    {{ form_start(filterForm, {'attr': {'class': 'flex flex-col sm:flex-row flex-wrap gap-4'}}) }}
-    {% for field in filterForm.children %}
-        <div class="w-full sm:w-auto">
-            {{ form_label(field, null, {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-1 text-sm'}}) }}
-            {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }}
+{# <div class="w-full md:w-3/4"> #}
+{#    {{ form_start(filterForm, {'attr': {'class': 'flex flex-col sm:flex-row flex-wrap gap-4'}}) }} #}
+{#    {% for field in filterForm.children %} #}
+{#        <div class="w-full sm:w-auto"> #}
+{#            {{ form_label(field, null, {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-1 text-sm'}}) }} #}
+{#            {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }} #}
+{#        </div> #}
+{#    {% endfor %} #}
+{#    {{ form_end(filterForm) }} #}
+{# </div> #}
+
+
+{#{{ form_start(filterForm) }}#}
+{#{{ form_row(filterForm.campus) }}#}
+{#{{ form_row(filterForm.name) }}#}
+{#{{ form_row(filterForm.dateMin) }}#}
+{#{{ form_row(filterForm.dateMax) }}#}
+{#{{ form_row(filterForm.isHost) }}#}
+{#{{ form_row(filterForm.isParticipant) }}#}
+{#{{ form_row(filterForm.isNotParticipant) }}#}
+{#{{ form_row(filterForm.ended) }}#}
+{#{{ form_row(filterForm.submit) }}#}
+{#{{ form_row(filterForm.reset) }}#}
+{#{{ form_end(filterForm) }}#}
+
+
+{{ form_start(filterForm, {'attr': {'class': 'space-y-4'}}) }}
+<div>
+    {{ form_label(filterForm.campus, null, {'label_attr': {'class': 'block font-medium'}}) }}
+    {{ form_widget(filterForm.campus, {'attr': {'class': 'w-full border-gray-300 rounded-lg shadow-sm'}}) }}
+</div>
+
+<div>
+    {{ form_label(filterForm.name, null, {'label_attr': {'class': 'block font-medium'}}) }}
+    {{ form_widget(filterForm.name, {'attr': {'class': 'w-full border-gray-300 rounded-lg shadow-sm'}}) }}
+</div>
+
+<div class="flex space-x-4">
+    <div class="w-1/2">
+        {{ form_label(filterForm.dateMin, null, {'label_attr': {'class': 'block font-medium'}}) }}
+        {{ form_widget(filterForm.dateMin, {'attr': {'class': 'w-full border-gray-300 rounded-lg shadow-sm'}}) }}
+    </div>
+    <div class="w-1/2">
+        {{ form_label(filterForm.dateMax, null, {'label_attr': {'class': 'block font-medium'}}) }}
+        {{ form_widget(filterForm.dateMax, {'attr': {'class': 'w-full border-gray-300 rounded-lg shadow-sm'}}) }}
+    </div>
+</div>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for field in [filterForm.isHost, filterForm.isParticipant, filterForm.isNotParticipant, filterForm.ended] %}
+        <div class="flex items-center space-x-2">
+            {{ form_widget(field, {'attr': {'class': 'rounded text-indigo-600 focus:ring-indigo-500'}}) }}
+            {{ form_label(field, null, {'label_attr': {'class': 'font-medium'}}) }}
         </div>
     {% endfor %}
-    {{ form_end(filterForm) }}
 </div>
+
+<div class="flex justify-end space-x-4 mt-4">
+    {{ form_widget(filterForm.submit, {'attr': {'class': "inline-block px-6 py-3 bg-[rgba(252,176,56,0.8)] text-white font-medium rounded-lg hover:bg-[rgba(252,176,56,1)] transition-colors duration-300"}}) }}
+    {{ form_widget(filterForm.reset, {'attr': {'class': 'bg-gray-200 text-gray-600 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-300'}}) }}
+</div>
+{{ form_end(filterForm) }}

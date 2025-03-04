@@ -6,7 +6,20 @@
     <div id="index">
         <div class="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
             <div class="max-w-7xl mx-auto">
+                <div class="w-full flex justify-center md:justify-center mt-4 mb-6 md:mt-0">
+                    <a href="{{ path('app_event_new') }}"
+                       class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Organiser une sortie
+                    </a>
+                </div>
                 <div class="bg-[#54CCD8] rounded-t-xl shadow-md p-6 mb-6">
+
                     <h1 class="text-2xl font-bold text-white">Liste des Sorties</h1>
                     {% if app.user %}
                         <div class="mt-2 text-white">
@@ -23,19 +36,9 @@
 
                         {% include 'event/_filters.html.twig' %}
 
-                        <div class="w-full md:w-1/4 flex justify-center md:justify-end mt-4 md:mt-0">
-                            <a href="{{ path('app_event_new') }}"
-                               class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                     viewBox="0 0 24 24"
-                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 4v16m8-8H4"/>
-                                </svg>
-                                Organiser une sortie
-                            </a>
-                        </div>
+
                     </div>
+
                 </div>
 
                 <div>Nombre de résultats : {{ events|length }}</div>
@@ -120,6 +123,18 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+                <div class="w-full flex justify-center md:justify-center mt-6 mb-4">
+                    <a href="{{ path('app_event_new') }}"
+                       class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                             viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Organiser une sortie
+                    </a>
                 </div>
             </div>
         </div>
