@@ -44,50 +44,14 @@ class EventRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-
-//    public function findByCampus(Campus $campus): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->join('e.campus.id', 'c')  // Jointure entre 'Event' et 'Campus'
-//            ->andWhere('c = :campus')   // On filtre sur le campus spécifique
-//            ->setParameter('campus', $campus)
-//            ->orderBy('e.beginsAt', 'ASC') // Tri par date de début
-//            ->getQuery()
-//            ->getResult();
-//    }
-
-    /**
-     * @return Event[] Returns an array of Event objects
-     */
-    public function findByCampus(Campus $campus): array
+    public function __findAll(): array
     {
         return $this->createQueryBuilder('e')
-            ->join('e.campuses', 'c')
-            ->where('c = :campus')
-            ->setParameter('campus', $campus)
+            ->andWhere('e.status != :archived')
+            ->setParameter('archived', EventStatus::ARCHIVED)
             ->getQuery()
             ->getResult();
     }
-
-    public function findByName(string $name): array
-    {
-        return $this->createQueryBuilder('e')
-            ->where('LOWER(e.name) LIKE LOWER(:name)')
-            ->setParameter('name', '%' . $name . '%')
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findByDate(\DateTimeImmutable $dateMin, \DateTimeImmutable $dateMax): array
-    {
-        return $this->createQueryBuilder('e')
-            ->where('e.date >= :dateMin AND e.date <= :dateMax')
-            ->setParameter('dateMin', $dateMin)
-            ->setParameter('dateMax', $dateMax)
-            ->getQuery()
-            ->getResult();
-    }
-
 
     public function findByFilters(
         ?Campus    $campus,
@@ -97,12 +61,14 @@ class EventRepository extends ServiceEntityRepository
         ?string    $status,
         ?User      $user,
         bool       $isHost,
-        bool       $isParticipant
+        bool       $isParticipant,
+        bool       $isNotParticipant,
     ): array
     {
-        $queryBuilder = $this->createQueryBuilder('e');
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->andWhere('e.status != :archived')
+            ->setParameter('archived', EventStatus::ARCHIVED);
 
-        dump($status);
         if ($campus) {
             $queryBuilder
                 ->join('e.campuses', 'c')
@@ -125,7 +91,7 @@ class EventRepository extends ServiceEntityRepository
                 ->setParameter('dateMax', $dateMax);
         }
 
-        if ($status || $isHost || $isParticipant) {
+        if ($status || $isHost || $isParticipant || $isNotParticipant) {
             $orX = $queryBuilder->expr()->orX();
 
             if ($status) {
@@ -141,10 +107,14 @@ class EventRepository extends ServiceEntityRepository
                 $orX->add(':user MEMBER OF e.participants');
             }
 
+            if ($isNotParticipant) {
+                $orX->add(':user NOT MEMBER OF e.participants');
+            }
+
             $queryBuilder->andWhere($orX);
         }
 
-        if ($isHost || $isParticipant) {
+        if ($isHost || $isParticipant || $isNotParticipant) {
             $queryBuilder->setParameter('user', $user);
         }
 

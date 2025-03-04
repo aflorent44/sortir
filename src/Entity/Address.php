@@ -40,6 +40,9 @@ class Address
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'address')]
     private Collection $events;
 
+    #[ORM\Column]
+    private ?bool $isAllowed = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
@@ -148,6 +151,18 @@ class Address
                 $event->setAddress(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isAllowed(): ?bool
+    {
+        return $this->isAllowed;
+    }
+
+    public function setIsAllowed(bool $isAllowed): static
+    {
+        $this->isAllowed = $isAllowed;
 
         return $this;
     }

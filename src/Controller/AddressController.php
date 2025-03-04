@@ -74,11 +74,9 @@ final class AddressController extends AbstractController
 
     #[Route('/{id}', name: 'app_address_delete', methods: ['POST'])]
     #[isGranted('ROLE_ADMIN')]
-    public function delete(Request $request, Address $address, EntityManagerInterface $entityManager): Response
+    public function delete(AddressRepository $ar, Address $address, EntityManagerInterface $entityManager): Response
     {
-            $entityManager->remove($address);
-            $entityManager->flush();
-
+            $ar->banAddress($address, $entityManager);
 
         return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
     }

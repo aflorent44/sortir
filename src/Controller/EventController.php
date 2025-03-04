@@ -21,6 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\UX\Map\Bridge\Leaflet\LeafletOptions;
+use Symfony\UX\Map\Bridge\Leaflet\Option\TileLayer;
+use Symfony\UX\Map\InfoWindow;
+use Symfony\UX\Map\Map;
+use Symfony\UX\Map\Marker;
+use Symfony\UX\Map\Point;
 
 #[Route('/event')]
 #[IsGranted("IS_AUTHENTICATED_FULLY")]
@@ -30,6 +36,16 @@ final class EventController extends AbstractController
     #[Route('/', name: 'app_event_index', methods: ['GET', 'POST'])]
     public function index(Request $request, EventRepository $eventRepository, EventStatusListener $eventStatusListener): Response
     {
+        $map = (new Map())
+            ->center(new Point(48.8566, 2.3522))
+            ->zoom(6)
+            ->options((new LeafletOptions())
+                ->tileLayer(new TileLayer(
+                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    options: ['maxZoom' => 19]
+                ))
+            );
 
         $form = $this->createForm(FilterType::class);
         $form->handleRequest($request);
@@ -37,7 +53,7 @@ final class EventController extends AbstractController
         $user = $this->getUser(); // Récupérer l'utilisateur connecté
         $isHost = $form->get('isHost')->getData(); // Vérifier s'il veut filtrer en tant qu'hôte
         $isParticipant = $form->get('isParticipant')->getData(); // Vérifier s'il veut filtrer en tant que participant
-
+        $isNotParticipant = $form->get('isNotParticipant')->getData();
         if ($form->isSubmitted() && $form->isValid()) {
             $campus = $form->get('campus')->getData();
             $name = $form->get('name')->getData();
@@ -45,15 +61,35 @@ final class EventController extends AbstractController
             $dateMax = $form->get('dateMax')->getData();
             $status = $form->get('ended')->getData();
 
-            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant);
+            $events = $eventRepository->findByFilters($campus, $name, $dateMin, $dateMax, $status, $user, $isHost, $isParticipant, $isNotParticipant);
         } else {
-            $events = $eventRepository->findAll();
+            $events = $eventRepository->__findAll();
         }
 
         $eventStatusListener->updateAllEventsStatus($events);
 
+        foreach ($events as $key => $event) {
+            if ($event->getStatus() == EventStatus::CREATED && $this->getUser() != $event->getHost()) {
+                unset($events[$key]);
+            }
+            if ($event->getStatus() == EventStatus::CANCELLED && !(($event->getParticipants()->contains($user)) || $event->getHost() == $user)) {
+                unset($events[$key]);
+            }
+        }
+
+        foreach ($events as $event) {
+            $url = $this->generateUrl('app_event_show', ['id' => $event->getId()]);
+            $marker = new Marker(
+                position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
+                infoWindow: new InfoWindow(
+                    content: '<a href="' . $url . '">' . $event->getName() . '</a>',
+                ));
+            $map->addMarker($marker);
+        }
+
         return $this->render('event/index.html.twig', [
             'events' => $events,
+            'map' => $map,
             'filterForm' => $form,
         ]);
     }
@@ -90,7 +126,6 @@ final class EventController extends AbstractController
 
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
-        dump($event);
 
         return $this->render('event/new.html.twig', [
             'event' => $event,
@@ -102,9 +137,25 @@ final class EventController extends AbstractController
     #[Route('/{id}', name: 'app_event_show', methods: ['GET'])]
     public function show(Event $event, EventStatusListener $eventStatusListener): Response
     {
+        $map = (new Map())
+            ->center(new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()))
+            ->zoom(7)
+            ->options((new LeafletOptions())
+                ->tileLayer(new TileLayer(
+                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    options: ['maxZoom' => 19]
+                )))
+            ->addMarker(new Marker(
+                position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
+                infoWindow: new InfoWindow(
+                    content: $event->getName(),
+                )));
+
         $eventStatusListener->updateOneEventStatus($event);
         return $this->render('event/show.html.twig', [
             'event' => $event,
+            'map' => $map,
         ]);
     }
 
@@ -113,7 +164,7 @@ final class EventController extends AbstractController
     {
         // Vérifier si l'événement est en statut CREATED
         if ($event->getStatus() !== EventStatus::CREATED) {
-            $this->addFlash('error', 'Seuls les événements avec le statut "créée" peuvent être modifiés.');
+            $this->addFlash('error', 'Seules les sorties avec le statut "créée" peuvent être modifiées.');
             return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
         }
 
@@ -151,22 +202,20 @@ final class EventController extends AbstractController
         $form = $this->createForm(CancelType::class, $event);
 
         $form->handleRequest($request);
-         if ($form->isSubmitted() && $form->isValid()) {
-             if (!in_array($event->getStatus(), [EventStatus::CANCELLED, EventStatus::ENDED, EventStatus::PENDING])) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (in_array($event->getStatus(), [EventStatus::CREATED, EventStatus::OPENED, EventStatus::CLOSED])) {
 
+                $event->setStatus(EventStatus::CANCELLED);
+                $entityManager->flush();
 
-                 $event->setStatus(EventStatus::CANCELLED);
-                 $entityManager->flush();
+                $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
 
-                 $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
-                 $this->addFlash("error", "Impossible d'annuler cette sortie");
-
-                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
-             } else {
-                 $message = $event->getStatus()->value;
-                 $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
-                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
-             }
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            } else {
+                $message = $event->getStatus()->value;
+                $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
+                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+            }
 
         }
 
@@ -199,6 +248,17 @@ final class EventController extends AbstractController
         }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'])]
+    public function delete(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
+    {
+        if ($event->getStatus() === EventStatus::CREATED && $event->getHost() == $this->getUser()) {
+            $entityManager->remove($event);
+            $entityManager->flush();
+            $this->addFlash('success', 'Nous vous confirmons la suppression définitive de la sortie ' . $event->getName());
+        }
+        return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
     }
 
 

@@ -63,13 +63,6 @@ final class UserController extends AbstractController
                 return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
             }
 
-            // Vérification de la confirmation du nouveau mot de passe
-//            if ($newPassword && $newPassword !== $confirmPassword) {
-//                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-//                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
-//            }
-
-            // Hash du nouveau mot de passe
             if ($newPassword) {
                 $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
                 $user->setPassword($encodedPassword);
@@ -94,11 +87,16 @@ final class UserController extends AbstractController
                 //maj du User avec le nouveau fichier image
                 $user->setProfileImage($newImageName);
             }
+            if ($this->isGranted('ROLE_ADMIN') && $profilForm->has('roles')) {
+                $user->setRoles($profilForm->get('roles')->getData());
+            } else {
+                $user->setRoles(['ROLE_USER']);
+            }
 
             // Mise à jour des autres informations
             $em->persist($user);
             $em->flush();
-            dump($user);
+//            dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
 
             // Redirection nécessaire pour Turbo Drive
@@ -115,7 +113,7 @@ final class UserController extends AbstractController
 
     #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, SessionInterface $session): Response
+    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage,UserRepository $userRepository, SessionInterface $session): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
@@ -123,20 +121,16 @@ final class UserController extends AbstractController
         }
 
         $user = $em->getRepository(User::class)->find($user->getId());
-        $em->remove($user);
+        $userRepository->deleteUser($user, $em);
         $em->flush();
 
         $isCurrentUser = $this->getUser() === $user;
-
         if ($isCurrentUser) {
             $tokenStorage->setToken(null);
             $session->invalidate();
         }
 
-        $em->remove($user);
-        $em->flush();
-
         $this->addFlash('success', 'Utilisateur supprimé avec succès.');
-        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_users');
+        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_dashboard_users');
     }
 }
