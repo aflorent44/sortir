@@ -91,7 +91,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $profileImage = null;
 
     #[ORM\Column]
-    private ?bool $isActive = true;
+    private ?bool $isActive = false;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $activationToken = null;
 
     /**
      * @var Collection<int, Group>
@@ -304,7 +307,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+        return $this;
+    }
 
+    public function getActivationToken(): ?string
+    {
+        return $this->activationToken;
+    }
+
+    public function setActivationToken(?string $activationToken): static
+    {
+        $this->activationToken = $activationToken;
         return $this;
     }
 
