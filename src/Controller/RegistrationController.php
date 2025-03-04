@@ -24,7 +24,6 @@ class RegistrationController extends AbstractController
         dump($request->request->all());
 
         if ($form->isSubmitted() && $form->isValid()) {
-//            dd($form->isValid(), $form->getData(), $form->getErrors(true, false));
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
@@ -37,7 +36,6 @@ class RegistrationController extends AbstractController
             } else {
                 $user->setRoles(['ROLE_USER']);
             }
-//    dd($user);
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -50,7 +48,7 @@ class RegistrationController extends AbstractController
             return $security->login($user, 'form_login', 'main');
         }
 
-        dump($user);
+//        dump($user);
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form,
         ]);

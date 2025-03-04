@@ -75,6 +75,15 @@
                             {{ form_errors(profilForm.image, {'attr': {'class': 'text-red-500 mt-1'}}) }}
                         </div>
                     </div>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <div class="mb-4 col-span-full">
+                            {{ form_label(profilForm.roles, 'Rôle(s)', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                            <div class="mt-2 space-y-2">
+                                {{ form_widget(profilForm.roles, {'attr': {'class': 'flex items-center space-x-2'}}) }}
+                                {{ form_errors(profilForm.roles, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                            </div>
+                        </div>
+                    {% endif %}
 
                     <div class="w-full sm:w-auto">
                         <button type="submit"
