@@ -108,7 +108,7 @@ final class UserController extends AbstractController
 
     #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, SessionInterface $session): Response
+    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage,UserRepository $userRepository, SessionInterface $session): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
@@ -116,18 +116,14 @@ final class UserController extends AbstractController
         }
 
         $user = $em->getRepository(User::class)->find($user->getId());
-        $em->remove($user);
+        $userRepository->deleteUser($user, $em);
         $em->flush();
 
         $isCurrentUser = $this->getUser() === $user;
-
         if ($isCurrentUser) {
             $tokenStorage->setToken(null);
             $session->invalidate();
         }
-
-        $em->remove($user);
-        $em->flush();
 
         $this->addFlash('success', 'Utilisateur supprimé avec succès.');
         return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_dashboard_users');

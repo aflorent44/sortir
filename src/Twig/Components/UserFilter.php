@@ -8,7 +8,7 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
-#[AsLiveComponent('SearchUsers', template: 'components/UserFilter.html.twig')]
+#[AsLiveComponent('filter-users', template: 'components/UserFilter.html.twig')]
 final class UserFilter
 {
     use DefaultActionTrait;
@@ -24,6 +24,6 @@ final class UserFilter
 
     public function getUsers(): array
     {
-        return $this->ur->findAll($this->query);
+        return $this->ur->findByName($this->query);
     }
 }

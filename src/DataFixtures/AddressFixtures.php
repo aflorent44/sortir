@@ -21,8 +21,8 @@ class AddressFixtures extends Fixture
             ->setLat(mt_rand(44000, 50000) / 1000) // Latitude entre 44.000 et 50.000
             ->setLng(mt_rand(1000, 6000) / 1000) // Longitude entre 1.000 et 6.000
             ->setCity($faker->city) // Ville
-            ->setZipCode($faker->postcode); // Code postal
-
+            ->setZipCode($faker->postcode) // Code postal
+            ->setIsAllowed(true);
             $manager->persist($address);
         }
 
