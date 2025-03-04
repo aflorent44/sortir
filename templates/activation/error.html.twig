@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Oups ! Une erreur est survenue{% endblock %}
+
+{% block body %}
+
+    <div style="text-align: center; padding: 50px;">
+    <h1>😢 Oups ! Une erreur est survenue.</h1>
+    <p>Il semble que la page que vous recherchez n'existe pas ou qu'une erreur se soit produite.</p>
+
+    {% if status_code is defined and status_text is defined %}
+        <p><strong>Erreur {{ status_code }} :</strong> {{ status_text }}</p>
+    {% else %}
+        <p>Veuillez réessayer plus tard.</p>
+    {% endif %}
+
+{% endblock %}
