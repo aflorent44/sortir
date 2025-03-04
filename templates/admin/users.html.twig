@@ -5,7 +5,21 @@
 {% block body %}
     <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
         <h1 class="text-4xl font-bold text-center mb-6">Liste des utilisateurs</h1>
+
+        <h2>Importer des utilisateurs via un fichier CSV</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {{ form_start(form) }}
+            {{ form_row(form.csv_file) }}
+            <button type="submit" class="btn btn-primary">Importer</button>
+            {{ form_end(form) }}
+        </form>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
         {{ component('filter-users') }}
+
 
     </div>
 {% endblock %}
