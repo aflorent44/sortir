@@ -61,7 +61,7 @@ class SendEventRemindersCommand extends Command
                     ->subject('Rappel : Votre événement approche !')
                     ->html("
                         <p>Bonjour {$participant->getFirstName()},</p>
-                        <p>Votre événement <strong>{$event->getName()}</strong> commence bientôt !</p>
+                        <p>L'événement auquel vous vous êtes inscrit <strong>{$event->getName()}</strong> commence bientôt !</p>
                         <p>Date : {$event->getBeginsAt()->format('d/m/Y H:i')}</p>
                         <p>Lieu : {$event->getAddress()->getName()}</p>
                         <p>À bientôt !</p>
