@@ -66,6 +66,7 @@
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('first')">
                         <i class="fas fa-eye" id="eye-icon-first"></i>
                     </button>
+                    {{ form_errors(registrationForm.plainPassword.first, {'attr': {'class': 'text-red-500 mt-1'}}) }}
                 </div>
             </div>
             <div class="form-group">
@@ -75,6 +76,7 @@
                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility('second')">
                         <i class="fas fa-eye" id="eye-icon-second"></i>
                     </button>
+                    {{ form_errors(registrationForm.plainPassword.second, {'attr': {'class': 'text-red-500 mt-1'}}) }}
                 </div>
             </div>
 
