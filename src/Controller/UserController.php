@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Campus;
 use App\Entity\User;
 use App\Form\ProfilFormType;
+use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\UserRepository;
@@ -25,9 +26,10 @@ final class UserController extends AbstractController
     private UserRepository $userRepository;
 
     #[Route('/{id}', name: 'profil', requirements: ['id' => '\d+'])]
-    public function getOneUser(int $id, UserRepository $userRepository): Response
+    public function getOneUser(int $id, UserRepository $userRepository, EventRepository $e): Response
     {
         $user = $userRepository->find($id);
+        dump($user);
 
         if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
@@ -36,6 +38,7 @@ final class UserController extends AbstractController
         return $this->render('user\index.html.twig', [
             'controller_name' => 'Mon Profil',
             'user' => $user,
+            'events' => $user->getEvents(),
         ]);
     }
 
