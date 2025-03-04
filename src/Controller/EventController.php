@@ -128,6 +128,7 @@ final class EventController extends AbstractController
         }
 
         return $this->render('event/new.html.twig', [
+            'title' => "Créer une nouvelle sortie",
             'event' => $event,
             'eventForm' => $eventForm,
             'addressForm' => $addressForm,
@@ -186,6 +187,7 @@ final class EventController extends AbstractController
         }
 
         return $this->render('event/edit.html.twig', [
+            'title' => "Modifier une sortie",
             'event' => $event,
             'eventForm' => $eventForm,
             'addressForm' => $addressForm,
