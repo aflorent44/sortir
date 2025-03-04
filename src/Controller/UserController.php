@@ -87,11 +87,16 @@ final class UserController extends AbstractController
                 //maj du User avec le nouveau fichier image
                 $user->setProfileImage($newImageName);
             }
+            if ($this->isGranted('ROLE_ADMIN') && $profilForm->has('roles')) {
+                $user->setRoles($profilForm->get('roles')->getData());
+            } else {
+                $user->setRoles(['ROLE_USER']);
+            }
 
             // Mise à jour des autres informations
             $em->persist($user);
             $em->flush();
-            dump($user);
+//            dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
 
             // Redirection nécessaire pour Turbo Drive

@@ -4,15 +4,16 @@ namespace App\Form;
 
 use App\Entity\Campus;
 use App\Entity\User;
-use Doctrine\ORM\Mapping\Entity;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
@@ -20,6 +21,7 @@ use Symfony\Component\Validator\Constraints\PasswordStrength;
 
 class RegistrationFormType extends AbstractType
 {
+    public function __construct(private Security $security) {}
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -52,8 +54,8 @@ class RegistrationFormType extends AbstractType
                             // max length allowed by Symfony for security reasons
                             'max' => 4096,
                         ]),
-                        new PasswordStrength(),
-                        new NotCompromisedPassword(),
+//                        new PasswordStrength(),
+//                        new NotCompromisedPassword(),
                     ],
                     'label' => 'Mot de passe : ',
                 ],
@@ -70,6 +72,18 @@ class RegistrationFormType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'Campus : ',
             ]);
+        //champs admin
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            $builder->add('roles', ChoiceType::class, [
+                'choices' => [
+                    'Administrateur' => 'ROLE_ADMIN',
+                    'Utilisateur' => 'ROLE_USER',
+                ],
+                'multiple' => true,
+                'expanded' => true,
+                'required' => true,
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
