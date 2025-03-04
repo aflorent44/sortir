@@ -31,6 +31,9 @@ class Group
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'eventGroup')]
     private Collection $Events;
 
+    #[ORM\Column(length: 50)]
+    private ?string $name = null;
+
     public function __construct()
     {
         $this->members = new ArrayCollection();
@@ -104,6 +107,18 @@ class Group
                 $event->setEventGroup(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
         return $this;
     }
