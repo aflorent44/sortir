@@ -93,11 +93,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isActive = true;
 
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\OneToMany(targetEntity: Group::class, mappedBy: 'Owner')]
+    private Collection $groupsOwned;
+
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
+    private Collection $memberOfGroups;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
         $this->user = new ArrayCollection();
         $this->profileImage = 'user1.png';
+        $this->groupsOwned = new ArrayCollection();
+        $this->memberOfGroups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -290,6 +304,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroupsOwned(): Collection
+    {
+        return $this->groupsOwned;
+    }
+
+    public function addGroupsOwned(Group $groupsOwned): static
+    {
+        if (!$this->groupsOwned->contains($groupsOwned)) {
+            $this->groupsOwned->add($groupsOwned);
+            $groupsOwned->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupsOwned(Group $groupsOwned): static
+    {
+        if ($this->groupsOwned->removeElement($groupsOwned)) {
+            // set the owning side to null (unless already changed)
+            if ($groupsOwned->getOwner() === $this) {
+                $groupsOwned->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getMemberOfGroups(): Collection
+    {
+        return $this->memberOfGroups;
+    }
+
+    public function addMemberOfGroup(Group $memberOfGroup): static
+    {
+        if (!$this->memberOfGroups->contains($memberOfGroup)) {
+            $this->memberOfGroups->add($memberOfGroup);
+            $memberOfGroup->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMemberOfGroup(Group $memberOfGroup): static
+    {
+        if ($this->memberOfGroups->removeElement($memberOfGroup)) {
+            $memberOfGroup->removeMember($this);
+        }
 
         return $this;
     }

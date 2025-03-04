@@ -1,4 +1,4 @@
-email,roles,password,name,firstName,phoneNumber,campus,pseudo,profileImage,isActive
-john.doe@campus-eni.fr,ROLE_USER,password123,Doe,John,0612345678,QUIMPER,john_doe
-jane.smith@campus-eni.fr,ROLE_USER,password456,Smith,Jane,0676543210,NIORT,jane_smith
-bob.martin@campus-eni.fr,ROLE_ADMIN,password789,Martin,Bob,0611223344,NANTES,bob_martin
+email,roles,password,name,firstName,phoneNumber,campus,pseudo,isActive
+john.doe@campus-eni.fr,ROLE_USER,password123,Doe,John,0612345678,QUIMPER,john_doe, true
+jane.smith@campus-eni.fr,ROLE_USER,password456,Smith,Jane,0676543210,NIORT,jane_smith, true
+bob.martin@campus-eni.fr,ROLE_ADMIN,password789,Martin,Bob,0611223344,NANTES,bob_martin, true
