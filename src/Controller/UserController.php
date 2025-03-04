@@ -34,7 +34,7 @@ final class UserController extends AbstractController
         }
 
         return $this->render('user\index.html.twig', [
-            'controller_name' => 'Mon Profil',
+            'controller_name' => 'Profil',
             'user' => $user,
         ]);
     }

@@ -21,7 +21,9 @@
             </div>
             <div class="lg:w-1/2 px-6 mt-4 lg:mt-0">
                 <h2 class="title-font font-semibold text-gray-900 tracking-widest text-xs">HÔTE</h2>
-                <p class="leading-relaxed">{{ event.host.firstName }} {{ event.host.name }}</p>
+                <p class="leading-relaxed">
+                    <a href="{{ path('user_profil', {'id': event.host.id}) }}" class="hover:text-gray-500/10 transition-colors">
+                        {{ event.host.firstName }} {{ event.host.name }}</a></p>
                 <h2 class="title-font font-semibold text-gray-900 tracking-widest text-xs mt-4">STATUT</h2>
                 <p class="leading-relaxed">{{ event.status.value }}</p>
             </div>
@@ -31,7 +33,7 @@
         <!-- Event Details (Right Side) -->
         <div class="lg:w-1/2 md:w-1/2 flex flex-col md:ml-auto w-full md:py-8 mt-8 md:mt-0">
             <div class="bg-[#54CCD8] rounded-t-xl shadow-md p-6">
-                <h1 class="text-2xl font-bold text-white text-center">Détails de l'Événement</h1>
+                <h1 class="text-2xl font-bold text-white text-center">Détails de la sortie</h1>
 
                 {% if event.host.id == app.user.id %}
                     <div class="mt-2 text-white p-2 rounded-lg text-center">
@@ -93,7 +95,7 @@
                 <div>Les inscriptions sont désormais clôturées pour cette sortie</div>
             {% endif %}
             {% if event.status.value == 'annulée' %}
-                <div>Cette sortie est annulée pour la raison suivante : </div>
+                <div>Cette sortie est annulée pour la raison suivante :</div>
                 <div>{{ event.cancelReason }}</div>
             {% endif %}
             <!-- Action Buttons -->
@@ -108,7 +110,7 @@
                     Retour à la liste
                 </a>
 
-                {% if event.host.id == app.user.id or ('ROLE_ADMIN' in app.user.roles)  %}
+                {% if event.host.id == app.user.id or ('ROLE_ADMIN' in app.user.roles) %}
                     {% if event.status.value == 'créée' or (event.status.value == 'ouverte' and event.participants|length == 0) %}
                         <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET"
                               class="w-full sm:w-auto">
@@ -151,10 +153,9 @@
                             </button>
                         </form>
                     {% endif %}
-
                 {% endif %}
 
-                {% if event.host.id != app.user.id %}
+                {% if event.host.id != app.user.id and ('ROLE_ADMIN' not in app.user.roles) %}
                     {% if event.status.value == 'ouverte' and (app.user not in event.participants) %}
                         <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST"
                               class="w-full sm:w-auto" onsubmit="return confirm('Etes-vous sûr.e ?')">
