@@ -84,7 +84,7 @@ final class EventController extends AbstractController
                 infoWindow: new InfoWindow(
                     content: '<a href="' . $url . '">' . $event->getName() . '</a>',
                 ));
-            $map->addMarker($marker);
+            $map->addMarker($marker)->fitBoundsToMarkers();
         }
 
         return $this->render('event/index.html.twig', [
@@ -128,6 +128,7 @@ final class EventController extends AbstractController
         }
 
         return $this->render('event/new.html.twig', [
+            'title' => "Créer une nouvelle sortie",
             'event' => $event,
             'eventForm' => $eventForm,
             'addressForm' => $addressForm,
@@ -149,7 +150,8 @@ final class EventController extends AbstractController
             ->addMarker(new Marker(
                 position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
                 infoWindow: new InfoWindow(
-                    content: $event->getName(),
+                    headerContent: '<b>'.$event->getAddress()->getName().'</b>',
+                    content:$event->getAddress()->getStreet().'<br>'.$event->getAddress()->getZipCode().' '.$event->getAddress()->getCity(),
                 )));
 
         $eventStatusListener->updateOneEventStatus($event);
@@ -185,6 +187,7 @@ final class EventController extends AbstractController
         }
 
         return $this->render('event/edit.html.twig', [
+            'title' => "Modifier une sortie",
             'event' => $event,
             'eventForm' => $eventForm,
             'addressForm' => $addressForm,

@@ -31,7 +31,7 @@ class FilterType extends AbstractType
                 'placeholder' => 'Tous les campus',
             ])
             ->add('name', null, [
-                'label' => 'Le nom de la sortie contient',
+                'label' => 'Le nom de la sortie contient...',
                 'mapped' => false,
                 'required' => false,
             ])
