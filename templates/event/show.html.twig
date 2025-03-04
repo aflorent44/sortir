@@ -108,7 +108,7 @@
                     Retour à la liste
                 </a>
 
-                {% if event.host.id == app.user.id %}
+                {% if event.host.id == app.user.id or ('ROLE_ADMIN' in app.user.roles)  %}
                     {% if event.status.value == 'créée' or (event.status.value == 'ouverte' and event.participants|length == 0) %}
                         <form action="{{ path('app_event_edit', {'id': event.id}) }}" method="GET"
                               class="w-full sm:w-auto">
