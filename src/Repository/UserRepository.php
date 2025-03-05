@@ -73,7 +73,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         foreach ($eventsAsHost as $event) {
             $event->setHost(null);
             $event->setStatus(EventStatus::CANCELLED);
-            $event->setCancelReason("L'organisteur de la sortie n'est plus inscrit");
+            $event->setCancelReason("L'organisateur de la sortie n'est plus inscrit");
         }
 
         $entityManager->remove($user);
