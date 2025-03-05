@@ -62,13 +62,28 @@
                             {% if event.participants|length > 0 %}
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {% for participant in event.participants %}
-                                        <a href="{{ path('user_profil', {'id': participant.id}) }}"
-                                           class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
-                                            <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
-                                                {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
-                                            </div>
-                                            <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
-                                        </a>
+                                        <div class="flex items-center justify-between p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                            <a href="{{ path('user_profil', {'id': participant.id}) }}" class="flex items-center">
+                                                <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                                    {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
+                                                </div>
+                                                <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
+                                            </a>
+                                            {% if app.user == event.host or is_granted('ROLE_ADMIN') %}
+                                                <form action="{{ path('app_event_cancel_registration', {'id': event.id, 'participantId': participant.id}) }}"
+                                                      method="POST"
+                                                      onsubmit="return confirm('Êtes-vous sûr.e de vouloir désinscrire ce participant ?')">
+                                                    <button type="submit"
+                                                            class="text-red-500 hover:text-red-700 transition-colors duration-300
+                               bg-red-100 hover:bg-red-200 p-2 rounded-full">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                  d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
                                     {% endfor %}
                                 </div>
                             {% else %}
@@ -163,7 +178,7 @@
                             </form>
                         {% endif %}
                         {% if (event.status.value == 'ouverte' or event.status.value == 'clôturée') and (app.user in event.participants) %}
-                            <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST"
+                            <form action="{{ path('app_event_cancel_registration', {'id': event.id, 'participantId': app.user.id}) }}" method="POST"
                                   class="w-full sm:w-auto" onsubmit="return confirm('Etes-vous sûr.e ?')">
                                 <button type="submit"
                                         class="w-full inline-flex items-center justify-center px-6 py-3 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors duration-300 shadow-md">

@@ -1,11 +1,22 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Group{% endblock %}
+{% block title %}Créer un groupe{% endblock %}
 
 {% block body %}
-    <h1>Créer un groupe</h1>
 
-    {{ include('group/_form.html.twig') }}
 
-    <a href="{{ path('app_group_index') }}">back to list</a>
+    <div class="max-w-2xl mx-auto p-6 rounded-lg mt-4">
+        <div class="text-center">
+            <a href="{{ path('app_event_index') }}" class="text-blue-500 hover:underline text-lg">← Retour à la liste</a>
+        </div>
+
+        <div class="mb-4">
+            {{ include('group/_form.html.twig') }}
+        </div>
+
+        <div class="text-center">
+            <a href="{{ path('app_event_index') }}" class="text-blue-500 hover:underline text-lg">← Retour à la liste</a>
+        </div>
+    </div>
+
 {% endblock %}
