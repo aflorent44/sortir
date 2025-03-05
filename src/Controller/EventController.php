@@ -13,6 +13,7 @@ use App\Form\EventType;
 use App\Form\FilterType;
 use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
+use App\Repository\UserRepository;
 use App\Service\EventRegistrationService;
 use ContainerMjX9Puf\getConsole_ErrorListenerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -241,13 +242,30 @@ final class EventController extends AbstractController
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['POST'])]
-    public function cancelRegistration(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
-    {
-        if ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
-            $this->addFlash('success', 'Nous vous confirmons l\'annulation de votre inscription à la sortie "' . $event->getName() . '"');
+    #[Route('/{id}/cancelRegistration/{participantId}', name: 'app_event_cancel_registration', methods: ['POST'])]
+    public function cancelRegistration(
+        Event $event,
+        int $participantId,
+        EntityManagerInterface $entityManager,
+        EventRegistrationService $eventRegistrationService,
+        UserRepository $userRepository
+    ): Response {
+        $currentUser = $this->getUser();
+        $participantToRemove = $userRepository->find($participantId);
+
+        if (!$participantToRemove) {
+            $this->addFlash('error', 'Participant non trouvé');
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($eventRegistrationService->unregisterParticipantByAdmin($event, $currentUser, $participantToRemove)) {
+            $this->addFlash('success', sprintf(
+                'Nous vous confirmons l\'annulation de l\'inscription de %s à la sortie "%s"',
+                $participantToRemove->getPseudo(),
+                $event->getName()
+            ));
         } else {
-            $this->addFlash('error', 'Impossible d\'annuler votre inscription à cette sortie');
+            $this->addFlash('error', 'Impossible d\'annuler cette inscription à la sortie');
         }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
