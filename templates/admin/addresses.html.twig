@@ -26,8 +26,8 @@
                         <td class="border border-gray-300 px-6 py-4 text-center">{{ address.city }}</td>
                         <td class="border border-gray-300 px-6 py-4 text-center">
                             <a href="{{ path("app_address_edit", {id: address.id}) }}" class="text-blue-500 hover:underline">Modifier</a>
-                            <form action="{{ path("admin_dashboard_addresses", { id: address.id } ) }}" method="POST">
-                                <input type="submit" class="text-red-500 hover:underline" onclick="return confirm('interdire cette adresse ? Cela annuleré les sorties qui y sont liées')" value="interdire">
+                            <form action="{{ path("app_address_delete", { id: address.id } ) }}" method="POST">
+                                <input type="submit" class="text-red-500 hover:underline" onclick="return confirm('Interdire cette adresse ? Cela annulera les sorties qui y sont liées')" value="interdire">
                             </form>
                         </td>
                     </tr>

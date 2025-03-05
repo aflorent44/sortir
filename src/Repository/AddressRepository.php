@@ -61,7 +61,6 @@ class AddressRepository extends ServiceEntityRepository
 
         $events = $address->getEvents();
         foreach ($events as $event) {
-            $event->setAddress(null);
             $event->setStatus(EventStatus::CANCELLED);
             $event->setCancelReason("L'adresse de la sortie n'est pas autorisée");
         }

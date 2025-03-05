@@ -64,9 +64,8 @@ class Event
     #[ORM\Column(enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::OPENED;
 
-    #[Assert\NotBlank(message: "merci de renseigner une addresse")]
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(name: 'address_id', nullable: false)]
     private ?Address $address = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
