@@ -49,6 +49,7 @@ class EventType extends AbstractType
                 'choice_label' => 'name',
                 'multiple' => true,
                 'label' => 'Campus',
+                'autocomplete' => true,
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Sauvegarder',

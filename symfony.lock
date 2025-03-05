@@ -261,6 +261,18 @@
             "./templates/base.html.twig"
         ]
     },
+    "symfony/ux-autocomplete": {
+        "version": "2.23",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.6",
+            "ref": "07d9602b7231ba355f484305d6cea58310c01741"
+        },
+        "files": [
+            "./config/routes/ux_autocomplete.yaml"
+        ]
+    },
     "symfony/ux-leaflet-map": {
         "version": "2.23",
         "recipe": {
@@ -269,18 +281,6 @@
             "version": "2.19",
             "ref": "bed7e7f6d7c04e0de9665859ddbf0e842e5323e3"
         }
-    },
-    "symfony/ux-map": {
-        "version": "2.23",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.19",
-            "ref": "04de870967555f00bd82f542e9e2d29683c3d39e"
-        },
-        "files": [
-            "./config/packages/ux_map.yaml"
-        ]
     },
     "symfony/ux-live-component": {
         "version": "2.23",
@@ -292,6 +292,18 @@
         },
         "files": [
             "./config/routes/ux_live_component.yaml"
+        ]
+    },
+    "symfony/ux-map": {
+        "version": "2.23",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.19",
+            "ref": "04de870967555f00bd82f542e9e2d29683c3d39e"
+        },
+        "files": [
+            "./config/packages/ux_map.yaml"
         ]
     },
     "symfony/ux-toggle-password": {
@@ -306,9 +318,6 @@
             "ref": "9dd2778a116b6e5e01e5e1582d03d5a9e82630de"
         }
     },
-    "symfony/ux-typed": {
-        "version": "v2.23.0"
-    },
     "symfony/ux-twig-component": {
         "version": "2.23",
         "recipe": {
@@ -320,6 +329,9 @@
         "files": [
             "./config/packages/twig_component.yaml"
         ]
+    },
+    "symfony/ux-typed": {
+        "version": "v2.23.0"
     },
     "symfony/validator": {
         "version": "6.4",
