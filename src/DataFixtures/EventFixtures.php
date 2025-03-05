@@ -35,11 +35,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
             throw new \Exception("Aucun campus trouvé. Assurez-vous que CampusFixtures s'exécute avant EventFixtures.");
         }
 
-        // Pour debug
-        echo "Nombre d'utilisateurs: " . count($users) . "\n";
-        echo "Nombre d'adresses: " . count($addresses) . "\n";
-        echo "Nombre de campus: " . count($campuses) . "\n";
-
         for ($i = 0; $i < 20; $i++) {
             $event = new Event();
             $beginsAt = $faker->dateTimeBetween('+1 week', '+2 months');
