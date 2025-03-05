@@ -6,6 +6,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\EventStatus;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 
 class EventRegistrationService
 {
@@ -24,12 +25,18 @@ class EventRegistrationService
             && $event->getStatus() === EventStatus::OPENED;
     }
 
+    public function canAdminOrHostUnregisterUser(Event $event, User $currentUser, User $participantToRemove): bool
+    {
+        return ($event->getHost() === $currentUser)
+            && $event->getParticipants()->contains($participantToRemove)
+            && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CREATED);
+    }
+
     public function canUserUnregister(Event $event, User $user): bool
     {
         return $event->getParticipants()->contains($user)
             && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CLOSED);
     }
-
 
     public function registerUser(Event $event, User $user): bool
     {
@@ -49,12 +56,20 @@ class EventRegistrationService
             return false;
         }
 
-        foreach ($event->getParticipants() as $participant) {
-            if ($participant->getId() == $user->getId()) {
-                $event->removeParticipant($user);
-                $this->entityManager->flush();
-            }
+        $event->removeParticipant($user);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function unregisterParticipantByAdmin(Event $event, User $currentUser, User $participantToRemove): bool
+    {
+        if (!$this->canAdminOrHostUnregisterUser($event, $currentUser, $participantToRemove)) {
+            return false;
         }
+
+        $event->removeParticipant($participantToRemove);
+        $this->entityManager->flush();
 
         return true;
     }
