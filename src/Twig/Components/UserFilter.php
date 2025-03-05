@@ -8,7 +8,7 @@ use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
-#[AsLiveComponent('filter-users', template: 'components/UserFilter.html.twig')]
+#[AsLiveComponent('admin-filter-users', template: 'components/AdminUserFilter.html.twig')]
 final class UserFilter
 {
     use DefaultActionTrait;
