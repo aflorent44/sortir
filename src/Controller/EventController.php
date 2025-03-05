@@ -105,7 +105,9 @@ final class EventController extends AbstractController
         }
 
         $event = new Event();
-        $eventForm = $this->createForm(EventType::class, $event);
+        $eventForm = $this->createForm(EventType::class, $event, [
+            'user' => $this->getUser()
+        ]);
         $eventForm->handleRequest($request);
         $address = new Address();
         $addressForm = $this->createForm(AddressType::class, $address);

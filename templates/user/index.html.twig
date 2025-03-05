@@ -87,20 +87,37 @@
                     </div>
                 </div>
                 {% endif %}
-                <div class="w-full grid grid-cols-2 gap-2">
-                    {% set allGroups = user.memberOfGroups|merge(user.groupsOwned) %}
 
-                    {% for group in allGroups %}
-                        <div class="p-4 bg-gray-100 rounded-lg shadow-md mb-2">
-                            <h3 class="text-lg font-bold text-gray-900">{{ group.name }}</h3>
-                            <p class="text-sm text-gray-600">Créé par : {{ group.owner.firstName }} {{ group.owner.name }}</p>
-                            <p class="text-sm text-gray-600">Nombre de membres : {{ group.members|length }}</p>
-                            <a href="{{ path('app_group_show', {'id': group.id}) }}"
-                               class="text-blue-600 hover:underline text-sm">Voir le groupe</a>
-                        </div>
+                    {% if app.user.id == user.id %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Mes groupes :</h2>
+                        {% set allGroups = user.memberOfGroups|merge(user.groupsOwned) %}
                     {% else %}
-                        <p class="text-gray-500 italic">Vous n'êtes dans aucun groupe.</p>
-                    {% endfor %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Groupes en commun :</h2>
+                        {% set allGroups = user.groupsOwned|filter(group => app.user in group.members)
+                            |merge(user.memberOfGroups|filter(group => app.user in group.members or app.user == group.owner)) %}
+                    {% endif %}
+                    <div class="w-full grid grid-cols-2 gap-2 ">
+                    {% if allGroups|length > 0 %}
+                        {% for group in allGroups %}
+                            <div class="p-4 bg-gray-100 rounded-lg shadow-md mb-2">
+                                <h3 class="text-lg font-bold text-gray-900">{{ group.name }}</h3>
+                                <p class="text-sm text-gray-600">Créé par : {{ group.owner.firstName }} {{ group.owner.name }}</p>
+                                <p class="text-sm text-gray-600">Nombre de membres : {{ group.members|length }}</p>
+                                <a href="{{ path('app_group_show', {'id': group.id}) }}" class="text-blue-600 hover:underline text-sm">
+                                    Voir le groupe
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 italic">
+                            {% if app.user.id == user.id %}
+                                Vous n'êtes dans aucun groupe.
+                            {% else %}
+                                Aucun groupe en commun avec {{ user.firstName }} {{ user.name }}.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
                 </div>
 
 
