@@ -3,7 +3,7 @@
 {% block title %}Sortir ! - Lieux{% endblock %}
 
 {% block body %}
-    <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
+    <div class="max-w-5xl mx-auto p-6 rounded-lg mt-6">
         <h1 class="text-4xl font-bold text-center mb-6">Liste des lieux</h1>
 
         <div class="overflow-x-auto">
@@ -14,6 +14,7 @@
                     <th class="border border-gray-400 px-6 py-4">Nom</th>
                     <th class="border border-gray-400 px-6 py-4">Adresse</th>
                     <th class="border border-gray-400 px-6 py-4">Ville</th>
+                    <th class="border border-gray-400 px-6 py-4">Autorisée</th>
                     <th class="border border-gray-400 px-6 py-4">Actions</th>
                 </tr>
                 </thead>
@@ -25,15 +26,29 @@
                         <td class="border border-gray-300 px-6 py-4 text-center">{{ address.street }}</td>
                         <td class="border border-gray-300 px-6 py-4 text-center">{{ address.city }}</td>
                         <td class="border border-gray-300 px-6 py-4 text-center">
-                            <a href="{{ path("app_address_edit", {id: address.id}) }}" class="text-blue-500 hover:underline">Modifier</a>
-                            <form action="{{ path("admin_dashboard_addresses", { id: address.id } ) }}" method="POST">
-                                <input type="submit" class="text-red-500 hover:underline" onclick="return confirm('interdire cette adresse ? Cela annuleré les sorties qui y sont liées')" value="interdire">
+                            {% if address.isAllowed %}
+                                {{ 'Oui' }}
+                            {% else %}
+                                {{ 'Non' }}
+                            {% endif %}
+                        </td>
+                        <td class="border border-gray-300 px-6 py-4 text-center">
+                            <a href="{{ path("app_address_edit", {id: address.id}) }}"
+                               class="text-blue-500 hover:underline">Modifier</a>
+                            {% if address.isAllowed %}
+                            <form action="{{ path("app_address_delete", { id: address.id } ) }}" method="POST">
+                                <input type="submit" class="text-red-500 hover:underline"
+                                       onclick="return confirm('Interdire cette adresse ? Cela annulera les sorties qui y sont liées')"
+                                       value="interdire">
                             </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="5" class="text-center border border-gray-300 px-6 py-4 text-2xl sm:text-lg">Aucune adresse trouvée</td>
+                        <td colspan="5" class="text-center border border-gray-300 px-6 py-4 text-2xl sm:text-lg">
+                            Aucune adresse trouvée
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

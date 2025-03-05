@@ -9,7 +9,7 @@
 
         <div class="p-6 bg-[#EAF3F5]">
             {{ form_start(eventForm, {'attr': {'class': 'space-y-6'}}) }}
-
+            {{ form_errors(eventForm, {'attr': {'class': 'text-red-500 mt-1'}}) }}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="mb-4">
                     {{ form_label(eventForm.name, 'Nom de la sortie', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
@@ -83,6 +83,7 @@
             </div>
 
             {{ form_widget(addressForm, { 'attr': {'hidden': true} }) }}
+            {{ form_errors(addressForm, {'attr': {'class': 'text-red-500 mt-1'}}) }}
 
             <div class="mt-8 flex justify-center space-x-4">
                 {{ form_widget(eventForm.save, {'attr': {'class': 'px-8 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md'}}) }}

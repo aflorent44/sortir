@@ -65,7 +65,7 @@ class Event
     private EventStatus $status = EventStatus::OPENED;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(name: 'address_id', nullable: false)]
     private ?Address $address = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]

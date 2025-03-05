@@ -112,6 +112,7 @@ final class EventController extends AbstractController
         $addressForm->handleRequest($request);
 
         if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
+            $address->setIsAllowed(true);
 
             $entityManager->persist($address);
             $event->setAddress($address);
@@ -123,7 +124,6 @@ final class EventController extends AbstractController
             }
             $entityManager->persist($event);
             $entityManager->flush();
-
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
 
