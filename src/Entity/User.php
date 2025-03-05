@@ -96,6 +96,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $activationToken = null;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $activationTokenCreatedAt = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
@@ -304,6 +307,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActivationToken(?string $activationToken): static
     {
         $this->activationToken = $activationToken;
+        return $this;
+    }
+
+    public function getActivationTokenCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->activationTokenCreatedAt;
+    }
+
+    public function setActivationTokenCreatedAt(?\DateTimeImmutable $activationTokenCreatedAt): static
+    {
+        $this->activationTokenCreatedAt = $activationTokenCreatedAt;
+
         return $this;
     }
 
