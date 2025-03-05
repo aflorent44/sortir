@@ -149,7 +149,8 @@
 
                     {% if event.host.id != app.user.id and ('ROLE_ADMIN' not in app.user.roles) %}
                         {% if event.status.value == 'ouverte' and (app.user not in event.participants) %}
-                            <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST"
+                            {% if event.eventGroup is null or event.eventGroup in app.user.memberOfGroups %}
+                                <form action="{{ path('app_event_register', {'id': event.id}) }}" method="POST"
                                   class="w-full sm:w-auto" onsubmit="return confirm('Etes-vous sûr.e ?')">
                                 <button type="submit"
                                         class="w-full inline-flex items-center justify-center px-6 py-3 bg-[#FCB038] text-white font-medium rounded-lg hover:bg-[#E09927] transition-colors duration-300 shadow-md">
@@ -161,6 +162,7 @@
                                     S'inscrire à cette sortie
                                 </button>
                             </form>
+                            {% endif %}
                         {% endif %}
                         {% if (event.status.value == 'ouverte' or event.status.value == 'clôturée') and (app.user in event.participants) %}
                             <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST"
