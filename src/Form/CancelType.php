@@ -21,7 +21,8 @@ class CancelType extends AbstractType
         $builder
             ->add('cancelReason', TextareaType::class, [
                 'label' => 'Motif',
-                'attr' => ['rows' => 4],
+                'attr' => ['rows' => 4,
+                    'placeholder' => 'Expliquez brièvement la raison'],
                 'required' => true,
             ])
             ->add('submit', SubmitType::class, [

@@ -150,8 +150,8 @@ final class EventController extends AbstractController
             ->addMarker(new Marker(
                 position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
                 infoWindow: new InfoWindow(
-                    headerContent: '<b>'.$event->getAddress()->getName().'</b>',
-                    content:$event->getAddress()->getStreet().'<br>'.$event->getAddress()->getZipCode().' '.$event->getAddress()->getCity(),
+                    headerContent: '<b>' . $event->getAddress()->getName() . '</b>',
+                    content: $event->getAddress()->getStreet() . '<br>' . $event->getAddress()->getZipCode() . ' ' . $event->getAddress()->getCity(),
                 )));
 
         $eventStatusListener->updateOneEventStatus($event);
@@ -195,33 +195,52 @@ final class EventController extends AbstractController
     }
 
     #[Route('/{id}/cancel', name: 'app_event_cancel', methods: ['GET', 'POST'])]
-    public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager): Response
+    public function cancel(Request $request, Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
-        if (!$isAdmin && $event->getHost() !== $this->getUser()) {
-            $this->createAccessDeniedException("Réservé aux admins");
+        $isHost = $event->getHost() === $this->getUser();
+
+        if (!$isAdmin && !$isHost) {
+            $this->createAccessDeniedException("Vous n'avez pas le droit d'annuler cet événement.");
         }
 
+        //formulaire d'annulation
         $form = $this->createForm(CancelType::class, $event);
-
         $form->handleRequest($request);
+
+        //traitement form
         if ($form->isSubmitted() && $form->isValid()) {
-            if (in_array($event->getStatus(), [EventStatus::CREATED, EventStatus::OPENED, EventStatus::CLOSED])) {
+            //check les statuts
+            $cancelableStatuses = [
+                EventStatus::CREATED,
+                EventStatus::OPENED,
+                EventStatus::CLOSED
+            ];
 
-                $event->setStatus(EventStatus::CANCELLED);
-                $entityManager->flush();
+            if (in_array($event->getStatus(), $cancelableStatuses)) {
+                try {
+                    //utilise la méthode du service
+                    $cancellationReason = $form->get('cancelReason')->getData() ?? 'Annulé par l\'organisateur';
 
-                $this->addFlash("success", "Nous vous confirmons l'annulation de cette sortie");
+                    //appelle le service
+                    $result = $eventRegistrationService->cancelEvent($event, $cancellationReason);
 
-                return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+                    if ($result) {
+                        $this->addFlash('success', "L'événement a été annulé et les participants ont été notifiés.");
+                        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+                    } else {
+                        $this->addFlash('error', "Impossible d'annuler l'événement.");
+                        return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+                    }
+                } catch (\Exception $e) {
+                    $this->addFlash("error", "Une erreur est survenue lors de l'annulation : " . $e->getMessage());
+                    return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
+                }
             } else {
-                $message = $event->getStatus()->value;
-                $this->addFlash("error", "Impossible d'annuler cette sortie, elle est déjà $message");
+                $this->addFlash('error', "Impossible d'annuler cette sortie, elle est déjà {$event->getStatus()->value}");
                 return $this->redirectToRoute('app_event_show', ['id' => $event->getId()]);
             }
-
         }
-
 
         return $this->render('event/cancel.html.twig', [
             'event' => $event,
@@ -229,7 +248,8 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]
+    #[
+        Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]
     public function register(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
         if ($eventRegistrationService->registerUser($event, $this->getUser())) {

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Événement Annulé</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .alert { background-color: #f8d7da; padding: 15px; border-radius: 5px; }
+        .btn { display: inline-block; background-color: #007bff; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Événement Annulé</h1>
+    <p>Bonjour {{ participant.firstname ?? participant.pseudo }},</p>
+    <div class="alert">
+        <p>L'événement <strong>"{{ event.name }}"</strong> prévu le {{ event.beginsAt|date('d/m/Y H:i') }} a été annulé.</p>
+    </div>
+    <p><strong>Motif :</strong> {{ event.cancelReason ?? 'Aucun motif spécifié' }}</p>
+    <a href="{{ eventUrl }}" class="btn">Voir les détails de l'événement</a>
+</div>
+</body>
+</html>
