@@ -64,7 +64,6 @@ class Event
     #[ORM\Column(enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::OPENED;
 
-    #[Assert\NotBlank(message: "merci de renseigner une addresse")]
     #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: true)]
     private ?Address $address = null;

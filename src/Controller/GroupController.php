@@ -18,9 +18,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class GroupController extends AbstractController
 {
     #[Route(name: 'app_group_index', methods: ['GET'])]
-    #[isGranted('ROLE_ADMIN')]
     public function index(GroupRepository $groupRepository): Response
     {
+
         return $this->render('group/index.html.twig', [
             'groups' => $groupRepository->findAll(),
         ]);

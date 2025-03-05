@@ -33,7 +33,7 @@ final class AddressController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($address);
-            $entityManager->flush();
+            $entityManager>flush();
 
             return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
         }

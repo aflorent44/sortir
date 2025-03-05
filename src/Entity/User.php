@@ -108,6 +108,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
     private Collection $memberOfGroups;
 
+    /**
+     * @var Collection<int, Event>
+     */
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
+    private Collection $eventsAsParticipant;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
@@ -115,6 +121,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->profileImage = 'user1.png';
         $this->groupsOwned = new ArrayCollection();
         $this->memberOfGroups = new ArrayCollection();
+        $this->eventsAsParticipant = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -374,6 +381,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->memberOfGroups->removeElement($memberOfGroup)) {
             $memberOfGroup->removeMember($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEventsAsParticipant(): Collection
+    {
+        return $this->eventsAsParticipant;
+    }
+
+    public function addEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        if (!$this->eventsAsParticipant->contains($eventsAsParticipant)) {
+            $this->eventsAsParticipant->add($eventsAsParticipant);
+        }
+
+        return $this;
+    }
+
+    public function removeEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        $this->eventsAsParticipant->removeElement($eventsAsParticipant);
 
         return $this;
     }
