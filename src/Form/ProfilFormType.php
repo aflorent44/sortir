@@ -25,7 +25,10 @@ use Symfony\Component\Validator\Constraints\Callback;
 
 class ProfilFormType extends AbstractType
 {
-    public function __construct(private Security $security) {}
+    public function __construct(private Security $security)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -47,57 +50,54 @@ class ProfilFormType extends AbstractType
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email'
-            ])
-            ->add('oldPassword', PasswordType::class, [
-                'label' => 'Mot de passe actuel',
-                'mapped' => false,
-                'required' => false,
-            ])
-            ->add('newPassword', PasswordType::class, [
-                'label' => 'Nouveau mot de passe',
-                'mapped' => false,
-                'required' => false,
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez saisir un mot de passe s\'il vous plait.',
-                    ]),
-                    new Length([
-                        'min' => 8,
-                        'minMessage' => 'Votre mot de passe doit contenir minimum {{ limit }} caractères.',
-                        // max length allowed by Symfony for security reasons
-                        'max' => 4096,
-                    ]),
-                    new PasswordStrength(),
-                    new NotCompromisedPassword(),
-                ]
-            ])
-            ->add('confirmPassword', PasswordType::class, [
-                'label' => 'Confirmation du nouveau mot de passe',
-                'mapped' => false,
-                'required' => false,
-                'constraints' => [
-                    new Callback(function ($value, ExecutionContextInterface $context) {
-                        $profilForm = $context->getRoot();
-                        $newPassword = $profilForm->get('newPassword')->getData();
-                        if ($newPassword !== $value) {
-                            $context->buildViolation('Les mots de passe ne correspondent pas')
-                                ->addViolation();
-                        }
-                    }),
-                ],
-            ])
-            ->add('image', FileType::class, [
-                'label' => 'Ajouter un photo de profil',
-                'mapped' => false,
-                'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '1024k',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/bmp', 'image/jpg'],
-                        'mimeTypesMessage' => 'Votre image doit être au format .jpeg, .jpg, .png ou .bmp'
-                    ])
-                ]
             ]);
+            if (!$this->security->isGranted('ROLE_ADMIN')) {
+                $builder->add('oldPassword', PasswordType::class, [
+                    'label' => 'Mot de passe actuel',
+                    'mapped' => false,
+                    'required' => false,
+                ]);
+                $builder->add('newPassword', PasswordType::class, [
+                    'label' => 'Nouveau mot de passe',
+                    'mapped' => false,
+                    'required' => false,
+                    'constraints' => [
+                        new Length([
+                            'min' => 8,
+                            'minMessage' => 'Votre mot de passe doit contenir minimum {{ limit }} caractères.',
+                            'max' => 4096,
+                        ]),
+                        new PasswordStrength(),
+                        new NotCompromisedPassword(),
+                    ]
+                ]);
+                $builder->add('confirmPassword', PasswordType::class, [
+                    'label' => 'Confirmation du nouveau mot de passe',
+                    'mapped' => false,
+                    'required' => false,
+                    'constraints' => [
+                        new Callback(function ($value, ExecutionContextInterface $context) {
+                            $profilForm = $context->getRoot();
+                            $newPassword = $profilForm->get('newPassword')->getData();
+                            if ($newPassword !== $value) {
+                                $context->buildViolation('Les mots de passe ne correspondent pas')->addViolation();
+                            }
+                        }),
+                    ],
+                ]);
+            }
+        $builder->add('image', FileType::class, [
+            'label' => 'Ajouter un photo de profil',
+            'mapped' => false,
+            'required' => false,
+            'constraints' => [
+                new File([
+                    'maxSize' => '1024k',
+                    'mimeTypes' => ['image/jpeg', 'image/png', 'image/bmp', 'image/jpg'],
+                    'mimeTypesMessage' => 'Votre image doit être au format .jpeg, .jpg, .png ou .bmp'
+                ])
+            ],
+        ]);
         if ($this->security->isGranted('ROLE_ADMIN')) {
             $builder->add('roles', ChoiceType::class, [
                 'choices' => [

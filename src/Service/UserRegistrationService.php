@@ -7,29 +7,23 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\TokenGenerator\TokenGeneratorInterface;
 
 class UserRegistrationService
 {
-    private EntityManagerInterface $entityManager;
-    private MailerInterface $mailer;
-    private UrlGeneratorInterface $urlGenerator;
-
     public function __construct(
-        EntityManagerInterface $entityManager,
-        MailerInterface        $mailer,
-        UrlGeneratorInterface  $urlGenerator
-    )
-    {
-        $this->entityManager = $entityManager;
-        $this->mailer = $mailer;
-        $this->urlGenerator = $urlGenerator;
-    }
+        private EntityManagerInterface $entityManager,
+        private MailerInterface $mailer,
+        private UrlGeneratorInterface $urlGenerator,
+        private TokenGeneratorInterface $tokenGenerator
+    ) {}
 
     public function registerUser(User $user): void
     {
-        //générer le token d'activation unique
-        $activationToken = bin2hex(random_bytes(32));
+        //générer le token d'activation unique et sécure
+        $activationToken = $this->tokenGenerator->generateToken();
         $user->setActivationToken($activationToken);
+        $user->setActivationTokenCreatedAt(new \DateTimeImmutable());
         $user->setIsActive(false); //inactif
 
         //save de l'utilisateur en bdd

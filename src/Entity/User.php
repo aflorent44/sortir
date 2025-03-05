@@ -114,6 +114,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
     private Collection $eventsAsParticipant;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $activationTokenCreatedAt = null;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();
@@ -405,6 +408,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeEventsAsParticipant(Event $eventsAsParticipant): static
     {
         $this->eventsAsParticipant->removeElement($eventsAsParticipant);
+
+        return $this;
+    }
+
+    public function getActivationTokenCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->activationTokenCreatedAt;
+    }
+
+    public function setActivationTokenCreatedAt(?\DateTimeImmutable $activationTokenCreatedAt): static
+    {
+        $this->activationTokenCreatedAt = $activationTokenCreatedAt;
 
         return $this;
     }

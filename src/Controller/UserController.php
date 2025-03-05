@@ -47,7 +47,7 @@ final class UserController extends AbstractController
     public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, SluggerInterface $slugger): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
-        if (!$isAdmin && $user !== $this->getUser()) {
+        if (!$isAdmin && $user->getId() !== $this->getUser()->getId()) {
             throw $this->createAccessDeniedException("Réservé aux admins");
         }
 
@@ -55,22 +55,26 @@ final class UserController extends AbstractController
         $profilForm->handleRequest($request);
 
         if ($profilForm->isSubmitted() && $profilForm->isValid()) {
-            // Récupération des champs du formulaire
-            $oldPassword = $profilForm->get('oldPassword')->getData();
-            $newPassword = $profilForm->get('newPassword')->getData();
-            $confirmPassword = $profilForm->get('confirmPassword')->getData();
+            if (!$isAdmin) { // Récupération des champs du formulaire
+                $oldPassword = $profilForm->get('oldPassword')->getData();
+                $newPassword = $profilForm->get('newPassword')->getData();
+                $confirmPassword = $profilForm->get('confirmPassword')->getData();
 
-            // Vérification de l'ancien mot de passe
-            if ($oldPassword && !$userPasswordHasher->isPasswordValid($user, $oldPassword)) {
-                $this->addFlash('error', 'Ancien mot de passe incorrect.');
-                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                // Vérification de l'ancien mot de passe
+                if ($oldPassword && !$userPasswordHasher->isPasswordValid($user, $oldPassword)) {
+                    $this->addFlash('error', 'Ancien mot de passe incorrect.');
+                    return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                }
+
+                if ($newPassword) {
+                    if ($newPassword !== $confirmPassword) {
+                        $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+                        return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                    }
+                    $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
+                    $user->setPassword($encodedPassword);
+                }
             }
-
-            if ($newPassword) {
-                $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
-                $user->setPassword($encodedPassword);
-            }
-
             $profileImage = $profilForm->get('image')->getData();
             if ($profileImage) {
                 //gestion de l'image téléchargée
@@ -91,9 +95,8 @@ final class UserController extends AbstractController
                 $user->setProfileImage($newImageName);
             }
             if ($this->isGranted('ROLE_ADMIN') && $profilForm->has('roles')) {
-                $user->setRoles($profilForm->get('roles')->getData());
-            } else {
-                $user->setRoles(['ROLE_USER']);
+                $roles = $profilForm->get('roles')->getData() ?? $user->getRoles();
+                $user->setRoles($roles);
             }
 
             // Mise à jour des autres informations
@@ -114,9 +117,9 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
+    #[Route('/delete/{id}', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage,UserRepository $userRepository, SessionInterface $session): Response
+    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, UserRepository $userRepository, SessionInterface $session): Response
     {
         $isAdmin = $this->isGranted("ROLE_ADMIN");
         if (!$isAdmin && $user !== $this->getUser()) {
