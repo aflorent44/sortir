@@ -6,6 +6,7 @@ use App\Repository\GroupRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: GroupRepository::class)]
 #[ORM\Table(name: '`group`')]
@@ -32,6 +33,7 @@ class Group
     private Collection $Events;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Le nom du groupe doit être renseigné.")]
     private ?string $name = null;
 
     public function __construct()

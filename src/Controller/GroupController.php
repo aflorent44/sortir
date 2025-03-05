@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[Route('/group')]
 #[isGranted('IS_AUTHENTICATED_FULLY')]
@@ -20,7 +21,6 @@ final class GroupController extends AbstractController
     #[Route(name: 'app_group_index', methods: ['GET'])]
     public function index(GroupRepository $groupRepository): Response
     {
-
         return $this->render('group/index.html.twig', [
             'groups' => $groupRepository->findAll(),
         ]);
@@ -43,6 +43,7 @@ final class GroupController extends AbstractController
         }
 
         return $this->render('group/new.html.twig', [
+            'title' => "Créer un groupe",
             'group' => $group,
             'form' => $form,
         ]);
@@ -51,6 +52,14 @@ final class GroupController extends AbstractController
     #[Route('/{id}', name: 'app_group_show', methods: ['GET'])]
     public function show(Group $group): Response
     {
+        $user = $this->getUser();
+
+        // Check if user is the owner or a member of the group
+        if ($user !== $group->getOwner() && !$group->getMembers()->contains($user)) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à voir les détails de ce groupe.');
+            return $this->redirectToRoute('app_group_index');
+        }
+
         return $this->render('group/show.html.twig', [
             'group' => $group,
         ]);
@@ -59,6 +68,14 @@ final class GroupController extends AbstractController
     #[Route('/{id}/edit', name: 'app_group_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Group $group, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+
+        // Check if user is the owner of the group
+        if ($user !== $group->getOwner()) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à modifier ce groupe.');
+            return $this->redirectToRoute('app_group_index');
+        }
+
         $form = $this->createForm(GroupType::class, $group);
         $form->handleRequest($request);
 
@@ -69,6 +86,7 @@ final class GroupController extends AbstractController
         }
 
         return $this->render('group/edit.html.twig', [
+            'title' => 'Modifier le groupe "'. $group->getName().'"',
             'group' => $group,
             'form' => $form,
         ]);
@@ -77,6 +95,14 @@ final class GroupController extends AbstractController
     #[Route('/{id}', name: 'app_group_delete', methods: ['POST'])]
     public function delete(Request $request, Group $group, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+
+        // Check if user is the owner of the group
+        if ($user !== $group->getOwner()) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à supprimer ce groupe.');
+            return $this->redirectToRoute('app_group_index');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$group->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($group);
             $entityManager->flush();
