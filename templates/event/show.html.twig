@@ -178,7 +178,7 @@
                             </form>
                         {% endif %}
                         {% if (event.status.value == 'ouverte' or event.status.value == 'clôturée') and (app.user in event.participants) %}
-                            <form action="{{ path('app_event_cancel_registration', {'id': event.id}) }}" method="POST"
+                            <form action="{{ path('app_event_cancel_registration', {'id': event.id, 'participantId': app.user.id}) }}" method="POST"
                                   class="w-full sm:w-auto" onsubmit="return confirm('Etes-vous sûr.e ?')">
                                 <button type="submit"
                                         class="w-full inline-flex items-center justify-center px-6 py-3 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors duration-300 shadow-md">

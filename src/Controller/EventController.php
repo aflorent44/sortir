@@ -151,8 +151,8 @@ final class EventController extends AbstractController
             ->addMarker(new Marker(
                 position: new Point($event->getAddress()->getLat(), $event->getAddress()->getLng()),
                 infoWindow: new InfoWindow(
-                    headerContent: '<b>'.$event->getAddress()->getName().'</b>',
-                    content:$event->getAddress()->getStreet().'<br>'.$event->getAddress()->getZipCode().' '.$event->getAddress()->getCity(),
+                    headerContent: '<b>' . $event->getAddress()->getName() . '</b>',
+                    content: $event->getAddress()->getStreet() . '<br>' . $event->getAddress()->getZipCode() . ' ' . $event->getAddress()->getCity(),
                 )));
 
         $eventStatusListener->updateOneEventStatus($event);
@@ -244,14 +244,22 @@ final class EventController extends AbstractController
 
     #[Route('/{id}/cancelRegistration/{participantId}', name: 'app_event_cancel_registration', methods: ['POST'])]
     public function cancelRegistration(
-        Event $event,
-        int $participantId,
-        EntityManagerInterface $entityManager,
+        Event                    $event,
+        int                      $participantId,
+        EntityManagerInterface   $entityManager,
         EventRegistrationService $eventRegistrationService,
-        UserRepository $userRepository
-    ): Response {
+        UserRepository           $userRepository
+    ): Response
+    {
         $currentUser = $this->getUser();
-        $participantToRemove = $userRepository->find($participantId);
+
+        if ($participantId !== $currentUser->getId()) {
+
+            $participantToRemove = $userRepository->find($participantId);
+        } else {
+            $participantToRemove = $currentUser;
+        }
+
 
         if (!$participantToRemove) {
             $this->addFlash('error', 'Participant non trouvé');
@@ -264,12 +272,15 @@ final class EventController extends AbstractController
                 $participantToRemove->getPseudo(),
                 $event->getName()
             ));
+        } elseif ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
+            $this->addFlash('success', 'Nous vous confirmons l\'annulation de votre inscription à la sortie "' . $event->getName() . '"');
         } else {
-            $this->addFlash('error', 'Impossible d\'annuler cette inscription à la sortie');
+            $this->addFlash('error', 'Impossible d\'annuler votre inscription à cette sortie');
         }
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
+
 
     #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'])]
     public function delete(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
