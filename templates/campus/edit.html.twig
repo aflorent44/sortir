@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un campus{% endblock %}
+
+{% block body %}
+    <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-md mt-6">
+        <h1 class="text-4xl font-bold text-center mb-6">Modifier un campus</h1>
+
+        {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Modifier</button>
+        {{ form_end(form) }}
+    </div>
+    {% for type, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+{% endblock %}

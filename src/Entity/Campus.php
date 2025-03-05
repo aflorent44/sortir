@@ -16,8 +16,8 @@ class Campus
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string',  length: 180)]
-    #[Assert\Unique]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Assert\NotBlank(message: "Le nom du campus ne peut pas être vide.")]
     private ?string $name = null;
 
     /**
@@ -51,7 +51,6 @@ class Campus
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -69,7 +68,6 @@ class Campus
             $this->events->add($event);
             $event->addCampus($this);
         }
-
         return $this;
     }
 
@@ -78,7 +76,6 @@ class Campus
         if ($this->events->removeElement($event)) {
             $event->removeCampus($this);
         }
-
         return $this;
     }
 
@@ -96,19 +93,17 @@ class Campus
             $this->users->add($user);
             $user->setCampus($this);
         }
-
         return $this;
     }
 
     public function removeUser(User $user): static
     {
         if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
+            // Définir la relation à null si l'utilisateur appartient à ce campus
             if ($user->getCampus() === $this) {
                 $user->setCampus(null);
             }
         }
-
         return $this;
     }
 }
