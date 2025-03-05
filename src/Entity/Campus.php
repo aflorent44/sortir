@@ -99,7 +99,6 @@ class Campus
     public function removeUser(User $user): static
     {
         if ($this->users->removeElement($user)) {
-            // Définir la relation à null si l'utilisateur appartient à ce campus
             if ($user->getCampus() === $this) {
                 $user->setCampus(null);
             }
