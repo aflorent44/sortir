@@ -26,7 +26,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'beginAt' => new \DateTimeImmutable('2025-05-15 09:00:00'),
                 'endAt' => new \DateTimeImmutable('2025-05-15 17:00:00'),
                 'registrationEndAt' => new \DateTimeImmutable('2025-05-10 23:59:59'),
-                'status' => EventStatus::OPENED,
                 'maxParticipants' => 50,
                 'host' => 'admin',
                 'participants' => ['user_1', 'user_2', 'user_3'],
@@ -40,7 +39,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'beginAt' => new \DateTimeImmutable('2025-06-01 10:00:00'),
                 'endAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
                 'registrationEndAt' => new \DateTimeImmutable('2025-05-28 23:59:59'),
-                'status' => EventStatus::PENDING,
                 'maxParticipants' => 30,
                 'host' => 'user_4',
                 'participants' => ['user_5', 'user_6'],
@@ -54,7 +52,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'beginAt' => new \DateTimeImmutable('2025-07-10 18:00:00'),
                 'endAt' => new \DateTimeImmutable('2025-07-10 22:00:00'),
                 'registrationEndAt' => new \DateTimeImmutable('2025-07-05 23:59:59'),
-                'status' => EventStatus::CLOSED,
                 'maxParticipants' => 100,
                 'host' => 'admin',
                 'participants' => ['user_7', 'user_8'],
@@ -68,7 +65,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'endAt' => new \DateTimeImmutable('2025-04-10 17:00:00'),
                 'description' => 'Un événement pour discuter des dernières tendances en cybersécurité.',
                 'registrationEndAt' => new \DateTimeImmutable('2025-04-08 23:59:59'),
-                'status' => EventStatus::OPENED,
                 'maxParticipants' => 100,
                 'host' => 'admin',
                 'participants' => ['user_7', 'user_8'],
@@ -78,14 +74,13 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'name' => 'Soirée étudiante à la plage',
                 'city' => 'Nice',
                 'campus' => 'campus_4',
-                'beginAt' => new \DateTimeImmutable('2025-03-05 18:00:00'),
-                'endAt' => new \DateTimeImmutable('2025-03-05 23:59:00'),
-                'registrationEndAt' => new \DateTimeImmutable('2025-03-01 23:59:59'),
+                'beginAt' => new \DateTimeImmutable('2025-03-07 18:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-03-07 23:59:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-03-07 16:59:59'),
                 'description' => 'Venez passer une soirée inoubliable avec des activités sur la plage.',
-                'status' => EventStatus::ENDED,
                 'maxParticipants' => 8,
-                'host' => 'admin',
-                'participants' => ['user_7', 'user_8'],
+                'host' => 'yoann_battu',
+                'participants' => ['amelie_caillet', 'timothee_criaud', 'paul_perrot','julian_denoue','antoine_dequatremare'],
                 'address' => 'address_1',
             ],
             [
@@ -96,7 +91,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'endAt' => new \DateTimeImmutable('2025-02-03 20:00:00'),
                 'registrationEndAt' => new \DateTimeImmutable('2025-02-30 23:59:59'),
                 'description' => 'Un hackathon de 48h pour développer des projets innovants autour de l’intelligence artificielle.',
-                'status' => EventStatus::ARCHIVED,
                 'maxParticipants' => 50,
                 'host' => 'admin',
                 'participants' => ['user_7', 'user_8'],
@@ -110,7 +104,6 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 'endAt' => new \DateTimeImmutable('2025-07-20 22:00:00'),
                 'registrationEndAt' => new \DateTimeImmutable('2025-07-18 23:59:59'),
                 'description' => 'Concert de charité organisé pour soutenir les victimes des catastrophes naturelles.',
-                'status' => EventStatus::CREATED,
                 'maxParticipants' => 500,
                 'host' => 'yoann_battu',
                 'participants' => ['user_1', 'user_3', 'user_6'],
@@ -140,7 +133,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
                 ->setBeginsAt($eventData['beginAt'])
                 ->setEndsAt($eventData['endAt'])
                 ->setRegistrationEndsAt($eventData['registrationEndAt'])
-                ->setStatus($eventData['status'])
+                ->setStatus(eventStatus::OPENED)
                 ->setMaxParticipantNumber($eventData['maxParticipants']);
 
             $event->setAddress($this->getReference($eventData['address'], Address::class));

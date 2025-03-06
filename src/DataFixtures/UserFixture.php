@@ -71,7 +71,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         }
 
         $yoann = new User();
-        $yoann->setEmail('yoann.battu@campus-eni.fr');
+        $yoann->setEmail('yoann.battu2024@campus-eni.fr');
         $yoann->setPseudo('yoyo');
         $yoann->setRoles(['ROLE_USER']);
         $yoann->setName('Battu');
@@ -90,7 +90,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $this->addReference('yoann_battu', $yoann);
 
         $amelie = new User();
-        $amelie->setEmail('amelie.caillet@campus-eni.fr');
+        $amelie->setEmail('amelie.caillet2024@campus-eni.fr');
         $amelie->setPseudo('a_me_lie');
         $amelie->setRoles(['ROLE_USER']);
         $amelie->setName('Caillet');
@@ -110,7 +110,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $this->addReference('amelie_caillet', $amelie);
 
         $paul = new User();
-        $paul->setEmail('paul.perrot@campus-eni.fr');
+        $paul->setEmail('paul.perrot2024@campus-eni.fr');
         $paul->setPseudo('barking_boy');
         $paul->setRoles(['ROLE_USER']);
         $paul->setName('Perrot');
@@ -130,7 +130,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $this->addReference('paul_perrot', $paul);
 
         $ghislain = new User();
-        $ghislain->setEmail('ghislain.rouquette@campus-eni.fr');
+        $ghislain->setEmail('ghislain.rouquette2024@campus-eni.fr');
         $ghislain->setPseudo('ghislain.rouquette');
         $ghislain->setRoles(['ROLE_USER']);
         $ghislain->setName('Rouquette');
@@ -148,7 +148,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $manager->persist($ghislain);
 
         $julian = new User();
-        $julian->setEmail('julian.denoue@campus-eni.fr');
+        $julian->setEmail('julian.denoue2024@campus-eni.fr');
         $julian->setPseudo('jujute');
         $julian->setRoles(['ROLE_USER']);
         $julian->setName('Denoue');
@@ -168,7 +168,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $this->addReference('julian_denoue', $julian);
 
         $tim = new User();
-        $tim->setEmail('timothee.criaud@campus-eni.fr');
+        $tim->setEmail('timothee.criaud2024@campus-eni.fr');
         $tim->setPseudo('feudai');
         $tim->setRoles(['ROLE_USER']);
         $tim->setName('Criaud');
@@ -188,7 +188,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
         $this->addReference('timothee_criaud', $tim);
 
         $antoine = new User();
-        $antoine->setEmail('antoine.dequatremare@campus-eni.fr');
+        $antoine->setEmail('antoine.dequatremare2024@campus-eni.fr');
         $antoine->setPseudo('zeir');
         $antoine->setRoles(['ROLE_USER']);
         $antoine->setName('Dequatremare');
