@@ -1,29 +1,3 @@
-{# <div class="w-full md:w-3/4"> #}
-{#    {{ form_start(filterForm, {'attr': {'class': 'flex flex-col sm:flex-row flex-wrap gap-4'}}) }} #}
-{#    {% for field in filterForm.children %} #}
-{#        <div class="w-full sm:w-auto"> #}
-{#            {{ form_label(field, null, {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-1 text-sm'}}) }} #}
-{#            {{ form_widget(field, {'attr': {'class': 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC] text-sm'}}) }} #}
-{#        </div> #}
-{#    {% endfor %} #}
-{#    {{ form_end(filterForm) }} #}
-{# </div> #}
-
-
-{#{{ form_start(filterForm) }}#}
-{#{{ form_row(filterForm.campus) }}#}
-{#{{ form_row(filterForm.name) }}#}
-{#{{ form_row(filterForm.dateMin) }}#}
-{#{{ form_row(filterForm.dateMax) }}#}
-{#{{ form_row(filterForm.isHost) }}#}
-{#{{ form_row(filterForm.isParticipant) }}#}
-{#{{ form_row(filterForm.isNotParticipant) }}#}
-{#{{ form_row(filterForm.ended) }}#}
-{#{{ form_row(filterForm.submit) }}#}
-{#{{ form_row(filterForm.reset) }}#}
-{#{{ form_end(filterForm) }}#}
-
-
 {{ form_start(filterForm, {'attr': {'class': 'space-y-4'}}) }}
 <div>
     {{ form_label(filterForm.campus, null, {'label_attr': {'class': 'block font-medium'}}) }}

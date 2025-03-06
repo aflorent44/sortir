@@ -55,7 +55,7 @@ class UserFixture extends Fixture implements DependentFixtureInterface
             $user->setName($faker->lastName);
             $user->setFirstName($faker->firstName);
             $user->setPhoneNumber('06' . $faker->numerify('########'));
-            $user->setIsActive($faker->boolean(80)); // 80% de profil actif);
+            $user->setIsActive($faker->boolean(90)); // 80% de profil actif);
 
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user,

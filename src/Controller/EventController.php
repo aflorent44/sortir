@@ -13,6 +13,7 @@ use App\Form\EventType;
 use App\Form\FilterType;
 use App\Repository\CampusRepository;
 use App\Repository\EventRepository;
+use App\Repository\UserRepository;
 use App\Service\EventRegistrationService;
 use ContainerMjX9Puf\getConsole_ErrorListenerService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -105,13 +106,16 @@ final class EventController extends AbstractController
         }
 
         $event = new Event();
-        $eventForm = $this->createForm(EventType::class, $event);
+        $eventForm = $this->createForm(EventType::class, $event, [
+            'user' => $this->getUser()
+        ]);
         $eventForm->handleRequest($request);
         $address = new Address();
         $addressForm = $this->createForm(AddressType::class, $address);
         $addressForm->handleRequest($request);
 
         if ($eventForm->isSubmitted() && $eventForm->isValid() && $addressForm->isSubmitted() && $addressForm->isValid()) {
+            $address->setIsAllowed(true);
 
             $entityManager->persist($address);
             $event->setAddress($address);
@@ -123,7 +127,6 @@ final class EventController extends AbstractController
             }
             $entityManager->persist($event);
             $entityManager->flush();
-
             return $this->redirectToRoute('app_event_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -248,8 +251,7 @@ final class EventController extends AbstractController
         ]);
     }
 
-    #[
-        Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]
+    #[Route('/{id}/register', name: 'app_event_register', methods: ['POST'])]
     public function register(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
     {
         if ($eventRegistrationService->registerUser($event, $this->getUser())) {
@@ -261,10 +263,37 @@ final class EventController extends AbstractController
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/cancelRegistration', name: 'app_event_cancel_registration', methods: ['POST'])]
-    public function cancelRegistration(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response
+    #[Route('/{id}/cancelRegistration/{participantId}', name: 'app_event_cancel_registration', methods: ['POST'])]
+    public function cancelRegistration(
+        Event                    $event,
+        int                      $participantId,
+        EntityManagerInterface   $entityManager,
+        EventRegistrationService $eventRegistrationService,
+        UserRepository           $userRepository
+    ): Response
     {
-        if ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
+        $currentUser = $this->getUser();
+
+        if ($participantId !== $currentUser->getId()) {
+
+            $participantToRemove = $userRepository->find($participantId);
+        } else {
+            $participantToRemove = $currentUser;
+        }
+
+
+        if (!$participantToRemove) {
+            $this->addFlash('error', 'Participant non trouvé');
+            return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        if ($eventRegistrationService->unregisterParticipantByAdmin($event, $currentUser, $participantToRemove)) {
+            $this->addFlash('success', sprintf(
+                'Nous vous confirmons l\'annulation de l\'inscription de %s à la sortie "%s"',
+                $participantToRemove->getPseudo(),
+                $event->getName()
+            ));
+        } elseif ($eventRegistrationService->unregisterUser($event, $this->getUser())) {
             $this->addFlash('success', 'Nous vous confirmons l\'annulation de votre inscription à la sortie "' . $event->getName() . '"');
         } else {
             $this->addFlash('error', 'Impossible d\'annuler votre inscription à cette sortie');
@@ -272,6 +301,7 @@ final class EventController extends AbstractController
 
         return $this->redirectToRoute('app_event_show', ['id' => $event->getId()], Response::HTTP_SEE_OTHER);
     }
+
 
     #[Route('/{id}/delete', name: 'app_event_delete', methods: ['POST'])]
     public function delete(Event $event, EntityManagerInterface $entityManager, EventRegistrationService $eventRegistrationService): Response

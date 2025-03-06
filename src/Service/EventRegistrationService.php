@@ -6,6 +6,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Enum\EventStatus;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -33,6 +34,13 @@ class EventRegistrationService
             && $event->getStatus() === EventStatus::OPENED;
     }
 
+    public function canAdminOrHostUnregisterUser(Event $event, User $currentUser, User $participantToRemove): bool
+    {
+        return ($event->getHost() === $currentUser)
+            && $event->getParticipants()->contains($participantToRemove)
+            && ($event->getStatus() == EventStatus::OPENED || $event->getStatus() == EventStatus::CREATED);
+    }
+
     public function canUserUnregister(Event $event, User $user): bool
     {
         return $event->getParticipants()->contains($user)
@@ -58,12 +66,20 @@ class EventRegistrationService
             return false;
         }
 
-        foreach ($event->getParticipants() as $participant) {
-            if ($participant->getId() == $user->getId()) {
-                $event->removeParticipant($user);
-                $this->entityManager->flush();
-            }
+        $event->removeParticipant($user);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    public function unregisterParticipantByAdmin(Event $event, User $currentUser, User $participantToRemove): bool
+    {
+        if (!$this->canAdminOrHostUnregisterUser($event, $currentUser, $participantToRemove)) {
+            return false;
         }
+
+        $event->removeParticipant($participantToRemove);
+        $this->entityManager->flush();
 
         return true;
     }
@@ -106,7 +122,7 @@ class EventRegistrationService
         $email = (new TemplatedEmail())
             ->from('no-reply@sortir.fr')
             ->to($participant->getEmail())
-            ->subject('Annulation de votre évènement : ' . $event->getName())
+            ->subject('Annulation de votre sortie : ' . $event->getName())
             ->htmlTemplate('emails/event_cancellation.html.twig')
             ->context([
                 'participant' => $participant,

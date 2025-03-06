@@ -33,7 +33,7 @@ final class AddressController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($address);
-            $entityManager->flush();
+            $entityManager>flush();
 
             return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -77,7 +77,6 @@ final class AddressController extends AbstractController
     public function delete(AddressRepository $ar, Address $address, EntityManagerInterface $entityManager): Response
     {
             $ar->banAddress($address, $entityManager);
-
-        return $this->redirectToRoute('app_address_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('admin_dashboard_addresses', [], Response::HTTP_SEE_OTHER);
     }
 }

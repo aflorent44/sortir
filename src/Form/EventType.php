@@ -5,8 +5,10 @@ namespace App\Form;
 use App\Entity\Address;
 use App\Entity\Campus;
 use App\Entity\Event;
+use App\Entity\Group;
 use App\Entity\User;
 use App\Enum\EventStatus;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -49,9 +51,23 @@ class EventType extends AbstractType
                 'choice_label' => 'name',
                 'multiple' => true,
                 'label' => 'Campus',
+                'autocomplete' => true,
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Sauvegarder',
+            ])
+            ->add('eventGroup', EntityType::class, [
+                'class' => Group::class,
+                'choice_label' => 'name',
+                'label' => 'Sortie privé?',
+                'attr' => ['placeholder' => 'pour quel groupe?'],
+                'autocomplete' => true,
+                'required' => false,
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    return $er->createQueryBuilder('g')
+                        ->where('g.Owner = :user')
+                        ->setParameter('user', $options['user']);
+                },
             ])
             ->add('publish', SubmitType::class, [
                 'label' => 'Publier',
@@ -63,6 +79,8 @@ class EventType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Event::class,
+            'user' => null,
         ]);
     }
+
 }

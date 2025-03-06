@@ -64,9 +64,8 @@ class Event
     #[ORM\Column(enumType: EventStatus::class)]
     private EventStatus $status = EventStatus::OPENED;
 
-    #[Assert\NotBlank(message: "merci de renseigner une addresse")]
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(name: 'address_id', nullable: false)]
     private ?Address $address = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
@@ -83,6 +82,9 @@ class Event
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $cancelReason = null;
+
+    #[ORM\ManyToOne(inversedBy: 'Events')]
+    private ?Group $eventGroup = null;
 
     public function __construct()
     {
@@ -272,6 +274,18 @@ class Event
     public function setCancelReason(?string $cancelReason): static
     {
         $this->cancelReason = $cancelReason;
+
+        return $this;
+    }
+
+    public function getEventGroup(): ?Group
+    {
+        return $this->eventGroup;
+    }
+
+    public function setEventGroup(?Group $eventGroup): static
+    {
+        $this->eventGroup = $eventGroup;
 
         return $this;
     }

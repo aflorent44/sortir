@@ -96,6 +96,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $activationToken = null;
 
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\OneToMany(targetEntity: Group::class, mappedBy: 'Owner')]
+    private Collection $groupsOwned;
+
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
+    private Collection $memberOfGroups;
+
+    /**
+     * @var Collection<int, Event>
+     */
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
+    private Collection $eventsAsParticipant;
+
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $activationTokenCreatedAt = null;
 
@@ -104,6 +122,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->events = new ArrayCollection();
         $this->user = new ArrayCollection();
         $this->profileImage = 'user1.png';
+        $this->groupsOwned = new ArrayCollection();
+        $this->memberOfGroups = new ArrayCollection();
+        $this->eventsAsParticipant = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -307,6 +328,87 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActivationToken(?string $activationToken): static
     {
         $this->activationToken = $activationToken;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroupsOwned(): Collection
+    {
+        return $this->groupsOwned;
+    }
+
+    public function addGroupsOwned(Group $groupsOwned): static
+    {
+        if (!$this->groupsOwned->contains($groupsOwned)) {
+            $this->groupsOwned->add($groupsOwned);
+            $groupsOwned->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupsOwned(Group $groupsOwned): static
+    {
+        if ($this->groupsOwned->removeElement($groupsOwned)) {
+            // set the owning side to null (unless already changed)
+            if ($groupsOwned->getOwner() === $this) {
+                $groupsOwned->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getMemberOfGroups(): Collection
+    {
+        return $this->memberOfGroups;
+    }
+
+    public function addMemberOfGroup(Group $memberOfGroup): static
+    {
+        if (!$this->memberOfGroups->contains($memberOfGroup)) {
+            $this->memberOfGroups->add($memberOfGroup);
+            $memberOfGroup->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMemberOfGroup(Group $memberOfGroup): static
+    {
+        if ($this->memberOfGroups->removeElement($memberOfGroup)) {
+            $memberOfGroup->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEventsAsParticipant(): Collection
+    {
+        return $this->eventsAsParticipant;
+    }
+
+    public function addEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        if (!$this->eventsAsParticipant->contains($eventsAsParticipant)) {
+            $this->eventsAsParticipant->add($eventsAsParticipant);
+        }
+
+        return $this;
+    }
+
+    public function removeEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        $this->eventsAsParticipant->removeElement($eventsAsParticipant);
+
         return $this;
     }
 
