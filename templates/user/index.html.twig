@@ -87,20 +87,37 @@
                     </div>
                 </div>
                 {% endif %}
-                <div class="w-full grid grid-cols-2 gap-2">
-                    {% set allGroups = user.memberOfGroups|merge(user.groupsOwned) %}
 
-                    {% for group in allGroups %}
-                        <div class="p-4 bg-gray-100 rounded-lg shadow-md mb-2">
-                            <h3 class="text-lg font-bold text-gray-900">{{ group.name }}</h3>
-                            <p class="text-sm text-gray-600">Créé par : {{ group.owner.firstName }} {{ group.owner.name }}</p>
-                            <p class="text-sm text-gray-600">Nombre de membres : {{ group.members|length }}</p>
-                            <a href="{{ path('app_group_show', {'id': group.id}) }}"
-                               class="text-blue-600 hover:underline text-sm">Voir le groupe</a>
-                        </div>
+                    {% if app.user.id == user.id %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Mes groupes :</h2>
+                        {% set allGroups = user.memberOfGroups|merge(user.groupsOwned) %}
                     {% else %}
-                        <p class="text-gray-500 italic">Vous n'êtes dans aucun groupe.</p>
-                    {% endfor %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Groupes en commun :</h2>
+                        {% set allGroups = user.groupsOwned|filter(group => app.user in group.members)
+                            |merge(user.memberOfGroups|filter(group => app.user in group.members or app.user == group.owner)) %}
+                    {% endif %}
+                    <div class="w-full grid grid-cols-2 gap-2 ">
+                    {% if allGroups|length > 0 %}
+                        {% for group in allGroups %}
+                            <div class="p-4 bg-gray-100 rounded-lg shadow-md mb-2">
+                                <h3 class="text-lg font-bold text-gray-900">{{ group.name }}</h3>
+                                <p class="text-sm text-gray-600">Créé par : {{ group.owner.firstName }} {{ group.owner.name }}</p>
+                                <p class="text-sm text-gray-600">Nombre de membres : {{ group.members|length }}</p>
+                                <a href="{{ path('app_group_show', {'id': group.id}) }}" class="text-blue-600 hover:underline text-sm">
+                                    Voir le groupe
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 italic">
+                            {% if app.user.id == user.id %}
+                                Vous n'êtes dans aucun groupe.
+                            {% else %}
+                                Aucun groupe en commun avec {{ user.firstName }} {{ user.name }}.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
                 </div>
 
 
@@ -113,62 +130,59 @@
                         <h2 class="text-2xl text-gray-900 font-bold mb-2">Sortie organisées :</h2>
 
                         {% for event in events %}
+                            {% if event.eventGroup is null or event.eventGroup in app.user.memberOfGroups %}
+                                <div class="py-4 sm:py-8 flex flex-wrap md:flex-nowrap">
+                                    <div class="w-1/4 md:mb-0 mb-4 flex-shrink-0 flex flex-col">
+                                        <span class="mt-1 text-gray-500 text-sm">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</span>
+                                        <div class="w-1/2 justify-center m-2">
+                                            <a href="{{ path('app_event_show', {'id': event.id}) }}"
+                                               class="justify-center py-1 bg-[#579FB5] text-white rounded hover:bg-[#4A8A9E] transition-colors duration-300 text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                                     viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                Voir
+                                            </a>
+                                        </div>
+                                    </div>
 
-                            <div class="py-4 sm:py-8 flex flex-wrap md:flex-nowrap">
-                                <div class="w-1/4 md:mb-0 mb-4 flex-shrink-0 flex flex-col">
-                                    <span class="mt-1 text-gray-500 text-sm">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</span>
-                                    <div class="w-1/2 justify-center m-2">
-                                        <a href="{{ path('app_event_show', {'id': event.id}) }}"
-                                           class="justify-center py-1 bg-[#579FB5] text-white rounded hover:bg-[#4A8A9E] transition-colors duration-300 text-sm flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
-                                                 viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      stroke-width="2"
-                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      stroke-width="2"
-                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            Voir
-                                        </a>
+                                    <div class="flex-grow">
+                                        <h3 class="text-xl sm:text-2xl font-medium text-gray-900 title-font mb-2">{{ event.name }}</h3>
+                                        {% if event.participants|length > 0 %}
+                                            <span>Participants :</span>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {% for participant in event.participants|slice(0, 2) %}
+                                                    <a href="{{ path('user_profil', {'id': participant.id}) }}"
+                                                       class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                                        <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                                            {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
+                                                        </div>
+                                                        <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
+                                                    </a>
+                                                {% endfor %}
+
+                                                {% set remaining = event.participants|length - 2 %}
+                                                {% if remaining == 1 %}
+                                                    <span class="text-gray-500 italic ml-2">+ {{ remaining }} autre </span>
+                                                {% elseif remaining > 1 %}
+                                                    <span class="text-gray-500 italic ml-2">+ {{ remaining }} autres </span>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-gray-500 italic text-center mt-4 mb-4">
+                                                Aucun participant inscrit pour le moment
+                                            </p>
+                                        {% endif %}
                                     </div>
                                 </div>
-
-                                <div class="flex-grow">
-                                    <h3 class="text-xl sm:text-2xl font-medium text-gray-900 title-font mb-2">{{ event.name }}</h3>
-                                    {% if event.participants|length > 0 %}
-                                        <span>Participants :</span>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-
-                                            {% for participant in event.participants|slice(0, 2) %}
-                                                <a href="{{ path('user_profil', {'id': participant.id}) }}"
-                                                   class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
-                                                    <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
-                                                        {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
-                                                    </div>
-                                                    <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
-                                                </a>
-                                            {% endfor %}
-
-                                            {% set remaining = event.participants|length - 2 %}
-                                            {% if remaining == 1 %}
-                                                <span class="text-gray-500 italic ml-2">+ {{ remaining }} autre </span>
-
-                                            {% elseif remaining > 1 %}
-                                                <span class="text-gray-500 italic ml-2">+ {{ remaining }} autres </span>
-                                            {% endif %}
-
-                                        </div>
-                                    {% else %}
-                                        <p class="text-gray-500 italic text-center mt-4 mb-4">
-                                            Aucun participant inscrit pour le moment
-                                        </p>
-                                    {% endif %}
-
-
-                                </div>
-                            </div>
+                            {% endif %}
                         {% endfor %}
+
                         <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2">Sortie prévues :</h2>
 
                         {% for event in user.eventsAsParticipant %}
