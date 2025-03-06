@@ -23,6 +23,7 @@ class AddressFixtures extends Fixture
             ->setCity($faker->city) // Ville
             ->setZipCode($faker->postcode) // Code postal
             ->setIsAllowed(true);
+            $this->addReference('address_' . $i, $address);
             $manager->persist($address);
         }
 
