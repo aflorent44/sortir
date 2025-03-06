@@ -123,6 +123,14 @@ final class AdminController extends AbstractController
 
         return $this->redirectToRoute('admin_dashboard_users');
     }
+    #[Route('/dashboard/campus', name: 'dashboard_campus', methods: ['GET'])]
+    #[isGranted('ROLE_ADMIN')]
+    public function campus(CampusRepository $campusRepository): Response
+    {
+        $campuses = $campusRepository->findAll();
 
-
+        return $this->render('admin/campus.html.twig', [
+            'campuses' => $campuses,
+        ]);
+    }
 }
