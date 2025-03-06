@@ -15,7 +15,7 @@
                 <div class="p-4 sm:p-6 flex flex-col md:flex-row gap-6">
                     <div class="flex-shrink-0 flex items-center justify-center">
                         <img class="h-32 w-32 sm:h-48 sm:w-48 object-cover rounded-full border-4 border-[#FCB038]"
-                             src="{{ app.user.profileImage ? asset('uploads/img/' ~ app.user.profileImage) : asset('images/user1.png') }}"
+                             src="{{ user.profileImage ? asset(user.profileImage) : asset('images/user1.png') }}"
                              alt="Photo de profil">
                     </div>
 
