@@ -6,6 +6,7 @@ use App\Entity\Campus;
 use App\Entity\Event;
 use App\Entity\Address;
 use App\Entity\User;
+use App\Enum\EventStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -15,51 +16,132 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $faker = Factory::create('fr_FR');
+        // Création manuelle des événements avec des données fixes
+        $events = [
+            [
+                'name' => 'Conférence Symfony 2025',
+                'description' => 'Venez découvrir les dernières nouveautés de Symfony et échanger avec les développeurs.',
+                'city' => 'Paris',
+                'campus' => 'campus_1',
+                'beginAt' => new \DateTimeImmutable('2025-05-15 09:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-05-15 17:00:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-05-10 23:59:59'),
+                'maxParticipants' => 50,
+                'host' => 'admin',
+                'participants' => ['user_1', 'user_2', 'user_3'],
+                'address' => 'address_1',
+            ],
+            [
+                'name' => 'Hackathon Campus ENI',
+                'description' => 'Participez à un hackathon de 24 heures sur des projets open source.',
+                'city' => 'Lyon',
+                'campus' => 'campus_2',
+                'beginAt' => new \DateTimeImmutable('2025-06-01 10:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-06-02 10:00:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-05-28 23:59:59'),
+                'maxParticipants' => 30,
+                'host' => 'user_4',
+                'participants' => ['user_5', 'user_6'],
+                'address' => 'address_2',
+            ],
+            [
+                'name' => 'Soirée Réseautage',
+                'description' => 'Un événement pour rencontrer d\'autres professionnels du secteur tech.',
+                'city' => 'Marseille',
+                'campus' => 'campus_3',
+                'beginAt' => new \DateTimeImmutable('2025-07-10 18:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-07-10 22:00:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-07-05 23:59:59'),
+                'maxParticipants' => 100,
+                'host' => 'admin',
+                'participants' => ['user_7', 'user_8'],
+                'address' => 'address_3',
+            ],
+            [
+                'name' => 'Conférence sur la cybersécurité',
+                'city' => 'Paris',
+                'campus' => 'campus_1',
+                'beginAt' => new \DateTimeImmutable('2025-04-10 09:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-04-10 17:00:00'),
+                'description' => 'Un événement pour discuter des dernières tendances en cybersécurité.',
+                'registrationEndAt' => new \DateTimeImmutable('2025-04-08 23:59:59'),
+                'maxParticipants' => 100,
+                'host' => 'admin',
+                'participants' => ['user_7', 'user_8'],
+                'address' => 'address_3',
+            ],
+            [
+                'name' => 'Soirée étudiante à la plage',
+                'city' => 'Nice',
+                'campus' => 'campus_4',
+                'beginAt' => new \DateTimeImmutable('2025-03-07 18:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-03-07 23:59:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-03-07 16:59:59'),
+                'description' => 'Venez passer une soirée inoubliable avec des activités sur la plage.',
+                'maxParticipants' => 8,
+                'host' => 'yoann_battu',
+                'participants' => ['amelie_caillet', 'timothee_criaud', 'paul_perrot','julian_denoue','antoine_dequatremare'],
+                'address' => 'address_1',
+            ],
+            [
+                'name' => 'Hackathon – Développeurs unis',
+                'city' => 'Lyon',
+                'campus' => 'campus_2',
+                'beginAt' => new \DateTimeImmutable('2025-02-01 09:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-02-03 20:00:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-02-30 23:59:59'),
+                'description' => 'Un hackathon de 48h pour développer des projets innovants autour de l’intelligence artificielle.',
+                'maxParticipants' => 50,
+                'host' => 'admin',
+                'participants' => ['user_7', 'user_8'],
+                'address' => 'address_3',
+            ],
+            [
+                'name' => 'Concert de charité',
+                'city' => 'Marseille',
+                'campus' => 'campus_4',
+                'beginAt' => new \DateTimeImmutable('2025-07-20 19:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-07-20 22:00:00'),
+                'registrationEndAt' => new \DateTimeImmutable('2025-07-18 23:59:59'),
+                'description' => 'Concert de charité organisé pour soutenir les victimes des catastrophes naturelles.',
+                'maxParticipants' => 500,
+                'host' => 'yoann_battu',
+                'participants' => ['user_1', 'user_3', 'user_6'],
+                'address' => 'address_4',
+            ],
+            [
+                'name' => 'Séminaire sur l\'entrepreneuriat',
+                'city' => 'Toulouse',
+                'campus' => 'campus_1',
+                'beginAt' => new \DateTimeImmutable('2025-03-09 10:00:00'),
+                'endAt' => new \DateTimeImmutable('2025-03-09 17:00:00'),
+                'description' => 'Un séminaire de formation sur l\'entrepreneuriat et le financement des startups.',
+                'registrationEndAt' => new \DateTimeImmutable('2025-03-07 23:59:59'),
+                'status' => EventStatus::OPENED,
+                'maxParticipants' => 10,
+                'host' => 'user_2',
+                'participants' => ['admin', 'user_8'],
+                'address' => 'address_1',
+            ]
+        ];
 
-        // Récupérer tous les utilisateurs et les stocker dans un tableau
-        $users = $manager->getRepository(User::class)->findAll();
-        if (empty($users)) {
-            throw new \Exception("Aucun utilisateur trouvé. Assurez-vous que UserFixture s'exécute avant EventFixtures.");
-        }
-
-        // Récupérer toutes les adresses
-        $addresses = $manager->getRepository(Address::class)->findAll();
-        if (empty($addresses)) {
-            throw new \Exception("Aucune adresse trouvée. Assurez-vous que AddressFixtures s'exécute avant EventFixtures.");
-        }
-
-        // Récupérer tous les campus
-        $campuses = $manager->getRepository(Campus::class)->findAll();
-        if (empty($campuses)) {
-            throw new \Exception("Aucun campus trouvé. Assurez-vous que CampusFixtures s'exécute avant EventFixtures.");
-        }
-
-        for ($i = 0; $i < 20; $i++) {
+        foreach ($events as $eventData) {
             $event = new Event();
-            $beginsAt = $faker->dateTimeBetween('+1 week', '+2 months');
-            $endsAt = (clone $beginsAt)->modify('+' . $faker->numberBetween(1, 5) . ' hours');
-            $registrationEndsAt = (clone $beginsAt)->modify('-' . $faker->numberBetween(3, 10) . ' days');
 
-            $event->setName($faker->sentence(3))
-                ->setBeginsAt(\DateTimeImmutable::createFromMutable($beginsAt))
-                ->setEndsAt(\DateTimeImmutable::createFromMutable($endsAt))
-                ->setRegistrationEndsAt(\DateTimeImmutable::createFromMutable($registrationEndsAt))
-                ->setDescription($faker->paragraph)
-                ->setMaxParticipantNumber($faker->numberBetween(5, 50));
+            $event->setName($eventData['name'])
+                ->setDescription($eventData['description'])
+                ->setBeginsAt($eventData['beginAt'])
+                ->setEndsAt($eventData['endAt'])
+                ->setRegistrationEndsAt($eventData['registrationEndAt'])
+                ->setStatus(eventStatus::OPENED)
+                ->setMaxParticipantNumber($eventData['maxParticipants']);
 
-            if (!empty($addresses)) {
-                $event->setAddress($faker->randomElement($addresses));
-            }
+            $event->setAddress($this->getReference($eventData['address'], Address::class));
+            $event->setHost($this->getReference($eventData['host'], User::class));
+            $event->addCampus($this->getReference($eventData['campus'], Campus::class));
 
-            if (!empty($users)) {
-                $randomUser = $users[array_rand($users)];
-                $event->setHost($randomUser);
-            }
-
-            if (!empty($campuses)) {
-                $randomCampus = $faker->randomElement($campuses);
-                $event->addCampus($randomCampus);
+            foreach ($eventData['participants'] as $participantReference) {
+                $event->addParticipant($this->getReference($participantReference, User::class));
             }
 
             $manager->persist($event);
@@ -76,7 +158,4 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
             CampusFixtures::class,
         ];
     }
-
 }
-
-
