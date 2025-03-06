@@ -1,0 +1,12 @@
+{{ form_start(form) }}
+    {{ form_row(form.name) }}
+    {{ form_row(form.city) }}
+    <ul id="suggestions-list" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
+    {{ form_row(form.zipCode) }}
+    {{ form_row(form.street) }}
+    <ul id="street-suggestions" class="absolute w-full bg-white border border-gray-300 rounded-md shadow-md max-h-52 overflow-y-auto hidden"></ul>
+
+    {{ form_widget(form, { 'attr': {'hidden': true} }) }}
+    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}
+<script src="{{ asset('js/addressAutocomplete.js') }}"></script>

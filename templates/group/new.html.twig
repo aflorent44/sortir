@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un groupe{% endblock %}
+
+{% block body %}
+
+    <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-[#54CCD8] p-6 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-white">Créer un groupe</h1>
+            </div>
+
+            <div class="p-6 bg-[#EAF3F5]">
+                <div class="mb-4">
+                    {{ include('group/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{{ path('app_event_index') }}" class="text-blue-500 hover:underline text-lg">← Retour à la
+                liste</a>
+        </div>
+
+    </div>
+
+{% endblock %}

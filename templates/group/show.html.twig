@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du groupe{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-10">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-[#54CCD8] rounded-t-xl shadow-md p-6">
+                <h1 class="text-2xl font-bold text-white text-center">Détails du groupe</h1>
+
+                {% if group.owner.id == app.user.id %}
+                    <div class="mt-2 text-white p-2 rounded-lg text-center">
+                        <span class="font-medium">Vous êtes le propriétaire de ce groupe</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-white rounded-b-xl shadow-md overflow-hidden">
+                <div class="overflow-hidden">
+                    <table class="w-full border-collapse">
+                        <tbody>
+                        {% for label, value in {
+                            'Nom': group.name,
+                            'Propriétaire': '<a href="' ~ path('user_profil', {'id': group.owner.id}) ~ '" class="text-indigo-600 hover:underline">' ~ group.owner.pseudo ~ ' (' ~ group.owner.firstName ~ ' ' ~ group.owner.name ~ ')</a>',
+                            'Nombre de membres': group.members|length
+                        } %}
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">{{ label }}</th>
+                                <td class="p-4">{{ value|raw }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- Members Section -->
+                    <div class="mt-2 mb-2">
+                        {% if group.members|length > 0 %}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4">
+                                {% for member in group.members %}
+                                    <a href="{{ path('user_profil', {'id': member.id}) }}"
+                                       class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                        <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                            {{ member.firstName|first|upper }}{{ member.name|first|upper }}
+                                        </div>
+                                        <span class="font-medium text-[#579FB5]">{{ member.firstName }} {{ member.name }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500 italic text-center mt-4 mb-4">Ce groupe ne comporte aucun membre</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ path('app_group_index') }}"
+                   class="inline-flex items-center justify-center px-6 py-3 bg-[#579FB5] text-white font-medium rounded-lg hover:bg-[#4A8A9E] transition-colors duration-300 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Retour à la liste
+                </a>
+
+                {% if group.owner.id == app.user.id or ('ROLE_ADMIN' in app.user.roles) %}
+                    <form action="{{ path('app_group_edit', {'id': group.id}) }}" method="GET"
+                          class="w-full sm:w-auto">
+                        <button type="submit"
+                                class="w-full inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Modifier le groupe
+                        </button>
+                    </form>
+
+                    <form method="post" action="{{ path('app_group_delete', {'id': group.id}) }}"
+                          onsubmit="return confirm('Êtes-vous sûr.e ? Cette action est irréversible.')">
+                        <button type="submit"
+                                class="w-full inline-flex items-center justify-center px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Supprimer le groupe
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

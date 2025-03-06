@@ -3,20 +3,102 @@
 {% block title %}S'inscrire{% endblock %}
 
 {% block body %}
-    <h1>S'inscrire</h1>
+    <div class="min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-[#54CCD8] p-6">
+                <h1 class="text-2xl font-bold text-white">Inscription</h1>
+            </div>
+            <div class="p-6 bg-[#EAF3F5]">
+                {{ form_start(registrationForm) }}
 
-    {{ form_errors(registrationForm) }}
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="mb-4 mr-4">
+                        {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.email, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(registrationForm.email, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
 
-    {{ form_start(registrationForm) }}
-    {{ form_row(registrationForm.email) }}
-    {{ form_row(registrationForm.name) }}
-    {{ form_row(registrationForm.firstName) }}
-    {{ form_row(registrationForm.phoneNumber) }}
-    {{ form_row(registrationForm.plainPassword, {
-        label: 'Mot de passe : '
-    }) }}
-    {{ form_row(registrationForm.campus) }}
-    {#        {{ form_row(registrationForm.agreeTerms) }} #}
-    <button type="submit" class="btn">S'enregistrer</button>
-    {{ form_end(registrationForm) }}
+                    <div class="mb-4 ml-4">
+                        {{ form_label(registrationForm.pseudo, 'Pseudo', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.pseudo, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(registrationForm.pseudo, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4 mr-4">
+                        {{ form_label(registrationForm.firstName, 'Prénom', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.firstName, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(registrationForm.firstName, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4 ml-4">
+                        {{ form_label(registrationForm.name, 'Nom', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.name, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(registrationForm.name, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4 mr-4">
+                        {{ form_label(registrationForm.phoneNumber, 'Téléphone', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.phoneNumber, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        {{ form_errors(registrationForm.phoneNumber, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+
+                    <div class="mb-4 ml-4">
+                        {{ form_label(registrationForm.campus, 'Campus', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                        {{ form_widget(registrationForm.campus, {'attr':
+                            {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]',
+                                'data-toggle-password-target': 'password' }
+                        }) }}
+                        {{ form_errors(registrationForm.campus, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+                </div>
+<div class="gap-6">
+                <div class="mb-4 form-group ">
+                    {{ form_label(registrationForm.plainPassword.first, 'Mot de passe', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                    <div class="input-group relative">
+                        {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 transform -translate-y-1/2" onclick="togglePasswordVisibility('first')">
+                            <i class="fas fa-eye" id="eye-icon-first"></i>
+                        </button>
+                        {{ form_errors(registrationForm.plainPassword.first, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+                </div>
+                <div class="mb-4 form-group">
+                    {{ form_label(registrationForm.plainPassword.second, 'Confirmation du mot de passe', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                    <div class="input-group relative">
+                        {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 transform -translate-y-1/2" onclick="togglePasswordVisibility('second')">
+                            <i class="fas fa-eye" id="eye-icon-second"></i>
+                        </button>
+                        {{ form_errors(registrationForm.plainPassword.second, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <button type="submit"
+                        class="px-8 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                    Enregistrer
+                </button>
+            </div>
+
+                {{ form_end(registrationForm) }}
+            </div>
+        </div>
+    </div>
+    <script>
+        function togglePasswordVisibility(field) {
+            let passwordField = document.querySelector(`input[name="registration_form[plainPassword][${field}]"]`);
+            let icon = document.getElementById(`eye-icon-${field}`);
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
 {% endblock %}

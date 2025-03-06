@@ -4,6 +4,7 @@ namespace App\EventListener;
 
 use App\Entity\Event;
 use App\Enum\EventStatus;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 
@@ -11,6 +12,13 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 #[AsEntityListener(event: 'preUpdate', entity: Event::class)]
 class EventStatusListener
 {
+
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
 
     public function prePersist(Event $event): void
     {
@@ -24,21 +32,38 @@ class EventStatusListener
 
     private function updateStatus(Event $event): void
     {
-        $nowMinus1Hour = new \DateTimeImmutable();
-        $now = $nowMinus1Hour -> modify('+1 hour');
+        $now = new \DateTimeImmutable();
 
         if ($event->getStatus() === EventStatus::CANCELLED) {
             return;
         }
 
-        if ($event->getEndsAt() <= $now) {
+        if ($event->getEndsAt()->modify('+30 days') <= $now) {
+            $event->setStatus(EventStatus::ARCHIVED);
+        } elseif ($event->getEndsAt() <= $now) {
             $event->setStatus(EventStatus::ENDED);
         } elseif ($event->getBeginsAt() <= $now) {
             $event->setStatus(EventStatus::PENDING);
-        } elseif ($event->getRegistrationEndsAt() <= $now) {
+        } elseif ($event->getRegistrationEndsAt() <= $now || $event->getParticipants()->count() == $event->getMaxParticipantNumber()) {
             $event->setStatus(EventStatus::CLOSED);
         } else {
-            $event->setStatus(EventStatus::OPENED);
+            $event->setStatus($event->getStatus());
         }
     }
+
+    public function updateAllEventsStatus(array $events): void
+    {
+        foreach ($events as $event) {
+            $this->updateStatus($event);
+        }
+
+        $this->entityManager->flush();
+    }
+
+    public function updateOneEventStatus(Event $event): void
+    {
+        $this->updateStatus($event);
+        $this->entityManager->flush();
+    }
+
 }

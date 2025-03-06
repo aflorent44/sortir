@@ -57,7 +57,7 @@ class Event
      * @var Collection<int, Campus>
      */
     #[ORM\ManyToMany(targetEntity: Campus::class, inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     #[ORM\JoinTable(name: 'event_campus')]
     private Collection $campuses;
 
@@ -65,18 +65,26 @@ class Event
     private EventStatus $status = EventStatus::OPENED;
 
     #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(name: 'address_id', nullable: false)]
     private ?Address $address = null;
 
-    #[ORM\ManyToOne(inversedBy: 'events')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")] // Permet de ne pas supprimer les événements
     private ?User $host = null;
+
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'events')]
+    #[ORM\JoinTable(name: 'event_participant')]
     private Collection $participants;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $cancelReason = null;
+
+    #[ORM\ManyToOne(inversedBy: 'Events')]
+    private ?Group $eventGroup = null;
 
     public function __construct()
     {
@@ -254,6 +262,30 @@ class Event
     public function setAddress(?Address $address): static
     {
         $this->address = $address;
+
+        return $this;
+    }
+
+    public function getCancelReason(): ?string
+    {
+        return $this->cancelReason;
+    }
+
+    public function setCancelReason(?string $cancelReason): static
+    {
+        $this->cancelReason = $cancelReason;
+
+        return $this;
+    }
+
+    public function getEventGroup(): ?Group
+    {
+        return $this->eventGroup;
+    }
+
+    public function setEventGroup(?Group $eventGroup): static
+    {
+        $this->eventGroup = $eventGroup;
 
         return $this;
     }

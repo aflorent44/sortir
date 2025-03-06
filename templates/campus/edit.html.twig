@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier un campus{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4">
+        <div class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-lg mt-6">
+            <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">Modifier un campus</h1>
+
+            {{ form_start(form) }}
+            <div>
+                {{ form_row(form.name, {'attr': {'class': 'w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300'}}) }}
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-2 rounded-md transition duration-300 hover:bg-blue-700">
+                Modifier
+            </button>
+            {{ form_end(form) }}
+        </div>
+
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mt-4 text-center text-white font-medium px-4 py-2 rounded-md
+                            {% if type == 'success' %} bg-green-500 {% elseif type == 'error' %} bg-red-500 {% else %} bg-gray-500 {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endblock %}

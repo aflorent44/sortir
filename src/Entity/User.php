@@ -13,7 +13,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'], message: 'Il y a déjà un compte utilisateur avec cet email.')]
+#[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
+#[UniqueEntity(fields: ['pseudo'], message: 'Ce pseudo est déjà utilisé.')]
+#[UniqueEntity(fields: ['phoneNumber'], message: 'Ce numéro de téléphone est déjà utilisé.')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -21,8 +23,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 200,  unique: true)]
-    #[Assert\Email(message: 'Votre email est incorrect.')]
+    #[ORM\Column(length: 200, unique: true)]
+    #[Assert\Email(message: 'Votre email {{ value }} est incorrect.')]
     #[Assert\Regex(
         pattern: '/^[a-zA-Z0-9._%+-]+@campus-eni\.fr$/',
         message: 'Vous devez utiliser votre adresse @campus-eni.fr'
@@ -56,7 +58,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         maxMessage: 'Votre prénom doit contenir maximum {{ limit }} caractères.')]
     private ?string $firstName = null;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: 'string', length: 20, unique: true)]
     #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
     #[Assert\Regex(
         pattern: '/^0[67]([-. ]?[0-9]{2}){4}$/',
@@ -64,23 +66,65 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $phoneNumber = null;
 
-    #[ORM\Column]
-    private ?bool $active = null;
-
     /**
      * @var Collection<int, Event>
      */
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'host')]
     private Collection $events;
 
-    #[ORM\ManyToOne(inversedBy: 'users')]
+    #[ORM\ManyToOne(targetEntity: Campus::class, inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Campus $campus = null;
+
+    #[ORM\Column(type: 'string', length: 50, unique: true)]
+    #[Assert\NotBlank(message: 'Ce champ est obligatoire.')]
+    #[Assert\Length(min: 3, max: 50,
+        minMessage: 'Votre pseudo doit contenir minimum {{ limit }} caractères.',
+        maxMessage: 'Votre pseudo doit contenir maximum {{ limit }} caractères.')]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9._-]+$/',
+        message: 'Le pseudo ne peut contenir que des lettres, chiffres et les symboles "-", "_" et ".".'
+    )]
+    private ?string $pseudo = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $profileImage = null;
+
+    #[ORM\Column]
+    private ?bool $isActive = false;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $activationToken = null;
+
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\OneToMany(targetEntity: Group::class, mappedBy: 'Owner')]
+    private Collection $groupsOwned;
+
+    /**
+     * @var Collection<int, Group>
+     */
+    #[ORM\ManyToMany(targetEntity: Group::class, mappedBy: 'members')]
+    private Collection $memberOfGroups;
+
+    /**
+     * @var Collection<int, Event>
+     */
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
+    private Collection $eventsAsParticipant;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $activationTokenCreatedAt = null;
 
     public function __construct()
     {
         $this->events = new ArrayCollection();
         $this->user = new ArrayCollection();
+        $this->profileImage = 'user1.png';
+        $this->groupsOwned = new ArrayCollection();
+        $this->memberOfGroups = new ArrayCollection();
+        $this->eventsAsParticipant = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -107,13 +151,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
+     * @return list<string>
      * @see UserInterface
      *
-     * @return list<string>
      */
     public function getRoles(): array
     {
@@ -194,18 +238,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function isActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): static
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Event>
      */
@@ -244,6 +276,150 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
+
+        return $this;
+    }
+
+    public function getPseudo(): ?string
+    {
+        return $this->pseudo;
+    }
+
+    public function setPseudo(string $pseudo): static
+    {
+        $this->pseudo = $pseudo;
+
+        return $this;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        // Si profileImage est null ou égal à 'user1.png', on ne retourne rien
+        // ce qui forcera le template à utiliser l'image par défaut
+        if ($this->profileImage === 'user1.png' || $this->profileImage === null) {
+            return null;
+        }
+        return $this->profileImage;
+    }
+
+    public function setProfileImage(?string $profileImage): static
+    {
+        $this->profileImage = $profileImage;
+
+        return $this;
+    }
+
+    public function isActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): static
+    {
+        $this->isActive = $isActive;
+        return $this;
+    }
+
+    public function getActivationToken(): ?string
+    {
+        return $this->activationToken;
+    }
+
+    public function setActivationToken(?string $activationToken): static
+    {
+        $this->activationToken = $activationToken;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroupsOwned(): Collection
+    {
+        return $this->groupsOwned;
+    }
+
+    public function addGroupsOwned(Group $groupsOwned): static
+    {
+        if (!$this->groupsOwned->contains($groupsOwned)) {
+            $this->groupsOwned->add($groupsOwned);
+            $groupsOwned->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupsOwned(Group $groupsOwned): static
+    {
+        if ($this->groupsOwned->removeElement($groupsOwned)) {
+            // set the owning side to null (unless already changed)
+            if ($groupsOwned->getOwner() === $this) {
+                $groupsOwned->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getMemberOfGroups(): Collection
+    {
+        return $this->memberOfGroups;
+    }
+
+    public function addMemberOfGroup(Group $memberOfGroup): static
+    {
+        if (!$this->memberOfGroups->contains($memberOfGroup)) {
+            $this->memberOfGroups->add($memberOfGroup);
+            $memberOfGroup->addMember($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMemberOfGroup(Group $memberOfGroup): static
+    {
+        if ($this->memberOfGroups->removeElement($memberOfGroup)) {
+            $memberOfGroup->removeMember($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEventsAsParticipant(): Collection
+    {
+        return $this->eventsAsParticipant;
+    }
+
+    public function addEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        if (!$this->eventsAsParticipant->contains($eventsAsParticipant)) {
+            $this->eventsAsParticipant->add($eventsAsParticipant);
+        }
+
+        return $this;
+    }
+
+    public function removeEventsAsParticipant(Event $eventsAsParticipant): static
+    {
+        $this->eventsAsParticipant->removeElement($eventsAsParticipant);
+
+        return $this;
+    }
+
+    public function getActivationTokenCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->activationTokenCreatedAt;
+    }
+
+    public function setActivationTokenCreatedAt(?\DateTimeImmutable $activationTokenCreatedAt): static
+    {
+        $this->activationTokenCreatedAt = $activationTokenCreatedAt;
 
         return $this;
     }

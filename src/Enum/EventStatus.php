@@ -10,7 +10,6 @@ enum EventStatus: string
     case PENDING = 'en cours';
     case ENDED = 'terminée';
     case CANCELLED = 'annulée';
-
-
+    case ARCHIVED = 'archivée';
 
 }

@@ -3,7 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Address;
+use App\Entity\Event;
+use App\Entity\User;
+use App\Enum\EventStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -50,4 +54,19 @@ class AddressRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function banAddress(Address $address, EntityManagerInterface $em): void
+    {
+        $address->setIsAllowed(false);
+
+        $events = $address->getEvents();
+        foreach ($events as $event) {
+            $event->setStatus(EventStatus::CANCELLED);
+            $event->setCancelReason("L'adresse de la sortie n'est pas autorisée");
+        }
+
+        $em->persist($address);
+        $em->flush();
+    }
+
 }

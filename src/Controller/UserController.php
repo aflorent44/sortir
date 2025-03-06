@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Campus;
 use App\Entity\User;
 use App\Form\ProfilFormType;
+use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Repository\UserRepository;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -14,65 +17,92 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/user', name: 'user_')]
 #[IsGranted('ROLE_USER')]
 final class UserController extends AbstractController
 {
+    private UserRepository $userRepository;
+
     #[Route('/{id}', name: 'profil', requirements: ['id' => '\d+'])]
-    public function getOneUser(int $id, UserRepository $userRepository): Response
+    public function getOneUser(int $id, UserRepository $userRepository, EventRepository $e): Response
     {
         $user = $userRepository->find($id);
+//        dump($user);
 
         if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
         }
 
         return $this->render('user\index.html.twig', [
-            'controller_name' => 'Mon Profil',
+            'controller_name' => 'Profil',
             'user' => $user,
+            'events' => $user->getEvents(),
         ]);
     }
 
     #[Route('/update/{id}', name: 'update_profil', requirements: ['id' => '\d+'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function updateProfil(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher): Response
+    public function updateProfil(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $userPasswordHasher, SluggerInterface $slugger): Response
     {
-        // Récupération de l'utilisateur connecté
-        $user = $this->getUser();
-        // Sauvegarde du campus
-        $campus = $user->getCampus();
+        $isAdmin = $this->isGranted("ROLE_ADMIN");
+        if (!$isAdmin && $user->getId() !== $this->getUser()->getId()) {
+            throw $this->createAccessDeniedException("Réservé aux admins");
+        }
 
         $profilForm = $this->createForm(ProfilFormType::class, $user);
         $profilForm->handleRequest($request);
 
         if ($profilForm->isSubmitted() && $profilForm->isValid()) {
-            // Récupération des champs du formulaire
-            $oldPassword = $profilForm->get('oldPassword')->getData();
-            $newPassword = $profilForm->get('newPassword')->getData();
-            $confirmPassword = $profilForm->get('confirmPassword')->getData();
+            if (!$isAdmin) { // Récupération des champs du formulaire
+                $oldPassword = $profilForm->get('oldPassword')->getData();
+                $newPassword = $profilForm->get('newPassword')->getData();
+                $confirmPassword = $profilForm->get('confirmPassword')->getData();
 
-            // Vérification de l'ancien mot de passe
-            if ($oldPassword && !$userPasswordHasher->isPasswordValid($user, $oldPassword)) {
-                $this->addFlash('error', 'Ancien mot de passe incorrect.');
-                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                // Vérification de l'ancien mot de passe
+                if ($oldPassword && !$userPasswordHasher->isPasswordValid($user, $oldPassword)) {
+                    $this->addFlash('error', 'Ancien mot de passe incorrect.');
+                    return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                }
+
+                if ($newPassword) {
+                    if ($newPassword !== $confirmPassword) {
+                        $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
+                        return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                    }
+                    $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
+                    $user->setPassword($encodedPassword);
+                }
             }
-
-            // Vérification de la confirmation du nouveau mot de passe
-//            if ($newPassword && $newPassword !== $confirmPassword) {
-//                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-//                return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
-//            }
-
-            // Hash du nouveau mot de passe
-            if ($newPassword) {
-                $encodedPassword = $userPasswordHasher->hashPassword($user, $newPassword);
-                $user->setPassword($encodedPassword);
+            $profileImage = $profilForm->get('image')->getData();
+            if ($profileImage) {
+                //gestion de l'image téléchargée
+                $originalImageName = pathinfo($profileImage->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeImageName = $slugger->slug($originalImageName);
+                $newImageName = $safeImageName . '-' . uniqid() . '.' . $profileImage->guessExtension();
+                //déplacer le fichier dans le dossier public/uploads
+                try {
+                    $profileImage->move(
+                        $this->getParameter('images_directory'),
+                        $newImageName
+                    );
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+                    return $this->redirectToRoute('user_update_profil', ['id' => $user->getId()]);
+                }
+                //maj du User avec le nouveau fichier image
+                $user->setProfileImage($newImageName);
+            }
+            if ($this->isGranted('ROLE_ADMIN') && $profilForm->has('roles')) {
+                $roles = $profilForm->get('roles')->getData() ?? $user->getRoles();
+                $user->setRoles($roles);
             }
 
             // Mise à jour des autres informations
             $em->persist($user);
             $em->flush();
+//            dump($user);
             $this->addFlash('success', 'Profil modifié avec succès');
 
             // Redirection nécessaire pour Turbo Drive
@@ -87,24 +117,26 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/{id}', name:'delete', requirements: ['id'=>'\d+'], methods: ['POST'])]
-    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, SessionInterface $session): Response
+    #[Route('/delete/{id}', name: 'delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function deleteProfil(User $user, EntityManagerInterface $em, TokenStorageInterface $tokenStorage, UserRepository $userRepository, SessionInterface $session): Response
     {
-        $user=$em->getRepository(User::class)->find($user->getId());
-        $em->remove($user);
+        $isAdmin = $this->isGranted("ROLE_ADMIN");
+        if (!$isAdmin && $user !== $this->getUser()) {
+            $this->createAccessDeniedException("Réservé aux admins");
+        }
+
+        $user = $em->getRepository(User::class)->find($user->getId());
+        $userRepository->deleteUser($user, $em);
         $em->flush();
 
         $isCurrentUser = $this->getUser() === $user;
-
         if ($isCurrentUser) {
             $tokenStorage->setToken(null);
             $session->invalidate();
         }
 
-        $em->remove($user);
-        $em->flush();
-
         $this->addFlash('success', 'Utilisateur supprimé avec succès.');
-        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_users');
+        return $this->redirectToRoute($isCurrentUser ? 'app_logout' : 'admin_dashboard_users');
     }
 }

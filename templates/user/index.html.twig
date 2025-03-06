@@ -3,20 +3,248 @@
 {% block title %}Sortir - Profil{% endblock %}
 
 {% block body %}
-    <div>
-        <h1>{{ controller_name }} : </h1>
-        <br>
-        <ul>
-            <li>{{ user.campus.name }}</li>
-            <li>{{ user.firstName }}</li>
-            <li>{{ user.name }}</li>
-            <li>{{ user.phoneNumber }}</li>
-            <li>{{ user.email }}</li>
-{#            <li>#}
-{#                <img src="{{ asset('img/logo_user.svg') }}" alt="logo_user" class="logo-user">#}
-{#            </li>#}
-        </ul>
-        <br>
-        <a href="{{ path("user_update_profil", {'id': app.user.id}) }}" class="mr-5 hover:text-gray-900">Modifier</a>
+    <div class="container w-full mx-auto self-center px-4 py-8">
+        <div class="flex flex-col 2xl:flex-row gap-4 w-full">
+            {# Profile Section #}
+            <section class="w-full 2xl:w-1/2" >
+                <div class=" min-w-[4rem] bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="w-full bg-[rgba(252,176,56,0.8)] p-4 sm:p-6">
+                    <h1 class=" ext-xl sm:text-2xl font-bold text-white">{{ controller_name }} :</h1>
+                </div>
+
+                <div class="p-4 sm:p-6 flex flex-col md:flex-row gap-6">
+                    <div class="flex-shrink-0 flex items-center justify-center">
+                        <img class="h-32 w-32 sm:h-48 sm:w-48 object-cover rounded-full border-4 border-[#FCB038]"
+                             src="{{ user.profileImage ? asset(user.profileImage) : asset('images/user1.png') }}"
+                             alt="Photo de profil">
+                    </div>
+
+                    <div class="flex-1">
+                        <ul class="space-y-3 sm:space-y-4 text-base sm:text-lg">
+                            {% set profile_items = [
+                                {'label': 'Campus', 'value': user.campus.name},
+                                {'label': 'Pseudo', 'value': user.pseudo},
+                                {'label': 'Prénom', 'value': user.firstName},
+                                {'label': 'Nom', 'value': user.name},
+                                {'label': 'Téléphone', 'value': user.phoneNumber},
+                                {'label': 'Email', 'value': user.email}
+                            ] %}
+
+                            {% for item in profile_items %}
+                                <li class="flex items-center border-b border-[#579FB5] pb-2">
+                                    <span class="font-semibold text-[#579FB5] w-24 sm:w-32 block truncate">{{ item.label }}:</span>
+                                    <span class="truncate">{{ item.value }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+
+                    </div>
+
+
+                </div>
+                    {% if app.user.id == user.id or 'ROlE_ADMIN' in app.user.roles %}
+                        <div class="mb-4 flex justify-center ">
+
+                            <a href="{{ path("user_update_profil", {'id': app.user.id}) }}"
+                               class="flex items-center inline-block px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2"
+                                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Modifier
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if app.user == user %}
+                <div class="w-full flex flex-col md:flex-row justify-center mt-6">
+                    <div class="my-4 mx-0 w-full md:w-1/3 flex md:justify-center">
+                        <a href="{{ path('app_event_new') }}"
+                           class="w-full md:w-auto m-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Organiser une sortie
+                        </a>
+                    </div>
+                    <div class="my-4 mx-0 w-full md:w-1/3 flex md:justify-center">
+                        <a href="{{ path('app_group_new') }}"
+                           class="w-full md:w-auto  inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                 viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Créer un groupe
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                    {% if app.user.id == user.id %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Mes groupes :</h2>
+                        {% set allGroups = user.memberOfGroups|merge(user.groupsOwned) %}
+                    {% else %}
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2"> Groupes en commun :</h2>
+                        {% set allGroups = user.groupsOwned|filter(group => app.user in group.members)
+                            |merge(user.memberOfGroups|filter(group => app.user in group.members or app.user == group.owner)) %}
+                    {% endif %}
+                    <div class="w-full grid grid-cols-2 gap-2 ">
+                    {% if allGroups|length > 0 %}
+                        {% for group in allGroups %}
+                            <div class="p-4 bg-gray-100 rounded-lg shadow-md mb-2">
+                                <h3 class="text-lg font-bold text-gray-900">{{ group.name }}</h3>
+                                <p class="text-sm text-gray-600">Créé par : {{ group.owner.firstName }} {{ group.owner.name }}</p>
+                                <p class="text-sm text-gray-600">Nombre de membres : {{ group.members|length }}</p>
+                                <a href="{{ path('app_group_show', {'id': group.id}) }}" class="text-blue-600 hover:underline text-sm">
+                                    Voir le groupe
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-gray-500 italic">
+                            {% if app.user.id == user.id %}
+                                Vous n'êtes dans aucun groupe.
+                            {% else %}
+                                Aucun groupe en commun avec {{ user.firstName }} {{ user.name }}.
+                            {% endif %}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+
+            </section>
+
+            {# Activities Section #}
+            <section class="w-full 2xl:w-1/2 text-gray-600 body-font">
+                <div class="container px-2 sm:px-5 py-8 sm:py-10 mx-auto">
+                    <div class="-my-4 sm:-my-8 divide-y-2 divide-gray-100">
+                        <h2 class="text-2xl text-gray-900 font-bold mb-2">Sortie organisées :</h2>
+
+                        {% for event in events %}
+                            {% if event.eventGroup is null or event.eventGroup in app.user.memberOfGroups %}
+                                <div class="py-4 sm:py-8 flex flex-wrap md:flex-nowrap">
+                                    <div class="w-1/4 md:mb-0 mb-4 flex-shrink-0 flex flex-col">
+                                        <span class="mt-1 text-gray-500 text-sm">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</span>
+                                        <div class="w-1/2 justify-center m-2">
+                                            <a href="{{ path('app_event_show', {'id': event.id}) }}"
+                                               class="justify-center py-1 bg-[#579FB5] text-white rounded hover:bg-[#4A8A9E] transition-colors duration-300 text-sm flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                                     viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                Voir
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-grow">
+                                        <h3 class="text-xl sm:text-2xl font-medium text-gray-900 title-font mb-2">{{ event.name }}</h3>
+                                        {% if event.participants|length > 0 %}
+                                            <span>Participants :</span>
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {% for participant in event.participants|slice(0, 2) %}
+                                                    <a href="{{ path('user_profil', {'id': participant.id}) }}"
+                                                       class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                                        <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                                            {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
+                                                        </div>
+                                                        <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
+                                                    </a>
+                                                {% endfor %}
+
+                                                {% set remaining = event.participants|length - 2 %}
+                                                {% if remaining == 1 %}
+                                                    <span class="text-gray-500 italic ml-2">+ {{ remaining }} autre </span>
+                                                {% elseif remaining > 1 %}
+                                                    <span class="text-gray-500 italic ml-2">+ {{ remaining }} autres </span>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <p class="text-gray-500 italic text-center mt-4 mb-4">
+                                                Aucun participant inscrit pour le moment
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <h2 class="pt-4 text-2xl text-gray-900 font-bold mb-2">Sortie prévues :</h2>
+
+                        {% for event in user.eventsAsParticipant %}
+
+                            <div class="py-4 sm:py-8 flex flex-wrap md:flex-nowrap">
+                                <div class="w-1/4 md:mb-0 mb-4 flex-shrink-0 flex flex-col">
+                                    <span class="mt-1 text-gray-500 text-sm">{{ event.beginsAt ? event.beginsAt|date('d/m/Y H:i') : '' }}</span>
+                                    <div class="w-1/2 justify-center m-2">
+                                        <a href="{{ path('app_event_show', {'id': event.id}) }}"
+                                           class="justify-center py-1 bg-[#579FB5] text-white rounded hover:bg-[#4A8A9E] transition-colors duration-300 text-sm flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                                 viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      stroke-width="2"
+                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      stroke-width="2"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Voir
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="flex-grow">
+                                    <h3 class="text-xl sm:text-2xl font-medium text-gray-900 title-font mb-2">{{ event.name }}</h3>
+                                    {% if event.participants|length > 0 %}
+                                        <span>Participants :</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+                                            {% for participant in event.participants|slice(0, 2) %}
+                                                <a href="{{ path('user_profil', {'id': participant.id}) }}"
+                                                   class="flex items-center p-2 hover:bg-[#9693EC]/10 rounded-lg transition-colors">
+                                                    <div class="w-8 h-8 bg-[#9693EC] rounded-full flex items-center justify-center text-white mr-3">
+                                                        {{ participant.firstName|first|upper }}{{ participant.name|first|upper }}
+                                                    </div>
+                                                    <span class="font-medium text-[#579FB5]">{{ participant.firstName }} {{ participant.name }}</span>
+                                                </a>
+                                            {% endfor %}
+
+                                            {% set remaining = event.participants|length - 2 %}
+                                            {% if remaining == 1 %}
+                                                <span class="text-gray-500 italic ml-2">+ {{ remaining }} autre </span>
+
+                                            {% elseif remaining > 1 %}
+                                                <span class="text-gray-500 italic ml-2">+ {{ remaining }} autres </span>
+                                            {% endif %}
+
+                                        </div>
+                                    {% else %}
+                                        <p class="text-gray-500 italic text-center mt-4 mb-4">
+                                            Aucun participant inscrit pour le moment
+                                        </p>
+                                    {% endif %}
+
+
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 {% endblock %}

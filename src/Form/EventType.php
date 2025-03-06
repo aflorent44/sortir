@@ -5,11 +5,14 @@ namespace App\Form;
 use App\Entity\Address;
 use App\Entity\Campus;
 use App\Entity\Event;
+use App\Entity\Group;
 use App\Entity\User;
 use App\Enum\EventStatus;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,31 +23,54 @@ class EventType extends AbstractType
     {
         $builder
             ->add('name', null, [
-                'label' => 'Nom de la sortie',
+                'attr' => ['placeholder' => "On fait quoi ?"],
+                'label' => 'Nomme ta sortie :',
             ])
             ->add('beginsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date et heure de début de la sortie'
+                'label' => "Quand-est-ce qu'on sort?"
             ])
             ->add('endsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date et heure de fin de la sortie'
+                'label' => 'Et on rentre quand ?'
             ])
             ->add('registrationEndsAt', null, [
                 'widget' => 'single_text',
-                'label' => 'Date limite d\'inscription'
+                'label' => "Date limite d'inscription"
             ])
             ->add('description', TextareaType::class, [
+                'attr' => ['placeholder' => "Dis-nous en plus !"],
                 'label' => 'Description et infos',
             ])
             ->add('maxParticipantNumber', null, [
-                'label' => 'Nombre de places'
+                'attr' => ['placeholder' => "1000 !"],
+                'label' => "Y'a combien de places? "
             ])
             ->add('campuses', EntityType::class, [
                 'class' => Campus::class,
                 'choice_label' => 'name',
                 'multiple' => true,
                 'label' => 'Campus',
+                'autocomplete' => true,
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Sauvegarder',
+            ])
+            ->add('eventGroup', EntityType::class, [
+                'class' => Group::class,
+                'choice_label' => 'name',
+                'label' => 'Sortie privé?',
+                'attr' => ['placeholder' => 'pour quel groupe?'],
+                'autocomplete' => true,
+                'required' => false,
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    return $er->createQueryBuilder('g')
+                        ->where('g.Owner = :user')
+                        ->setParameter('user', $options['user']);
+                },
+            ])
+            ->add('publish', SubmitType::class, [
+                'label' => 'Publier',
             ])
         ;
     }
@@ -53,6 +79,8 @@ class EventType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Event::class,
+            'user' => null,
         ]);
     }
+
 }

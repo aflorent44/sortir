@@ -1,0 +1,23 @@
+<div class="flash-container">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash-message flash-{{ label }}">
+                <div class="flash-content">
+                    <span class="flash-icon">
+                        {% if label == 'success' %}
+                            <i class="fas fa-check-circle"></i>
+                        {% elseif label == 'error' or label == 'danger' %}
+                            <i class="fas fa-exclamation-circle"></i>
+                        {% elseif label == 'warning' %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% elseif label == 'info' %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                    </span>
+                    <span class="flash-text">{{ message }}</span>
+                </div>
+                <button type="button" class="flash-close" aria-label="Close">&times;</button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>

@@ -1,39 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello AdminController!{% endblock %}
+{% block title %}Gestion des Utilisateurs{% endblock %}
 
 {% block body %}
-    <h1 class="text-2xl font-bold mb-4">Liste des utilisateurs</h1>
+    <div class="max-w-7xl mx-auto bg-[#DBEAEF] p-6 rounded-lg shadow-md mt-6">
+        <h1 class="text-4xl font-bold text-center mb-6">Liste des utilisateurs</h1>
 
-    <table class="min-w-full border-r-2 border border-gray-600">
-        <thead>
-        <tr class="bg-gray-200">
-            <th class="border border-gray-600 px-4 py-2">ID</th>
-            <th class="border border-gray-600 px-4 py-2">Nom</th>
-            <th class="border border-gray-600 px-4 py-2">Email</th>
-            <th class="border border-gray-600 px-4 py-2">Rôle</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr class=" bg-gray-100 hover:bg-gray-50">
-                <td class="border border-gray-600 px-4 py-2">{{ user.id }}</td>
-                <td class="border border-gray-600 px-4 py-2">{{ user.email }}</td>
-                <td class="border border-gray-600 px-4 py-2">
-                    {{ user.roles|join(', ') }}
-                </td>
-                <td class="border border-gray-300 px-4 py-2">
-                    <a href="{{ path("user_profil", {id: user.id}) }}" class="text-blue-500 hover:underline">Modifier</a> |
-                    <a href="" class="text-red-500 hover:underline" onclick="return confirm('Supprimer cet utilisateur ?')">Supprimer</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5" class="text-center border border-gray-300 px-4 py-2">Aucun utilisateur trouvé</td>
-            </tr>
+        <h2>Importer des utilisateurs via un fichier CSV</h2>
+
+        <form method="post" enctype="multipart/form-data">
+            {{ form_start(form) }}
+            {{ form_row(form.csv_file) }}
+            <button type="submit" class="btn btn-primary">Importer</button>
+            {{ form_end(form) }}
+        </form>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
         {% endfor %}
-        </tbody>
-    </table>
-    </table>
+        <div class="w-full md:w-1/4 flex justify-center md:justify-end mt-4 md:mt-0">
+            <a href="{{ path('app_register') }}"
+               class="w-full md:w-auto inline-flex items-center justify-center px-6 py-3 bg-[#9693EC] text-white font-medium rounded-lg hover:bg-[#7A77D9] transition-colors duration-300 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 4v16m8-8H4"/>
+                </svg>
+                Ajouter un utilisateur
+            </a>
+        </div>
+        {{ component('admin-filter-users') }}
 
+    </div>
 {% endblock %}
