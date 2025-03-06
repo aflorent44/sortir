@@ -29,7 +29,7 @@ final class UserController extends AbstractController
     public function getOneUser(int $id, UserRepository $userRepository, EventRepository $e): Response
     {
         $user = $userRepository->find($id);
-        dump($user);
+//        dump($user);
 
         if (!$user) {
             throw $this->createNotFoundException('Utilisateur non trouvé');
