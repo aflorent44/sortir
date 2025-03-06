@@ -14,7 +14,7 @@ class CampusFormType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Ajoutez un campus :',
+                'label' => 'Nom du campus :',
                 'required' => true,
                 'attr' => ['placeholder' => 'Entrez le nom de la ville', 'class' => 'form-control'],
             ]);
