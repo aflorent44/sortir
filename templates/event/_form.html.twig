@@ -18,6 +18,12 @@
                 </div>
 
                 <div class="mb-4">
+                    {{ form_label(eventForm.registrationEndsAt, 'Date limite d\'inscription', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
+                    {{ form_widget(eventForm.registrationEndsAt, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                    {{ form_errors(eventForm.registrationEndsAt, {'attr': {'class': 'text-red-500 mt-1'}}) }}
+                </div>
+
+                <div class="mb-4">
                     {{ form_label(eventForm.beginsAt, 'Date de début', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
                     {{ form_widget(eventForm.beginsAt, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
                     {{ form_errors(eventForm.beginsAt, {'attr': {'class': 'text-red-500 mt-1'}}) }}
@@ -27,12 +33,6 @@
                     {{ form_label(eventForm.endsAt, 'Date de fin', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
                     {{ form_widget(eventForm.endsAt, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
                     {{ form_errors(eventForm.endsAt, {'attr': {'class': 'text-red-500 mt-1'}}) }}
-                </div>
-
-                <div class="mb-4">
-                    {{ form_label(eventForm.registrationEndsAt, 'Date limite d\'inscription', {'label_attr': {'class': 'block text-[#579FB5] font-semibold mb-2'}}) }}
-                    {{ form_widget(eventForm.registrationEndsAt, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
-                    {{ form_errors(eventForm.registrationEndsAt, {'attr': {'class': 'text-red-500 mt-1'}}) }}
                 </div>
 
                 <div class="mb-4">

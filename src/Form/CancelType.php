@@ -20,7 +20,7 @@ class CancelType extends AbstractType
     {
         $builder
             ->add('cancelReason', TextareaType::class, [
-                'label' => 'Motif',
+                'label' => 'Motif d\'annulation',
                 'attr' => ['rows' => 4],
                 'required' => true,
             ])

@@ -1,48 +1,71 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cancel{% endblock %}
+{% block title %}Annuler la sortie{% endblock %}
 {% form_theme cancelForm 'tailwind_2_layout.html.twig' %}
+
 {% block body %}
+    <div class="container mx-auto px-4 py-10">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-[#54CCD8] rounded-t-xl shadow-md p-6">
+                <h1 class="text-2xl font-bold text-white text-center">Annuler la sortie</h1>
+            </div>
 
+            <div class="bg-white rounded-b-xl shadow-md overflow-hidden">
+                <div class="overflow-hidden">
+                    <table class="w-full border-collapse">
+                        <tbody>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">Nom</th>
+                            <td class="p-4">{{ event.name }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">Date de début</th>
+                            <td class="p-4">{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">Campus</th>
+                            <td class="p-4">
+                                {% for campus in event.campuses %}
+                                    {{ campus.name }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">Lieu</th>
+                            <td class="p-4">{{ event.address.name }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left p-4 font-medium bg-gray-100 text-gray-700 w-1/3">Ville</th>
+                            <td class="p-4">{{ event.address.city }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
 
-    <h1>Annuler la sortie</h1>
-    <table class="table">
-        <tbody>
+                    {% if event.host.id == app.user.id or "ROLE_ADMIN" in app.user.roles %}
+                        <div class="p-6 bg-[#EAF3F5]">
+                            {{ form_start(cancelForm, { 'attr': { 'onsubmit': "return confirm('Êtes-vous sûr.e ? L\\'annulation d\\'une sortie est irréversible')" } }) }}
+                            {{ form_row(cancelForm.cancelReason, {'attr': {'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9693EC]'}}) }}
+                            <div class="mt-4">
+                                {{ form_row(cancelForm.submit, { 'attr': { 'class': 'flex items-center justify-center px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-colors duration-300 shadow-md' } }) }}
+                            </div>
+                            {{ form_end(cancelForm) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
 
-        <tr>
-            <th>Name</th>
-            <td>{{ event.name }}</td>
-        </tr>
-        <tr>
-            <th>BeginsAt</th>
-            <td>{{ event.beginsAt ? event.beginsAt|date('Y-m-d H:i:s') : '' }}</td>
-        </tr>
-        <tr>
-            <th>Campus</th>
-            <td>
-                {% for campus in event.campuses %}
-                    {{ campus.name }}{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            </td>
-        </tr>
-        <tr>
-            <th>Lieu</th>
-            <td>{{ event.address.name }}</td>
-        </tr>
-        <tr>
-            <th>Ville</th>
-            <td>{{ event.address.city }}</td>
-        </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_event_show', {'id': event.id}) }}">Retour</a>
-
-    {% if event.host.id == app.user.id or "ROLE_ADMIN" in app.user.roles %}
-        {{ form_start(cancelForm, { 'attr': { 'onsubmit': "return confirm('Êtes-vous sûr.e ? L'annulation d'une sortie est irréversible')" } }) }}
-        {{ form_row(cancelForm.cancelReason) }}
-            {{ form_row(cancelForm.submit) }}
-        {{ form_end(cancelForm) }}
-    {% endif %}
-
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ path('app_event_show', {'id': event.id}) }}"
+                   class="inline-flex items-center justify-center px-6 py-3 bg-[#579FB5] text-white font-medium rounded-lg hover:bg-[#4A8A9E] transition-colors duration-300 shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Retour
+                </a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
